@@ -8,6 +8,7 @@ private:
 	wxString text_program;
 	wxString title_bar;
 protected:
+	void open_options( wxCommandEvent& event )  override;
 	void translate( wxCommandEvent& event )  override;
 	void update_syntax_highlight( wxCommandEvent& event )  override;
 	void edit_text( wxKeyEvent& event )  override;

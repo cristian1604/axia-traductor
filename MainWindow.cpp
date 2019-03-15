@@ -3,6 +3,7 @@
 #include "FileManager.h"
 #include "SyntaxColor.h"
 #include "Translator.h"
+#include "wxOptions.h"
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
@@ -55,5 +56,10 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	syntax_color_8035(m_textCtrl);
 	m_textCtrl->SetInsertionPoint(0);
 	event.Skip();
+}
+
+void MainWindow::open_options( wxCommandEvent& event )  {
+	wxOptions *opt = new wxOptions(NULL);
+	opt->Show();
 }
 
