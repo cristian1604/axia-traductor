@@ -61,6 +61,8 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			}
 			if (comments_inserted && sentence[0] != '%')
 				elem->AppendText(sentence);
+			if (comments_inserted && sentence[0] == '%')
+				elem->AppendText(';');
 		}
 		elem->AppendText('\n');
 	}
