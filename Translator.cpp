@@ -45,7 +45,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				sentence[0] = 'Q';
 				break;
 			case '(':
-				sentence = ';' + sentence;
+				sentence = ';' + sentence + line;
 				line = "";
 				break;
 			case 'N':
