@@ -78,9 +78,12 @@ void syntax_color_8035(wxTextCtrl* elem) {
 			case '%':
 				elem->SetDefaultStyle(wxTextAttr(wxColour( 28, 255, 251), bg));
 				break;
+			case 'D':
+				elem->SetDefaultStyle(wxTextAttr(*wxRED, bg));
+				break;
 			case 'M':
 				if (sentence == "M04" || sentence == "M03") {
-					elem->SetDefaultStyle(wxTextAttr(*wxBLUE, wxColour(66, 244, 235)));
+					elem->SetDefaultStyle(wxTextAttr(*wxRED, bg));
 				} else {
 					elem->SetDefaultStyle(wxTextAttr(*wxYELLOW, bg));
 				}

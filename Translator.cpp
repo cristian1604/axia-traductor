@@ -55,16 +55,27 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				}
 				break;
 			case 'T':
-				int pos = sentence.find_first_of('.',0);
-				sentence = 'D' + sentence.substr(pos+1,sentence.length());
+				int x = sentence.find_first_of('.',0);
+				sentence = 'D' + sentence.substr(x+1,sentence.length());
 				break;
 			}
+			
+			// analyze assign commands on remaining line before insert
+			int x = line.find("P1=Z",0);
+			if (x >= 0) {
+				line = line.replace(x,4,"(P100=PPOSZ)");
+				sentence.append(line);
+				line = "";
+			}
+			
 			if (comments_inserted && sentence[0] != '%')
 				elem->AppendText(sentence);
 			if (comments_inserted && sentence[0] == '%')
 				elem->AppendText(';');
+			
 		}
 		elem->AppendText('\n');
+		
 	}
 	//elem->Show(true);
 	elem->SetFocus();
