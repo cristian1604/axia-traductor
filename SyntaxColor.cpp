@@ -61,6 +61,7 @@ void syntax_color_8035(wxTextCtrl* elem) {
 		int pos = aux.find_first_of('\n');
 		string line = aux.substr(0, pos);
 		aux = aux.substr(pos+1, aux.length());
+		wxColour bg = wxColour( 0, 30, 60);
 		
 		while (!line.empty()) {
 			if (line[0] == ' ') {
@@ -75,23 +76,30 @@ void syntax_color_8035(wxTextCtrl* elem) {
 			line = line.substr(pos, line.length());
 			switch (sentence[0]) {
 			case '%':
-				elem->SetDefaultStyle(wxTextAttr(wxColour( 28, 255, 251)));
+				elem->SetDefaultStyle(wxTextAttr(wxColour( 28, 255, 251), bg));
+				break;
+			case 'M':
+				if (sentence == "M04" || sentence == "M03") {
+					elem->SetDefaultStyle(wxTextAttr(*wxBLUE, wxColour(66, 244, 235)));
+				} else {
+					elem->SetDefaultStyle(wxTextAttr(*wxYELLOW, bg));
+				}
 				break;
 			case 'N':
-				elem->SetDefaultStyle(wxTextAttr(*wxGREEN));
+				elem->SetDefaultStyle(wxTextAttr(*wxGREEN, bg));
 				break;
 			case ';':
 				sentence = sentence + line;
 				line = "";
-				elem->SetDefaultStyle(wxTextAttr(wxColour(68, 117, 71)));
+				elem->SetDefaultStyle(wxTextAttr(wxColour(68, 117, 71), bg));
 				break;
 			case '#':
 				sentence = sentence + line;
 				line = "";
-				elem->SetDefaultStyle(wxTextAttr(wxColour(224, 13, 13)));
+				elem->SetDefaultStyle(wxTextAttr(wxColour(224, 13, 13), bg));
 				break;
 			default:
-				elem->SetDefaultStyle(wxTextAttr(*wxYELLOW));
+				elem->SetDefaultStyle(wxTextAttr(*wxYELLOW, bg));
 			}
 			elem->AppendText(sentence);
 		}
