@@ -45,7 +45,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_toolBar1->AddSeparator();
 
-	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/refresh.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloreo de sintaxis"), wxT("Actualizar coloreo de sintaxis"), NULL );
+	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/refresh.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloración de sintaxis"), wxT("Actualizar coloración de sintaxis"), NULL );
 
 	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
 
@@ -76,6 +76,18 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu1->Append( m_menuItem2 );
 
 	m_menubar1->Append( m_menu1, wxT("&Archivo") );
+
+	m_menu3 = new wxMenu();
+	wxMenuItem* m_menuItem5;
+	m_menuItem5 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar") ) + wxT('\t') + wxT("F3"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem5->SetBitmaps( wxBitmap( wxT("resources/magnifier.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem5->SetBitmap( wxBitmap( wxT("resources/magnifier.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem5 );
+
+	m_menubar1->Append( m_menu3, wxT("Editar") );
 
 	m_menu2 = new wxMenu();
 	wxMenuItem* m_menuItem3;
@@ -110,6 +122,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
 	this->Connect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
 }
@@ -163,8 +176,8 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_staticText2->Wrap( -1 );
 	gSizer2->Add( m_staticText2, 0, wxALL, 5 );
 
-	m_checkBox1 = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Quitar M08"), wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer2->Add( m_checkBox1, 1, wxALL|wxEXPAND, 5 );
+	remove_m08 = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Quitar parámetro M08"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer2->Add( remove_m08, 1, wxALL|wxEXPAND, 5 );
 
 
 	sbSizer1->Add( gSizer2, 1, wxEXPAND|wxALL, 5 );
@@ -181,4 +194,45 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 
 wxParameters::~wxParameters()
 {
+}
+
+searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxGridSizer* gSizer4;
+	gSizer4 = new wxGridSizer( 0, 2, 0, 0 );
+
+	m_staticText4 = new wxStaticText( this, wxID_ANY, wxT("Buscar"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText4->Wrap( -1 );
+	gSizer4->Add( m_staticText4, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	search_term = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer4->Add( search_term, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	gSizer4->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	m_button1 = new wxButton( this, wxID_ANY, wxT("Buscar"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	m_button1->SetBitmap( wxBitmap( wxT("resources/magnifier.png"), wxBITMAP_TYPE_ANY ) );
+	gSizer4->Add( m_button1, 0, wxALL|wxALIGN_BOTTOM|wxALIGN_RIGHT, 5 );
+
+
+	this->SetSizer( gSizer4 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	search_term->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( searchDialog::search2 ), NULL, this );
+	m_button1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( searchDialog::search ), NULL, this );
+}
+
+searchDialog::~searchDialog()
+{
+	// Disconnect Events
+	search_term->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( searchDialog::search2 ), NULL, this );
+	m_button1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( searchDialog::search ), NULL, this );
+
 }

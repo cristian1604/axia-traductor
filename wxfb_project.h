@@ -27,6 +27,8 @@
 #include <wx/stattext.h>
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
+#include <wx/button.h>
+#include <wx/dialog.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +52,7 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool5;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
+		wxMenu* m_menu3;
 		wxMenu* m_menu2;
 
 		// Virtual event handlers, overide them in your derived class
@@ -58,6 +61,7 @@ class wxMainWindow : public wxFrame
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
+		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -81,13 +85,37 @@ class wxParameters : public wxFrame
 		wxStaticText* m_staticText3;
 		wxTextCtrl* m_textCtrl3;
 		wxStaticText* m_staticText2;
-		wxCheckBox* m_checkBox1;
+		wxCheckBox* remove_m08;
 
 	public:
 
 		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Parámetros de conversión"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,300 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxParameters();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class searchDialog
+///////////////////////////////////////////////////////////////////////////////
+class searchDialog : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText4;
+		wxTextCtrl* search_term;
+		wxButton* m_button1;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void search2( wxCommandEvent& event ) { event.Skip(); }
+		virtual void search( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		searchDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 271,150 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+		~searchDialog();
 
 };
 

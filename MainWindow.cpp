@@ -4,6 +4,7 @@
 #include "SyntaxColor.h"
 #include "Translator.h"
 #include "wxOptions.h"
+#include "wxSearch.h"
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
@@ -61,5 +62,11 @@ void MainWindow::translate( wxCommandEvent& event )  {
 void MainWindow::open_options( wxCommandEvent& event )  {
 	wxOptions *opt = new wxOptions(NULL);
 	opt->Show();
+}
+
+void MainWindow::search_window( wxCommandEvent& event )  {
+	wxSearch *srch = new wxSearch(this);
+	srch->assignSearchField(m_textCtrl);
+	srch->Show();
 }
 
