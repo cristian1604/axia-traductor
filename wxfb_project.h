@@ -1,12 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Dec 21 2016)
+// C++ code generated with wxFormBuilder (version Oct 26 2018)
 // http://www.wxformbuilder.org/
 //
-// PLEASE DO "NOT" EDIT THIS FILE!
+// PLEASE DO *NOT* EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __WXFB_PROJECT_H__
-#define __WXFB_PROJECT_H__
+#pragma once
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -25,6 +24,9 @@
 #include <wx/toolbar.h>
 #include <wx/menu.h>
 #include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/checkbox.h>
+#include <wx/statbox.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -32,33 +34,60 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class wxMainWindow
 ///////////////////////////////////////////////////////////////////////////////
-class wxMainWindow : public wxFrame 
+class wxMainWindow : public wxFrame
 {
 	private:
-	
+
 	protected:
 		wxStaticBitmap* m_bitmap1;
 		wxTextCtrl* m_textCtrl;
 		wxStatusBar* m_statusBar;
 		wxToolBar* m_toolBar1;
-		wxToolBarToolBase* m_tool1; 
-		wxToolBarToolBase* m_tool2; 
-		wxToolBarToolBase* m_tool3; 
+		wxToolBarToolBase* m_tool1;
+		wxToolBarToolBase* m_tool2;
+		wxToolBarToolBase* m_tool3;
+		wxToolBarToolBase* m_tool4;
+		wxToolBarToolBase* m_tool5;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
-		
+		wxMenu* m_menu2;
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
+		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
+
+
 	public:
-		
+
 		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor 8025 -> 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-		
+
 		~wxMainWindow();
-	
+
 };
 
-#endif //__WXFB_PROJECT_H__
+///////////////////////////////////////////////////////////////////////////////
+/// Class wxParameters
+///////////////////////////////////////////////////////////////////////////////
+class wxParameters : public wxFrame
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText1;
+		wxTextCtrl* m_textCtrl2;
+		wxStaticText* m_staticText3;
+		wxTextCtrl* m_textCtrl3;
+		wxStaticText* m_staticText2;
+		wxCheckBox* m_checkBox1;
+
+	public:
+
+		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Parámetros de conversión"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,300 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+
+		~wxParameters();
+
+};
+
