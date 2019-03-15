@@ -46,6 +46,7 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool4;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
+		wxMenu* m_menu2;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }

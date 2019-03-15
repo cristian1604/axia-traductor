@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include <wx/filedlg.h>
 #include "FileManager.h"
-#include <iostream>
 #include "SyntaxColor.h"
 #include "Translator.h"
 using namespace std;

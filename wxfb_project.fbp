@@ -378,7 +378,7 @@
                         <event name="OnMenuSelection">loadProgramFromFile</event>
                     </object>
                     <object class="wxMenuItem" expanded="1">
-                        <property name="bitmap">Load From File; resources/hdd.png</property>
+                        <property name="bitmap">Load From File; resources/script_save.png</property>
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
                         <property name="help"></property>
@@ -389,6 +389,39 @@
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
+                    </object>
+                </object>
+                <object class="wxMenu" expanded="1">
+                    <property name="label">A&amp;cciones</property>
+                    <property name="name">m_menu2</property>
+                    <property name="permission">protected</property>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap">Load From File; resources/refresh.png</property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Actualizar coloración de sintaxis</property>
+                        <property name="name">m_menuItem3</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut">F5</property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">update_syntax_highlight</event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap">Load From File; resources/cog_go.png</property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Traducir a 8035</property>
+                        <property name="name">m_menuItem4</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut">F9</property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">translate</event>
                     </object>
                 </object>
             </object>
