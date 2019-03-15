@@ -24,6 +24,9 @@
 #include <wx/toolbar.h>
 #include <wx/menu.h>
 #include <wx/frame.h>
+#include <wx/stattext.h>
+#include <wx/checkbox.h>
+#include <wx/statbox.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +47,7 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool2;
 		wxToolBarToolBase* m_tool3;
 		wxToolBarToolBase* m_tool4;
+		wxToolBarToolBase* m_tool5;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
 		wxMenu* m_menu2;
@@ -53,6 +57,7 @@ class wxMainWindow : public wxFrame
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
+		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -60,6 +65,29 @@ class wxMainWindow : public wxFrame
 		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor 8025 -> 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxMainWindow();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class wxParameters
+///////////////////////////////////////////////////////////////////////////////
+class wxParameters : public wxFrame
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText1;
+		wxTextCtrl* m_textCtrl2;
+		wxStaticText* m_staticText3;
+		wxTextCtrl* m_textCtrl3;
+		wxStaticText* m_staticText2;
+		wxCheckBox* m_checkBox1;
+
+	public:
+
+		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Parámetros de conversión"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,300 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+
+		~wxParameters();
 
 };
 
