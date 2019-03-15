@@ -28,6 +28,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		FileManager FM(OpenDialog->GetPath(), OpenDialog->GetFilename());
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
+			m_textCtrl->SetValue("");
 			m_textCtrl->SetValue(this->text_program);
 			syntax_color_8025(m_textCtrl);
 			m_textCtrl->SetInsertionPoint(0);
@@ -53,6 +54,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 void MainWindow::translate( wxCommandEvent& event )  {
 	translate_8025_to_8035(m_textCtrl);
 	syntax_color_8035(m_textCtrl);
+	m_textCtrl->SetInsertionPoint(0);
 	event.Skip();
 }
 
