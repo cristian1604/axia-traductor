@@ -46,6 +46,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				break;
 			case '(':
 				sentence = ';' + sentence;
+				line = "";
 				break;
 			case 'N':
 				// blank lines (block separator)
@@ -53,9 +54,9 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 					sentence = sentence + "  ;";
 				}
 				break;
-			case '#':
-				sentence = sentence + line;
-				line = "";
+			case 'T':
+				int pos = sentence.find_first_of('.',0);
+				sentence = 'D' + sentence.substr(pos+1,sentence.length());
 				break;
 			}
 			if (comments_inserted && sentence[0] != '%')
