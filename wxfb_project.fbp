@@ -259,6 +259,7 @@
                         <property name="window_name"></property>
                         <property name="window_style"></property>
                         <event name="OnKeyUp">edit_text</event>
+                        <event name="OnText">update_syntax_highlight</event>
                     </object>
                 </object>
             </object>

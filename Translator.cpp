@@ -5,6 +5,7 @@ using namespace std;
 
 void translate_8025_to_8035(wxTextCtrl* elem) {
 	//elem->Show(false);
+	string translated;
 	string aux = std::string(elem->GetValue() + '\n');
 	elem->SetValue("");
 	bool program_initiated = false;
@@ -24,7 +25,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 		
 		while (!line.empty()) {
 			if (line[0] == ' ') {
-				elem->AppendText(' ');
+				translated += ' ';
 				line = line.substr(1, line.length());
 				continue;
 			}
@@ -36,8 +37,8 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			switch (sentence[0]) {
 			case '%':
 				if (!comments_inserted) {
-					elem->AppendText(sentence + '\n');
-					elem->AppendText(comments);
+					translated.append(sentence + '\n');
+					translated.append(comments);
 					comments_inserted = true;
 				}
 				break;
@@ -69,14 +70,15 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			}
 			
 			if (comments_inserted && sentence[0] != '%')
-				elem->AppendText(sentence);
+				translated.append(sentence);
 			if (comments_inserted && sentence[0] == '%')
-				elem->AppendText(';');
+				translated += ';';
 			
 		}
-		elem->AppendText('\n');
+		translated += '\n';
 		
 	}
 	//elem->Show(true);
+	elem->SetValue(translated);
 	elem->SetFocus();
 }

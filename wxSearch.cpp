@@ -12,7 +12,7 @@ void wxSearch::search( wxCommandEvent& event )  {
 		textCtrl->SetFocus();
 		textCtrl->SetInsertionPoint(pos);
 		textCtrl->SetSelection(pos, pos+(search_term->GetValue()).length());
-		textCtrl->SetStyle(pos, pos+(search_term->GetValue()).length(),wxTextAttr(wxColour( 28, 255, 251), *wxRED));
+		//textCtrl->SetStyle(pos, pos+(search_term->GetValue()).length(),wxTextAttr(wxColour( 28, 255, 251), *wxRED));
 	} else {
 		hint->SetLabel("No hay coincidencias");
 		hint->SetForegroundColour(*wxRED);
