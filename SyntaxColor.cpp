@@ -10,19 +10,19 @@ void syntax_highlight(wxTextCtrl* elem, int standard) {
 	char comment_symbol;
 	
 	Style['%'] = wxTextAttr(wxColour( 28, 255, 251));
-	Style['M'] = wxTextAttr(*wxWHITE);
+	Style['M'] = wxTextAttr(*wxRED);
 	Style['N'] = wxTextAttr(*wxGREEN);
 	if (standard == 8025) {
-		Style['T'] = wxTextAttr(*wxBLUE);
+		Style['T'] = wxTextAttr(*wxRED);
 		comment_symbol = '(';
 	}
 	if (standard == 8035) {
-		Style['D'] = wxTextAttr(*wxBLUE);
+		Style['D'] = wxTextAttr(*wxRED);
 		comment_symbol = ';';
 	}
 	map<char, wxTextAttr>::iterator itStyle = Style.begin();
 	
-	elem->Show(false);
+	elem->Enable(false);
 	string aux = std::string(elem->GetValue() + '\n');
 	elem->SetStyle(0, aux.length(), wxTextAttr(*wxYELLOW));
 	string::iterator itStr = aux.begin();
@@ -52,7 +52,7 @@ void syntax_highlight(wxTextCtrl* elem, int standard) {
 		elem->SetStyle(cur_pos, cur_pos_end, wxTextAttr(wxColour(68, 117, 71)));
 		cur_pos = cur_pos_end;
 	}
-	elem->Show(true);
+	elem->Enable(true);
 }
 
 
