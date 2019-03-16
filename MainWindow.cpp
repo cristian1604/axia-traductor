@@ -13,6 +13,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 a 8035", 1);
+	m_statusBar->SetStatusText("AXIA", 2);
 	this->title_bar = "Traductor 8025 a 8035";
 }
 
@@ -29,10 +30,14 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		FileManager FM(OpenDialog->GetPath(), OpenDialog->GetFilename());
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
+			is_loading = true;
+			m_statusBar->SetStatusText("Leyendo archivo...", 0);
 			m_textCtrl->SetValue("");
 			m_textCtrl->SetValue(this->text_program);
 			syntax_highlight(m_textCtrl, 8025);
 			m_textCtrl->SetInsertionPoint(0);
+			is_loading = false;
+			m_statusBar->SetStatusText("Archivo cargado: " + OpenDialog->GetFilename(), 0);
 		}
 		// Sets our current document to the file the user selected
 		//MainEditBox->LoadFile(CurrentDocPath); //Opens that file
@@ -47,6 +52,7 @@ void MainWindow::edit_text( wxKeyEvent& event )  {
 }
 
 void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
+	if (is_loading) return;
 	switch (syntax_slection->GetSelection()) {
 	case 0:
 		syntax_version = 8025;
@@ -55,16 +61,24 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 		syntax_version = 8035;
 		break;
 	}
+	is_loading = true;
 	int ip = m_textCtrl->GetInsertionPoint();
 	syntax_highlight(m_textCtrl, syntax_version);
+	m_textCtrl->SetFocus();
 	m_textCtrl->SetInsertionPoint(ip);
+	is_loading = false;
 }
 
 void MainWindow::translate( wxCommandEvent& event )  {
+	is_loading = true;
+	m_statusBar->SetStatusText("Analizando...", 0);
+	syntax_slection->SetSelection(1);
+	syntax_version = 8035;
 	translate_8025_to_8035(m_textCtrl);
-	syntax_highlight(m_textCtrl, 8035);
+	syntax_highlight(m_textCtrl, syntax_version);
 	m_textCtrl->SetInsertionPoint(0);
-	event.Skip();
+	is_loading = false;
+	m_statusBar->SetStatusText("Programa convertido a versión 8035", 0);
 }
 
 void MainWindow::open_options( wxCommandEvent& event )  {
