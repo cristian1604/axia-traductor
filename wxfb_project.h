@@ -9,15 +9,16 @@
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
-#include <wx/bitmap.h>
-#include <wx/image.h>
-#include <wx/icon.h>
-#include <wx/statbmp.h>
+#include <wx/string.h>
+#include <wx/choice.h>
 #include <wx/gdicmn.h>
 #include <wx/font.h>
 #include <wx/colour.h>
 #include <wx/settings.h>
-#include <wx/string.h>
+#include <wx/bitmap.h>
+#include <wx/image.h>
+#include <wx/icon.h>
+#include <wx/statbmp.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
 #include <wx/statusbr.h>
@@ -41,6 +42,7 @@ class wxMainWindow : public wxFrame
 	private:
 
 	protected:
+		wxChoice* syntax_slection;
 		wxStaticBitmap* m_bitmap1;
 		wxTextCtrl* m_textCtrl;
 		wxStatusBar* m_statusBar;
@@ -56,9 +58,9 @@ class wxMainWindow : public wxFrame
 		wxMenu* m_menu2;
 
 		// Virtual event handlers, overide them in your derived class
+		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
 		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
-		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }

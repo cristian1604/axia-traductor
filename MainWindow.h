@@ -7,6 +7,7 @@ class MainWindow : public wxMainWindow {
 private:
 	wxString text_program;
 	wxString title_bar;
+	int syntax_version;
 protected:
 	void search_next( wxCommandEvent& event )  override;
 	void search_window( wxCommandEvent& event )  override;

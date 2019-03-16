@@ -31,7 +31,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		if (flag) {
 			m_textCtrl->SetValue("");
 			m_textCtrl->SetValue(this->text_program);
-			syntax_color_8025(m_textCtrl);
+			syntax_highlight(m_textCtrl, 8025);
 			m_textCtrl->SetInsertionPoint(0);
 		}
 		// Sets our current document to the file the user selected
@@ -47,14 +47,22 @@ void MainWindow::edit_text( wxKeyEvent& event )  {
 }
 
 void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
+	switch (syntax_slection->GetSelection()) {
+	case 0:
+		syntax_version = 8025;
+		break;
+	case 1:
+		syntax_version = 8035;
+		break;
+	}
 	int ip = m_textCtrl->GetInsertionPoint();
-	syntax_color_8025(m_textCtrl);
+	syntax_highlight(m_textCtrl, syntax_version);
 	m_textCtrl->SetInsertionPoint(ip);
 }
 
 void MainWindow::translate( wxCommandEvent& event )  {
 	translate_8025_to_8035(m_textCtrl);
-	syntax_color_8035(m_textCtrl);
+	syntax_highlight(m_textCtrl, 8035);
 	m_textCtrl->SetInsertionPoint(0);
 	event.Skip();
 }
