@@ -8,6 +8,7 @@ FileManager::FileManager(wxString path, wxString filename) {
 }
 
 bool FileManager::readFile(wxString &content) {
+	content.Clear();
 	fstream file(this->path, ios::in);
 	string line;
 	if (file.is_open()) {
