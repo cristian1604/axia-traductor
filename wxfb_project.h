@@ -62,6 +62,7 @@ class wxMainWindow : public wxFrame
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }
+		virtual void search_next( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -103,18 +104,18 @@ class searchDialog : public wxDialog
 	private:
 
 	protected:
-		wxStaticText* m_staticText4;
+		wxStaticText* m_staticText5;
 		wxTextCtrl* search_term;
-		wxButton* m_button1;
+		wxStaticText* hint;
+		wxButton* m_button2;
 
 		// Virtual event handlers, overide them in your derived class
-		virtual void search2( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		searchDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 271,150 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+		searchDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 286,156 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~searchDialog();
 
 };

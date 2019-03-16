@@ -5,12 +5,17 @@ wxSearch::wxSearch(wxWindow *parent) : searchDialog(parent) {
 }
 
 void wxSearch::search( wxCommandEvent& event )  {
-	wxString search = textCtrl->GetValue();
-	long pos = search.Find(search_term->GetValue());
+	wxString text = textCtrl->GetValue();
+	long pos = text.Find(search_term->GetValue());
 	if (pos > 0) {
 		this->Close();
 		textCtrl->SetFocus();
 		textCtrl->SetInsertionPoint(pos);
+		textCtrl->SetSelection(pos, pos+(search_term->GetValue()).length());
+		textCtrl->SetStyle(pos, pos+(search_term->GetValue()).length(),wxTextAttr(wxColour( 28, 255, 251), *wxRED));
+	} else {
+		hint->SetLabel("No hay coincidencias");
+		hint->SetForegroundColour(*wxRED);
 	}
 }
 
@@ -19,10 +24,6 @@ void wxSearch::assignSearchField(wxTextCtrl *x) {
 }
 
 wxSearch::~wxSearch() {
-	
-}
-
-void wxSearch::search2( wxCommandEvent& event )  {
-	search(event);
+		
 }
 

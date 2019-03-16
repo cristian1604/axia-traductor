@@ -70,3 +70,7 @@ void MainWindow::search_window( wxCommandEvent& event )  {
 	srch->Show();
 }
 
+void MainWindow::search_next( wxCommandEvent& event )  {
+	event.Skip();
+}
+

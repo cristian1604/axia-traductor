@@ -9,7 +9,6 @@ private:
 	wxWindow *win;
 	wxTextCtrl *textCtrl;
 protected:
-	void search2( wxCommandEvent& event )  override;
 	void search( wxCommandEvent& event )  override;
 	
 public:
