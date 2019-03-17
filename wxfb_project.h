@@ -65,6 +65,7 @@ class wxMainWindow : public wxFrame
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_next( wxCommandEvent& event ) { event.Skip(); }
+		virtual void search_replace_window( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -119,6 +120,33 @@ class searchDialog : public wxDialog
 
 		searchDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 286,156 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~searchDialog();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class search_and_replace
+///////////////////////////////////////////////////////////////////////////////
+class search_and_replace : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText6;
+		wxTextCtrl* m_search;
+		wxStaticText* m_staticText7;
+		wxTextCtrl* m_replace;
+		wxButton* m_button2;
+		wxButton* m_button3;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void start_replace( wxCommandEvent& event ) { event.Skip(); }
+		virtual void close( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		search_and_replace( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar y reemplazar"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+		~search_and_replace();
 
 };
 

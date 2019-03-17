@@ -10,6 +10,7 @@ private:
 	int syntax_version;
 	bool is_loading;
 protected:
+	void search_replace_window( wxCommandEvent& event ) ;
 	void search_next( wxCommandEvent& event )  override;
 	void search_window( wxCommandEvent& event )  override;
 	void open_options( wxCommandEvent& event )  override;

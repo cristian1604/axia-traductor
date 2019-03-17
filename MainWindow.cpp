@@ -5,6 +5,7 @@
 #include "Translator.h"
 #include "wxOptions.h"
 #include "wxSearch.h"
+#include "wxSearchReplace.h"
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
@@ -94,5 +95,11 @@ void MainWindow::search_window( wxCommandEvent& event )  {
 
 void MainWindow::search_next( wxCommandEvent& event )  {
 	event.Skip();
+}
+
+void MainWindow::search_replace_window( wxCommandEvent& event )  {
+	wxSearchReplace *snr = new wxSearchReplace(this);
+	snr->assignTextField(m_textCtrl);
+	snr->Show();
 }
 

@@ -50,7 +50,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/refresh.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloración de sintaxis"), wxT("Actualizar coloración de sintaxis"), NULL );
 
-	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035"), wxT("Convertir código a Fagor 8035"), NULL );
 
 	m_toolBar1->AddSeparator();
 
@@ -82,7 +82,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_menu3 = new wxMenu();
 	wxMenuItem* m_menuItem5;
-	m_menuItem5 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar") ) + wxT('\t') + wxT("F3"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem5 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar") ) + wxT('\t') + wxT("CTRL+F"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem5->SetBitmaps( wxBitmap( wxT("resources/magnifier.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -91,7 +91,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Append( m_menuItem5 );
 
 	wxMenuItem* m_menuItem6;
-	m_menuItem6 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar siguiente") ) + wxT('\t') + wxT("F4"), wxT("Buscar próximo término"), wxITEM_NORMAL );
+	m_menuItem6 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar siguiente") ) + wxT('\t') + wxT("F3"), wxT("Buscar próximo término"), wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem6->SetBitmaps( wxBitmap( wxT("resources/magnifier_zoom_in.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -99,6 +99,15 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	#endif
 	m_menu3->Append( m_menuItem6 );
 	m_menuItem6->Enable( false );
+
+	wxMenuItem* m_menuItem7;
+	m_menuItem7 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar y reemplazar") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem7->SetBitmaps( wxBitmap( wxT("resources/text_replace.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem7->SetBitmap( wxBitmap( wxT("resources/text_replace.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem7 );
 
 	m_menubar1->Append( m_menu3, wxT("Editar") );
 
@@ -139,6 +148,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_menuItem6->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
 }
@@ -228,7 +238,7 @@ searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& tit
 	search_term = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	bSizer3->Add( search_term, 0, wxALL|wxEXPAND, 5 );
 
-	hint = new wxStaticText( this, wxID_ANY, wxT("Para buscar una próxima coincidencia, presione F4"), wxDefaultPosition, wxDefaultSize, 0 );
+	hint = new wxStaticText( this, wxID_ANY, wxT("Para buscar una próxima coincidencia, presione F3"), wxDefaultPosition, wxDefaultSize, 0 );
 	hint->Wrap( -1 );
 	bSizer3->Add( hint, 0, wxALL, 5 );
 
@@ -253,5 +263,63 @@ searchDialog::~searchDialog()
 	// Disconnect Events
 	search_term->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( searchDialog::search ), NULL, this );
 	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( searchDialog::search ), NULL, this );
+
+}
+
+search_and_replace::search_and_replace( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxFlexGridSizer* fgSizer1;
+	fgSizer1 = new wxFlexGridSizer( 0, 2, 0, 0 );
+	fgSizer1->SetFlexibleDirection( wxBOTH );
+	fgSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	m_staticText6 = new wxStaticText( this, wxID_ANY, wxT("Buscar todas las ocurrencias de"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText6->Wrap( -1 );
+	fgSizer1->Add( m_staticText6, 0, wxALL, 5 );
+
+	m_search = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer1->Add( m_search, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticText7 = new wxStaticText( this, wxID_ANY, wxT("Y reemplazarlas por"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7->Wrap( -1 );
+	fgSizer1->Add( m_staticText7, 0, wxALL, 5 );
+
+	m_replace = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer1->Add( m_replace, 0, wxALL|wxEXPAND, 5 );
+
+
+	fgSizer1->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	wxGridSizer* gSizer4;
+	gSizer4 = new wxGridSizer( 0, 2, 0, 0 );
+
+	m_button2 = new wxButton( this, wxID_ANY, wxT("Reemplazar"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer4->Add( m_button2, 0, wxALL, 5 );
+
+	m_button3 = new wxButton( this, wxID_ANY, wxT("Cancelar"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer4->Add( m_button3, 0, wxALL, 5 );
+
+
+	fgSizer1->Add( gSizer4, 1, wxEXPAND, 5 );
+
+
+	this->SetSizer( fgSizer1 );
+	this->Layout();
+	fgSizer1->Fit( this );
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_button2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
+	m_button3->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
+}
+
+search_and_replace::~search_and_replace()
+{
+	// Disconnect Events
+	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
+	m_button3->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
 
 }

@@ -16,7 +16,7 @@ tab_use_spaces=0
 explorer_path=.
 inspection_improving_template=wxString|>printf "%ls",${EXP}.m_impl._M_data()
 inherits_from=
-current_source=SyntaxColor.cpp
+current_source=wxSearch.h
 path_char=\
 [source]
 path=Application.cpp
@@ -36,7 +36,7 @@ path=FileManager.cpp
 cursor=10:17
 [source]
 path=SyntaxColor.cpp
-cursor=43:2
+cursor=75:33
 open=true
 [source]
 path=Translator.cpp
@@ -184,16 +184,16 @@ warnings_level=1
 warnings_as_errors=0
 pedantic_errors=0
 std_c=
-std_cpp=gnu++14
+std_cpp=
 debug_level=2
 optimization_level=0
 enable_lto=0
 headers_dirs=${MINGW_DIR}\wx3\include
 linking_extra=
-libraries_dirs=${MINGW_DIR}\wx3\lib\dynamic
-libraries=wxmsw31u_adv wxmsw31u_html wxmsw31u_core wxbase31u wxtiff wxjpeg wxpng wxzlib kernel32 user32 gdi32 comdlg32 winspool winmm shell32 shlwapi comctl32 ole32 oleaut32 uuid rpcrt4 advapi32 version wsock32 wininet
+libraries_dirs=${MINGW_DIR}\wx3\lib\dynamic; ${MINGW_DIR}\wx3\lib\static
+libraries=wxmsw31u_adv wxmsw31u_html wxmsw31u_core wxbase31u wxtiff wxjpeg wxpng wxzlib kernel32 user32 gdi32 comdlg32 winspool winmm shell32 shlwapi comctl32 ole32 oleaut32 uuid rpcrt4 advapi32 version wsock32 wininet opengl32 winmm gdi32 wxmsw31u_gl
 strip_executable=0
-console_program=1
+console_program=0
 dont_generate_exe=0
 [config]
 name=Win32_Release
