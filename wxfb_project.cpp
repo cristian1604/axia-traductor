@@ -131,6 +131,18 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_menubar1->Append( m_menu2, wxT("A&cciones") );
 
+	m_menu5 = new wxMenu();
+	wxMenuItem* m_menuItem8;
+	m_menuItem8 = new wxMenuItem( m_menu5, wxID_ANY, wxString( wxT("Acerca de...") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem8->SetBitmaps( wxBitmap( wxT("resources/information.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem8->SetBitmap( wxBitmap( wxT("resources/information.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu5->Append( m_menuItem8 );
+
+	m_menubar1->Append( m_menu5, wxT("Ayuda") );
+
 	this->SetMenuBar( m_menubar1 );
 
 
@@ -152,6 +164,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
+	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::about ), this, m_menuItem8->GetId());
 }
 
 wxMainWindow::~wxMainWindow()
@@ -324,4 +337,29 @@ search_and_replace::~search_and_replace()
 	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button3->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
 
+}
+
+about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxGridSizer* gSizer5;
+	gSizer5 = new wxGridSizer( 0, 2, 0, 0 );
+
+	m_bitmap2 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	gSizer5->Add( m_bitmap2, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Desarrollado por Axia S.A.\n\nMarzo 2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8->Wrap( -1 );
+	gSizer5->Add( m_staticText8, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	this->SetSizer( gSizer5 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+}
+
+about::~about()
+{
 }

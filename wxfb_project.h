@@ -56,6 +56,7 @@ class wxMainWindow : public wxFrame
 		wxMenu* m_menu1;
 		wxMenu* m_menu3;
 		wxMenu* m_menu2;
+		wxMenu* m_menu5;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
@@ -67,6 +68,7 @@ class wxMainWindow : public wxFrame
 		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_next( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_replace_window( wxCommandEvent& event ) { event.Skip(); }
+		virtual void about( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -148,6 +150,24 @@ class search_and_replace : public wxDialog
 
 		search_and_replace( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar y reemplazar"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
 		~search_and_replace();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class about
+///////////////////////////////////////////////////////////////////////////////
+class about : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticBitmap* m_bitmap2;
+		wxStaticText* m_staticText8;
+
+	public:
+
+		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 371,201 ), long style = wxDEFAULT_DIALOG_STYLE );
+		~about();
 
 };
 

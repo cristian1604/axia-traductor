@@ -6,6 +6,7 @@
 #include "wxOptions.h"
 #include "wxSearch.h"
 #include "wxSearchReplace.h"
+#include "wxAbout.h"
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
@@ -117,5 +118,10 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 			m_statusBar->SetStatusText("Programa guardado exitosamente",0);
 		}
 	}
+}
+
+void MainWindow::about( wxCommandEvent& event )  {
+	wxAbout *a = new wxAbout(this);
+	a->ShowModal();
 }
 
