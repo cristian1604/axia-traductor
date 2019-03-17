@@ -98,7 +98,6 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menuItem6->SetBitmap( wxBitmap( wxT("resources/magnifier_zoom_in.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu3->Append( m_menuItem6 );
-	m_menuItem6->Enable( false );
 
 	wxMenuItem* m_menuItem7;
 	m_menuItem7 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar y reemplazar") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
@@ -142,10 +141,12 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_textCtrl->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Connect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
+	this->Connect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Connect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
 	this->Connect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
 	this->Connect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
+	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::save_program ), this, m_menuItem2->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_menuItem6->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
@@ -160,6 +161,7 @@ wxMainWindow::~wxMainWindow()
 	m_textCtrl->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Disconnect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
+	this->Disconnect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Disconnect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
 	this->Disconnect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
 	this->Disconnect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );

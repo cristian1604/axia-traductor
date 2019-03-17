@@ -1,15 +1,19 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include "wxfb_project.h"
+#include "wxSearch.h"
 
 class MainWindow : public wxMainWindow {
 	
 private:
-	wxString text_program;
-	wxString title_bar;
-	int syntax_version;
-	bool is_loading;
+	wxString text_program;       // Text contained on the input box
+	wxString window_title;       // Window title
+	int syntax_version;          // 8025, 8035
+	bool is_loading;             // When this variable is on TRUE, the syntax highlight is turned off
+	wxSearch *srch;              // Search Window
+	wxString path;               // current path of loaded file
 protected:
+	void save_program( wxCommandEvent& event ) ;
 	void search_replace_window( wxCommandEvent& event ) ;
 	void search_next( wxCommandEvent& event )  override;
 	void search_window( wxCommandEvent& event )  override;

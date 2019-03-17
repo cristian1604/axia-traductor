@@ -15,7 +15,11 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 a 8035", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
-	this->title_bar = "Traductor 8025 a 8035";
+	this->window_title = "Traductor 8025 a 8035";
+	
+	//search window
+	srch = new wxSearch(this);
+	srch->assignSearchField(m_textCtrl);
 }
 
 MainWindow::~MainWindow() {
@@ -27,8 +31,9 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.nc;*.pit|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
 	if (OpenDialog->ShowModal() == wxID_OK) // if the user click "Open" instead of "Cancel"
 	{
-		this->SetTitle(this->title_bar + " - " + OpenDialog->GetFilename());
-		FileManager FM(OpenDialog->GetPath(), OpenDialog->GetFilename());
+		path = OpenDialog->GetPath();
+		this->SetTitle(this->window_title + " - " + OpenDialog->GetFilename());
+		FileManager FM(path, OpenDialog->GetFilename());
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
 			is_loading = true;
@@ -88,18 +93,29 @@ void MainWindow::open_options( wxCommandEvent& event )  {
 }
 
 void MainWindow::search_window( wxCommandEvent& event )  {
-	wxSearch *srch = new wxSearch(this);
-	srch->assignSearchField(m_textCtrl);
 	srch->Show();
 }
 
 void MainWindow::search_next( wxCommandEvent& event )  {
-	event.Skip();
+	srch->search_next();
 }
 
 void MainWindow::search_replace_window( wxCommandEvent& event )  {
 	wxSearchReplace *snr = new wxSearchReplace(this);
 	snr->assignTextField(m_textCtrl);
 	snr->Show();
+}
+
+/** SAVE PROGRAM GENERATED **/
+void MainWindow::save_program( wxCommandEvent& event )  {
+	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC)|*.nc|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
+	if (OpenDialog->ShowModal() == wxID_OK) {
+		this->text_program = m_textCtrl->GetValue();
+		path = OpenDialog->GetPath();
+		FileManager FM(path, OpenDialog->GetFilename());
+		if (FM.writeFile(this->text_program)) {
+			m_statusBar->SetStatusText("Programa guardado exitosamente",0);
+		}
+	}
 }
 

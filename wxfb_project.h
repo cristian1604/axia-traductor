@@ -61,6 +61,7 @@ class wxMainWindow : public wxFrame
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
 		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
+		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }

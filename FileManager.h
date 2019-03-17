@@ -12,6 +12,7 @@ private:
 public:
 	FileManager(wxString path, wxString filename);
 	bool readFile(wxString &content);
+	bool writeFile(wxString &content);
 };
 
 

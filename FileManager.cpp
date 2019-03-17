@@ -22,3 +22,14 @@ bool FileManager::readFile(wxString &content) {
 	return false;
 }
 
+
+bool FileManager::writeFile(wxString &content) {
+	fstream file(this->path, ios::out);
+	if (file.is_open()) {
+		file<<content;
+		file.close();
+		return true;
+	}
+	return false;
+}
+
