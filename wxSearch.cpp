@@ -1,4 +1,6 @@
 #include "wxSearch.h"
+#include <string>
+using namespace std;
 
 wxSearch::wxSearch(wxWindow *parent) : searchDialog(parent) {
 	search_term->SetFocus();
@@ -6,13 +8,11 @@ wxSearch::wxSearch(wxWindow *parent) : searchDialog(parent) {
 
 void wxSearch::search( wxCommandEvent& event )  {
 	wxString text = textCtrl->GetValue();
-	long pos = text.Find(search_term->GetValue());
+	pos = text.Find(search_term->GetValue());
 	if (pos > 0) {
 		this->Close();
 		textCtrl->SetFocus();
 		textCtrl->SetInsertionPoint(pos);
-		textCtrl->SetSelection(pos, pos+(search_term->GetValue()).length());
-		//textCtrl->SetStyle(pos, pos+(search_term->GetValue()).length(),wxTextAttr(wxColour( 28, 255, 251), *wxRED));
 	} else {
 		hint->SetLabel("No hay coincidencias");
 		hint->SetForegroundColour(*wxRED);
@@ -27,3 +27,13 @@ wxSearch::~wxSearch() {
 		
 }
 
+unsigned int wxSearch::search_next() {
+	string text(textCtrl->GetValue());
+	pos = text.find(search_term->GetValue(), pos+1);
+	if (pos < 0) {
+		pos = text.find(search_term->GetValue(), 0);
+	}
+	textCtrl->SetFocus();
+	textCtrl->SetInsertionPoint(pos);
+	return pos;
+}
