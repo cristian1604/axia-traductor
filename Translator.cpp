@@ -1,6 +1,7 @@
 #include <string>
 #include <wx/textctrl.h>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 void translate_8025_to_8035(wxTextCtrl* elem) {
@@ -11,6 +12,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	bool program_initiated = false;
 	bool comments_inserted = false;
 	wxString comments;
+	wxString sAux, prevSentence;
+	int x;
+	double db;
+	
 	
 	while (!aux.empty()) {
 		int pos = aux.find_first_of('\n');
@@ -56,8 +61,21 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				}
 				break;
 			case 'T':
-				int x = sentence.find_first_of('.',0);
+				// Convert form Taa.bb to Dbb
+				x = sentence.find_first_of('.',0);
 				sentence = 'D' + sentence.substr(x+1,sentence.length());
+				break;
+			case 'K':
+				// Convert from seconds to 1/100 seconds ONLY if the prev sentence was G04 (delay)
+				if (prevSentence != "G04") {
+					break;
+				}
+				x = min(sentence.find_first_of(' ',0), sentence.find_first_of('\n',0));
+				sAux = sentence.substr(1,x);
+				sAux.ToDouble(&db);
+				sAux.Clear();
+				sAux<<db * 100;
+				sentence = 'K' + sAux;
 				break;
 			}
 			
@@ -69,8 +87,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				line = "";
 			}
 			
-			if (comments_inserted && sentence[0] != '%')
+			if (comments_inserted && sentence[0] != '%') {
 				translated.append(sentence);
+				prevSentence = sentence;
+			}
 			if (comments_inserted && sentence[0] == '%')
 				translated += ';';
 			
