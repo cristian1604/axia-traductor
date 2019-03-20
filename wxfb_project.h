@@ -94,6 +94,10 @@ class wxParameters : public wxFrame
 		wxStaticText* m_staticText2;
 		wxCheckBox* remove_m08;
 
+		// Virtual event handlers, overide them in your derived class
+		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
+
+
 	public:
 
 		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Parámetros de conversión"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,300 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
@@ -116,6 +120,7 @@ class searchDialog : public wxDialog
 		wxButton* m_button2;
 
 		// Virtual event handlers, overide them in your derived class
+		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
 		virtual void search( wxCommandEvent& event ) { event.Skip(); }
 
 
@@ -142,13 +147,14 @@ class search_and_replace : public wxDialog
 		wxButton* m_button3;
 
 		// Virtual event handlers, overide them in your derived class
+		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
 		virtual void start_replace( wxCommandEvent& event ) { event.Skip(); }
 		virtual void close( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		search_and_replace( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar y reemplazar"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+		search_and_replace( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar y reemplazar"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU );
 		~search_and_replace();
 
 };
@@ -164,9 +170,13 @@ class about : public wxDialog
 		wxStaticBitmap* m_bitmap2;
 		wxStaticText* m_staticText8;
 
+		// Virtual event handlers, overide them in your derived class
+		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
+
+
 	public:
 
-		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 371,201 ), long style = wxDEFAULT_DIALOG_STYLE );
+		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 371,201 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~about();
 
 };

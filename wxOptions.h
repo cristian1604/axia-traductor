@@ -7,6 +7,7 @@ class wxOptions : public wxParameters {
 private:
 	
 protected:
+	void evt_key_up( wxKeyEvent& event ) ;
 	
 public:
 	wxOptions(wxWindow *parent=NULL);

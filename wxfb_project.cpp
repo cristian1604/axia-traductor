@@ -233,10 +233,16 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Layout();
 
 	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxParameters::evt_key_up ) );
 }
 
 wxParameters::~wxParameters()
 {
+	// Disconnect Events
+	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxParameters::evt_key_up ) );
+
 }
 
 searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
@@ -269,6 +275,8 @@ searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 
 	// Connect Events
+	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( searchDialog::evt_key_up ) );
+	search_term->Connect( wxEVT_KEY_UP, wxKeyEventHandler( searchDialog::evt_key_up ), NULL, this );
 	search_term->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( searchDialog::search ), NULL, this );
 	m_button2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( searchDialog::search ), NULL, this );
 }
@@ -276,6 +284,8 @@ searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& tit
 searchDialog::~searchDialog()
 {
 	// Disconnect Events
+	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( searchDialog::evt_key_up ) );
+	search_term->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( searchDialog::evt_key_up ), NULL, this );
 	search_term->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( searchDialog::search ), NULL, this );
 	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( searchDialog::search ), NULL, this );
 
@@ -327,6 +337,9 @@ search_and_replace::search_and_replace( wxWindow* parent, wxWindowID id, const w
 	this->Centre( wxBOTH );
 
 	// Connect Events
+	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ) );
+	m_search->Connect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
+	m_replace->Connect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
 	m_button2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button3->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
 }
@@ -334,6 +347,9 @@ search_and_replace::search_and_replace( wxWindow* parent, wxWindowID id, const w
 search_and_replace::~search_and_replace()
 {
 	// Disconnect Events
+	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ) );
+	m_search->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
+	m_replace->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
 	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button3->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
 
@@ -358,8 +374,14 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	this->Layout();
 
 	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( about::evt_key_up ) );
 }
 
 about::~about()
 {
+	// Disconnect Events
+	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( about::evt_key_up ) );
+
 }

@@ -10,6 +10,7 @@ private:
 	wxTextCtrl *textCtrl;
 	int pos;  // position of the last coincidence
 protected:
+	void evt_key_up( wxKeyEvent& event ) ;
 	void search( wxCommandEvent& event )  override;
 	
 public:

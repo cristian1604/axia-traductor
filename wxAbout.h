@@ -7,6 +7,7 @@ class wxAbout : public about {
 private:
 	
 protected:
+	void evt_key_up( wxKeyEvent& event ) ;
 	
 public:
 	wxAbout(wxWindow *parent=NULL);

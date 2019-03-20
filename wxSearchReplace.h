@@ -8,6 +8,7 @@ class wxSearchReplace : public search_and_replace {
 private:
 	wxTextCtrl *textCtrl;
 protected:
+	void evt_key_up( wxKeyEvent& event ) ;
 	void start_replace( wxCommandEvent& event ) ;
 	void close( wxCommandEvent& event ) ;
 	
