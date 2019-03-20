@@ -12,7 +12,8 @@
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
-	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
+//	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
+//	m_textCtrl->SetBackgroundColour(wxColour( 42, 117, 168));
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
 	m_statusBar->SetLabel("Programa iniciado");
@@ -23,7 +24,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	//search window
 	srch = new wxSearch(this);
 	srch->assignSearchField(m_textCtrl);
-	this->Maximize(true);
+	loadSettings();
 }
 
 MainWindow::~MainWindow() {
@@ -45,7 +46,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 			m_statusBar->SetStatusText("Leyendo archivo...", 0);
 			m_textCtrl->SetValue("");
 			m_textCtrl->SetValue(this->text_program);
-			syntax_highlight(m_textCtrl, 8025);
+			syntax_highlight(m_textCtrl, 8025, settings);
 			m_textCtrl->SetInsertionPoint(0);
 			is_loading = false;
 			m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
@@ -74,7 +75,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	}
 	is_loading = true;
 	int ip = m_textCtrl->GetInsertionPoint();
-	syntax_highlight(m_textCtrl, syntax_version);
+	syntax_highlight(m_textCtrl, syntax_version, settings);
 	m_textCtrl->SetFocus();
 	m_textCtrl->SetInsertionPoint(ip);
 	is_loading = false;
@@ -86,15 +87,16 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	syntax_slection->SetSelection(1);
 	syntax_version = 8035;
 	translate_8025_to_8035(m_textCtrl);
-	syntax_highlight(m_textCtrl, syntax_version);
+	syntax_highlight(m_textCtrl, syntax_version, settings);
 	m_textCtrl->SetInsertionPoint(0);
 	is_loading = false;
 	m_statusBar->SetStatusText("Programa convertido a versión 8035", 0);
 }
 
 void MainWindow::open_options( wxCommandEvent& event )  {
-	wxOptions *opt = new wxOptions(NULL);
-	opt->Show();
+	wxOptions *opt = new wxOptions(this);
+	opt->ShowModal();
+	loadSettings();
 }
 
 void MainWindow::search_window( wxCommandEvent& event )  {
@@ -148,7 +150,6 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
 			wxTextDataObject data;
 			wxTheClipboard->GetData( data );
-			cout<<data.GetText();
 			text_program = data.GetText();
 			m_textCtrl->SetValue(text_program);
 			m_textCtrl->SetInsertionPoint(pos);
@@ -158,3 +159,11 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 	}
 }
 
+void MainWindow::loadSettings() {
+	FileManager F;
+	if (F.loadSettings(settings)) {
+		wxColour col = settings.colour_textCtrl;
+		m_textCtrl->SetBackgroundColour(col);
+		this->Maximize(settings.maximize_on_startup);
+	}
+}

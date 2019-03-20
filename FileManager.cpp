@@ -7,6 +7,9 @@ FileManager::FileManager(wxString path, wxString filename) {
 	this->filename = filename;
 }
 
+FileManager::FileManager() {
+}
+
 bool FileManager::readFile(wxString &content) {
 	content.Clear();
 	fstream file(this->path, ios::in);
@@ -33,3 +36,27 @@ bool FileManager::writeFile(wxString &content) {
 	return false;
 }
 
+bool FileManager::loadSettings(s_Settings &s) {
+	fstream file("settings.dat", ios::binary|ios::in);
+	if (file.is_open()) {
+		while (!file.eof()) {
+			file.read((char *) &s, sizeof(s_Settings));
+		}
+		file.sync();
+		file.close();
+		return true;
+	}
+	return false;
+}
+
+
+bool FileManager::saveSettings(s_Settings &s) {
+	fstream file("settings.dat", ios::binary|ios::out);
+	if (file.is_open()) {
+		file.write((char *) &s, sizeof(s_Settings));
+		file.sync();
+		file.close();
+		return true;
+	}
+	return false;
+}

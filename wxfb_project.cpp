@@ -193,70 +193,6 @@ wxMainWindow::~wxMainWindow()
 
 }
 
-wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNFACE ) );
-
-	wxBoxSizer* bSizer2;
-	bSizer2 = new wxBoxSizer( wxVERTICAL );
-
-	wxStaticBoxSizer* sbSizer1;
-	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Opciones") ), wxVERTICAL );
-
-	wxGridSizer* gSizer2;
-	gSizer2 = new wxGridSizer( 0, 2, 0, 0 );
-
-	m_staticText1 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Reemplazar sentido de giro"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText1->Wrap( -1 );
-	gSizer2->Add( m_staticText1, 0, wxALL, 5 );
-
-	wxGridSizer* gSizer3;
-	gSizer3 = new wxGridSizer( 0, 3, 0, 0 );
-
-	m_textCtrl2 = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer3->Add( m_textCtrl2, 1, wxALL|wxEXPAND, 5 );
-
-	m_staticText3 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("por"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText3->Wrap( -1 );
-	gSizer3->Add( m_staticText3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
-
-	m_textCtrl3 = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer3->Add( m_textCtrl3, 1, wxALL|wxEXPAND, 5 );
-
-
-	gSizer2->Add( gSizer3, 1, wxEXPAND, 5 );
-
-	m_staticText2 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Opciones "), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText2->Wrap( -1 );
-	gSizer2->Add( m_staticText2, 0, wxALL, 5 );
-
-	remove_m08 = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Quitar parámetro M08"), wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer2->Add( remove_m08, 1, wxALL|wxEXPAND, 5 );
-
-
-	sbSizer1->Add( gSizer2, 1, wxEXPAND|wxALL, 5 );
-
-
-	bSizer2->Add( sbSizer1, 0, wxALL|wxEXPAND, 5 );
-
-
-	this->SetSizer( bSizer2 );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-
-	// Connect Events
-	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxParameters::evt_key_up ) );
-}
-
-wxParameters::~wxParameters()
-{
-	// Disconnect Events
-	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxParameters::evt_key_up ) );
-
-}
-
 searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
@@ -395,5 +331,146 @@ about::~about()
 {
 	// Disconnect Events
 	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( about::evt_key_up ) );
+
+}
+
+wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer2;
+	bSizer2 = new wxBoxSizer( wxVERTICAL );
+
+	wxStaticBoxSizer* sbSizer1;
+	sbSizer1 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Opciones de código") ), wxVERTICAL );
+
+	wxGridSizer* gSizer2;
+	gSizer2 = new wxGridSizer( 0, 2, 0, 0 );
+
+	m_staticText1 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Reemplazar sentido de giro"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText1->Wrap( -1 );
+	gSizer2->Add( m_staticText1, 0, wxALL, 5 );
+
+	wxGridSizer* gSizer3;
+	gSizer3 = new wxGridSizer( 0, 3, 0, 0 );
+
+	m_textCtrl2 = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( m_textCtrl2, 1, wxALL|wxEXPAND, 5 );
+
+	m_staticText3 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("por"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText3->Wrap( -1 );
+	gSizer3->Add( m_staticText3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrl3 = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( m_textCtrl3, 1, wxALL|wxEXPAND, 5 );
+
+
+	gSizer2->Add( gSizer3, 1, wxEXPAND, 5 );
+
+	m_staticText2 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Opciones "), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText2->Wrap( -1 );
+	gSizer2->Add( m_staticText2, 0, wxALL, 5 );
+
+	remove_m08 = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Quitar parámetro M08"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer2->Add( remove_m08, 1, wxALL|wxEXPAND, 5 );
+
+
+	sbSizer1->Add( gSizer2, 1, wxEXPAND|wxALL, 5 );
+
+
+	bSizer2->Add( sbSizer1, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticBoxSizer* sbSizer2;
+	sbSizer2 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Colores y opciones de editor") ), wxVERTICAL );
+
+	wxGridSizer* gSizer6;
+	gSizer6 = new wxGridSizer( 0, 2, 0, 0 );
+
+	m_staticText9 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Color de fondo de área de texto"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText9->Wrap( -1 );
+	gSizer6->Add( m_staticText9, 0, wxALL, 5 );
+
+	m_colour_textCtrl = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, wxColour( 0, 30, 60 ), wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	gSizer6->Add( m_colour_textCtrl, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_staticText18 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Color de texto"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18->Wrap( -1 );
+	gSizer6->Add( m_staticText18, 0, wxALL, 5 );
+
+	m_colour_text = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	gSizer6->Add( m_colour_text, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_staticText19 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Color de sentencia M"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText19->Wrap( -1 );
+	gSizer6->Add( m_staticText19, 0, wxALL, 5 );
+
+	m_colour_m = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	gSizer6->Add( m_colour_m, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_staticText20 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Color sentencia de herramienta"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText20->Wrap( -1 );
+	gSizer6->Add( m_staticText20, 0, wxALL, 5 );
+
+	m_colour_tool = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	gSizer6->Add( m_colour_tool, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_staticText21 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Comentario"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText21->Wrap( -1 );
+	gSizer6->Add( m_staticText21, 0, wxALL, 5 );
+
+	m_colour_comments = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	gSizer6->Add( m_colour_comments, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_staticText23 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Color marcador de Número de línea"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText23->Wrap( -1 );
+	gSizer6->Add( m_staticText23, 0, wxALL, 5 );
+
+	m_colour_line = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
+	gSizer6->Add( m_colour_line, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_staticText24 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Iniciar ventana maximizada"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText24->Wrap( -1 );
+	gSizer6->Add( m_staticText24, 0, wxALL, 5 );
+
+	m_maximize = new wxCheckBox( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Iniciar ventana maximizada"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer6->Add( m_maximize, 0, wxALL, 5 );
+
+
+	sbSizer2->Add( gSizer6, 1, wxEXPAND, 5 );
+
+
+	bSizer2->Add( sbSizer2, 1, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+
+	m_button4 = new wxButton( this, wxID_ANY, wxT("Guardar"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer2->Add( m_button4, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+
+	this->SetSizer( bSizer2 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_colour_textCtrl->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_textCtrl ), NULL, this );
+	m_colour_text->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_text ), NULL, this );
+	m_colour_m->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_m ), NULL, this );
+	m_colour_tool->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_tool ), NULL, this );
+	m_colour_comments->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_comments ), NULL, this );
+	m_colour_line->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_line ), NULL, this );
+	m_maximize->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( wxParameters::maximize ), NULL, this );
+	m_button4->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( wxParameters::save ), NULL, this );
+}
+
+wxParameters::~wxParameters()
+{
+	// Disconnect Events
+	m_colour_textCtrl->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_textCtrl ), NULL, this );
+	m_colour_text->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_text ), NULL, this );
+	m_colour_m->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_m ), NULL, this );
+	m_colour_tool->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_tool ), NULL, this );
+	m_colour_comments->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_comments ), NULL, this );
+	m_colour_line->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_line ), NULL, this );
+	m_maximize->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( wxParameters::maximize ), NULL, this );
+	m_button4->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( wxParameters::save ), NULL, this );
 
 }

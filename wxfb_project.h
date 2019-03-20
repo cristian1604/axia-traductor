@@ -26,10 +26,11 @@
 #include <wx/menu.h>
 #include <wx/frame.h>
 #include <wx/stattext.h>
-#include <wx/checkbox.h>
-#include <wx/statbox.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
+#include <wx/checkbox.h>
+#include <wx/statbox.h>
+#include <wx/clrpicker.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -77,33 +78,6 @@ class wxMainWindow : public wxFrame
 		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor 8025 -> 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxMainWindow();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class wxParameters
-///////////////////////////////////////////////////////////////////////////////
-class wxParameters : public wxFrame
-{
-	private:
-
-	protected:
-		wxStaticText* m_staticText1;
-		wxTextCtrl* m_textCtrl2;
-		wxStaticText* m_staticText3;
-		wxTextCtrl* m_textCtrl3;
-		wxStaticText* m_staticText2;
-		wxCheckBox* remove_m08;
-
-		// Virtual event handlers, overide them in your derived class
-		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
-
-
-	public:
-
-		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Parámetros de conversión"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,300 ), long style = wxDEFAULT_FRAME_STYLE|wxSTAY_ON_TOP|wxTAB_TRAVERSAL );
-
-		~wxParameters();
 
 };
 
@@ -179,6 +153,54 @@ class about : public wxDialog
 
 		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 371,201 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~about();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class wxParameters
+///////////////////////////////////////////////////////////////////////////////
+class wxParameters : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText1;
+		wxTextCtrl* m_textCtrl2;
+		wxStaticText* m_staticText3;
+		wxTextCtrl* m_textCtrl3;
+		wxStaticText* m_staticText2;
+		wxCheckBox* remove_m08;
+		wxStaticText* m_staticText9;
+		wxColourPickerCtrl* m_colour_textCtrl;
+		wxStaticText* m_staticText18;
+		wxColourPickerCtrl* m_colour_text;
+		wxStaticText* m_staticText19;
+		wxColourPickerCtrl* m_colour_m;
+		wxStaticText* m_staticText20;
+		wxColourPickerCtrl* m_colour_tool;
+		wxStaticText* m_staticText21;
+		wxColourPickerCtrl* m_colour_comments;
+		wxStaticText* m_staticText23;
+		wxColourPickerCtrl* m_colour_line;
+		wxStaticText* m_staticText24;
+		wxCheckBox* m_maximize;
+		wxButton* m_button4;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void colour_textCtrl( wxColourPickerEvent& event ) { event.Skip(); }
+		virtual void colour_text( wxColourPickerEvent& event ) { event.Skip(); }
+		virtual void colour_m( wxColourPickerEvent& event ) { event.Skip(); }
+		virtual void colour_tool( wxColourPickerEvent& event ) { event.Skip(); }
+		virtual void colour_comments( wxColourPickerEvent& event ) { event.Skip(); }
+		virtual void colour_line( wxColourPickerEvent& event ) { event.Skip(); }
+		virtual void maximize( wxCommandEvent& event ) { event.Skip(); }
+		virtual void save( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Opciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 455,411 ), long style = wxDEFAULT_DIALOG_STYLE );
+		~wxParameters();
 
 };
 
