@@ -23,6 +23,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	//search window
 	srch = new wxSearch(this);
 	srch->assignSearchField(m_textCtrl);
+	this->Maximize(true);
 }
 
 MainWindow::~MainWindow() {
@@ -31,12 +32,13 @@ MainWindow::~MainWindow() {
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
 void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
-	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.nc;*.pit|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
+	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.NC;*.PIT;*.nc;*.pit|Archivo de texto (*.txt, *.TXT)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
 	if (OpenDialog->ShowModal() == wxID_OK) // if the user click "Open" instead of "Cancel"
 	{
 		path = OpenDialog->GetPath();
-		this->SetTitle(this->window_title + " - " + OpenDialog->GetFilename());
-		FileManager FM(path, OpenDialog->GetFilename());
+		filename = OpenDialog->GetFilename();
+		this->SetTitle(this->window_title + " - " + filename);
+		FileManager FM(path, filename);
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
 			is_loading = true;
@@ -46,7 +48,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 			syntax_highlight(m_textCtrl, 8025);
 			m_textCtrl->SetInsertionPoint(0);
 			is_loading = false;
-			m_statusBar->SetStatusText("Archivo cargado: " + OpenDialog->GetFilename(), 0);
+			m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
 		}
 		// Sets our current document to the file the user selected
 		//MainEditBox->LoadFile(CurrentDocPath); //Opens that file
@@ -96,7 +98,7 @@ void MainWindow::open_options( wxCommandEvent& event )  {
 }
 
 void MainWindow::search_window( wxCommandEvent& event )  {
-	srch->Show();
+	srch->ShowModal();
 }
 
 void MainWindow::search_next( wxCommandEvent& event )  {
@@ -106,12 +108,13 @@ void MainWindow::search_next( wxCommandEvent& event )  {
 void MainWindow::search_replace_window( wxCommandEvent& event )  {
 	wxSearchReplace *snr = new wxSearchReplace(this);
 	snr->assignTextField(m_textCtrl);
-	snr->Show();
+	snr->ShowModal();
 }
 
 /** SAVE PROGRAM GENERATED **/
 void MainWindow::save_program( wxCommandEvent& event )  {
-	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC)|*.nc|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
+	wxString suggested = filename.SubString(0,filename.Find('.') - 1) + "_35";
+	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
 	if (OpenDialog->ShowModal() == wxID_OK) {
 		this->text_program = m_textCtrl->GetValue();
 		path = OpenDialog->GetPath();
