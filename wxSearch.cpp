@@ -32,6 +32,7 @@ unsigned int wxSearch::search_next() {
 	pos = text.find(search_term->GetValue(), pos+1);
 	if (pos < 0) {
 		pos = text.find(search_term->GetValue(), 0);
+		hint->SetLabel("Comienzo desde el principio");
 	}
 	textCtrl->SetFocus();
 	textCtrl->SetInsertionPoint(pos);
