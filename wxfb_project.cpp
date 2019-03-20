@@ -100,13 +100,24 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Append( m_menuItem6 );
 
 	wxMenuItem* m_menuItem7;
-	m_menuItem7 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar y reemplazar") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem7 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar y reemplazar") ) + wxT('\t') + wxT("CTRL+R"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem7->SetBitmaps( wxBitmap( wxT("resources/text_replace.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
 	m_menuItem7->SetBitmap( wxBitmap( wxT("resources/text_replace.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu3->Append( m_menuItem7 );
+
+	m_menu3->AppendSeparator();
+
+	wxMenuItem* m_menuItem9;
+	m_menuItem9 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Enumerar líneas") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem9->SetBitmaps( wxBitmap( wxT("resources/text_list_numbers.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem9->SetBitmap( wxBitmap( wxT("resources/text_list_numbers.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem9 );
 
 	m_menubar1->Append( m_menu3, wxT("Editar") );
 
@@ -162,6 +173,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_menuItem6->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::enum_lines ), this, m_menuItem9->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::about ), this, m_menuItem8->GetId());

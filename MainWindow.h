@@ -13,6 +13,7 @@ private:
 	wxSearch *srch;              // Search Window
 	wxString path;               // current path of loaded file
 protected:
+	void enum_lines( wxCommandEvent& event ) ;
 	void about( wxCommandEvent& event ) ;
 	void save_program( wxCommandEvent& event ) ;
 	void search_replace_window( wxCommandEvent& event ) ;

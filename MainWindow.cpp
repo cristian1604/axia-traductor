@@ -7,6 +7,8 @@
 #include "wxSearch.h"
 #include "wxSearchReplace.h"
 #include "wxAbout.h"
+#include <wx/clipbrd.h>
+#include <wx/msgdlg.h>
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
@@ -123,5 +125,33 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 void MainWindow::about( wxCommandEvent& event )  {
 	wxAbout *a = new wxAbout(this);
 	a->ShowModal();
+}
+
+void MainWindow::enum_lines( wxCommandEvent& event )  {
+	int pos = m_textCtrl->GetInsertionPoint();
+	// Write some text to the clipboard
+	if (wxTheClipboard->Open())	{
+		// This data objects are held by the clipboard,
+		// so do not delete them in the app.
+		wxTheClipboard->SetData( new wxTextDataObject(m_textCtrl->GetValue()) );
+		wxTheClipboard->Close();
+		
+		ShellExecute(NULL, L"open", L"Num2.exe", NULL, NULL, SW_SHOWDEFAULT);
+	}
+	
+	wxMessageBox( "Mensaje temporal de re enumeración", "Mensaje temporal", wxICON_INFORMATION);
+	
+	if (wxTheClipboard->Open()) {
+		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
+			wxTextDataObject data;
+			wxTheClipboard->GetData( data );
+			cout<<data.GetText();
+			text_program = data.GetText();
+			m_textCtrl->SetValue(text_program);
+			m_textCtrl->SetInsertionPoint(pos);
+			m_textCtrl->SetFocus();
+		}
+		wxTheClipboard->Close();
+	}
 }
 
