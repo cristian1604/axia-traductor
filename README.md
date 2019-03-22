@@ -18,7 +18,7 @@ _Axia-Traductor_ performs the following conversions and replacements:
  - On 8035 code version, starts the program with `%` symbol
  - Prevent any blank line inserting a comment character (`;`)
 
-### Tech
+### Software
 This software was developed on C++ with wxWidgets, using the following IDEs
  - [Zinjai] - An open source C/C++ IDE (integrated development environment)
  - [wxFormBuilder] -  An open source GUI designer application for wxWidgets toolkit
@@ -27,7 +27,16 @@ This software was developed on C++ with wxWidgets, using the following IDEs
 This software is not only a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
 
 ### Current status
-The software is totally functional. Not on production yet.
+The software is totally functional with some issues. Not on production yet.
+
+**Notice: Assign sentences `=` are not converted yet.**
+
+Explain:
+
+| Math expression | 8025 syntax | 8035 syntax |
+| ------ | ------ | ------ |
+| `A = A + 15` | `P1 = P1 F2 K15`| `(P101 = P101 + K15)` |
+| Store the Z pos on a variable | `P1 = Z`| `(P101 = PPOSZ)` |
 
 ##### Disclaimer
 This software is provided **_as is_**. Axia and I won't provide any warranty of use, or support.
