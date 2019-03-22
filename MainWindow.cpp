@@ -141,6 +141,7 @@ void MainWindow::about( wxCommandEvent& event )  {
 	a->ShowModal();
 }
 
+/**  Dady's re-enumerator library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_textCtrl->GetInsertionPoint();
 	// Write some text to the clipboard

@@ -7,6 +7,7 @@
 using namespace std;
 
 void syntax_highlight(wxTextCtrl* elem, int standard, s_Settings &s) {
+	elem->SetStyle(0, (elem->GetValue()).length(), wxTextAttr(*wxYELLOW,s.colour_textCtrl));
 	map<char, wxTextAttr> Style;
 	char comment_symbol;
 	
