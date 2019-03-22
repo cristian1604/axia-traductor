@@ -428,12 +428,11 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_colour_line = new wxColourPickerCtrl( sbSizer2->GetStaticBox(), wxID_ANY, *wxBLACK, wxDefaultPosition, wxDefaultSize, wxCLRP_DEFAULT_STYLE );
 	gSizer6->Add( m_colour_line, 0, wxALL|wxALIGN_RIGHT, 5 );
 
-	m_staticText24 = new wxStaticText( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Iniciar ventana maximizada"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText24->Wrap( -1 );
-	gSizer6->Add( m_staticText24, 0, wxALL, 5 );
-
 	m_maximize = new wxCheckBox( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Iniciar ventana maximizada"), wxDefaultPosition, wxDefaultSize, 0 );
 	gSizer6->Add( m_maximize, 0, wxALL, 5 );
+
+	reset = new wxButton( sbSizer2->GetStaticBox(), wxID_ANY, wxT("Reestablecer"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer6->Add( reset, 0, wxALL|wxALIGN_RIGHT, 5 );
 
 
 	sbSizer2->Add( gSizer6, 1, wxEXPAND, 5 );
@@ -458,6 +457,7 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_colour_comments->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_comments ), NULL, this );
 	m_colour_line->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_line ), NULL, this );
 	m_maximize->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( wxParameters::maximize ), NULL, this );
+	reset->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( wxParameters::reset_defaults ), NULL, this );
 	m_button4->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( wxParameters::save ), NULL, this );
 }
 
@@ -471,6 +471,7 @@ wxParameters::~wxParameters()
 	m_colour_comments->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_comments ), NULL, this );
 	m_colour_line->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_line ), NULL, this );
 	m_maximize->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( wxParameters::maximize ), NULL, this );
+	reset->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( wxParameters::reset_defaults ), NULL, this );
 	m_button4->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( wxParameters::save ), NULL, this );
 
 }

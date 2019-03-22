@@ -18,6 +18,8 @@ class wxOptions : public wxParameters {
 private:
 	
 protected:
+	void reset_defaults( wxCommandEvent& event ) ;
+	void reset( wxCommandEvent& event ) ;
 	void maximize( wxCommandEvent& event ) ;
 	void colour_text( wxColourPickerEvent& event ) ;
 	void colour_m( wxColourPickerEvent& event ) ;

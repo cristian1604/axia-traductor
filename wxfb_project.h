@@ -182,8 +182,8 @@ class wxParameters : public wxDialog
 		wxColourPickerCtrl* m_colour_comments;
 		wxStaticText* m_staticText23;
 		wxColourPickerCtrl* m_colour_line;
-		wxStaticText* m_staticText24;
 		wxCheckBox* m_maximize;
+		wxButton* reset;
 		wxButton* m_button4;
 
 		// Virtual event handlers, overide them in your derived class
@@ -194,12 +194,13 @@ class wxParameters : public wxDialog
 		virtual void colour_comments( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void colour_line( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void maximize( wxCommandEvent& event ) { event.Skip(); }
+		virtual void reset_defaults( wxCommandEvent& event ) { event.Skip(); }
 		virtual void save( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Opciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 455,411 ), long style = wxDEFAULT_DIALOG_STYLE );
+		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Opciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 485,433 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~wxParameters();
 
 };

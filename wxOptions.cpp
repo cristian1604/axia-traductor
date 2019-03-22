@@ -68,3 +68,13 @@ void wxOptions::maximize( wxCommandEvent& event )  {
 	settings.maximize_on_startup = m_maximize->GetValue();
 }
 
+void wxOptions::reset_defaults( wxCommandEvent& event )  {
+	settings.colour_textCtrl = wxColour( 0, 30, 60);
+	settings.colour_line_number = *wxGREEN;
+	settings.colour_command_m = *wxRED;
+	settings.colour_command_tool = *wxRED;
+	settings.colour_text = *wxYELLOW;
+	settings.colour_comments = *wxBLUE;
+	save(event);
+}
+
