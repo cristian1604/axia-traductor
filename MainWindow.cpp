@@ -12,8 +12,7 @@
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
-//	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
-//	m_textCtrl->SetBackgroundColour(wxColour( 42, 117, 168));
+	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
 	m_statusBar->SetLabel("Programa iniciado");
@@ -81,14 +80,23 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	is_loading = false;
 }
 
+/**  TRANSLATION  **/
 void MainWindow::translate( wxCommandEvent& event )  {
 	is_loading = true;
+	if (syntax_version) {
+		wxMessageBox("El código ya se encuentra en la versión 8035",
+					 "Traducir a 8025",
+					 wxOK);
+		return;
+	}
 	m_statusBar->SetStatusText("Analizando...", 0);
+	int ip = m_textCtrl->GetInsertionPoint();
 	syntax_slection->SetSelection(1);
 	syntax_version = 8035;
 	translate_8025_to_8035(m_textCtrl);
 	syntax_highlight(m_textCtrl, syntax_version, settings);
-	m_textCtrl->SetInsertionPoint(0);
+	m_textCtrl->SetFocus();
+	m_textCtrl->SetInsertionPoint(ip);
 	is_loading = false;
 	m_statusBar->SetStatusText("Programa convertido a versión 8035", 0);
 }

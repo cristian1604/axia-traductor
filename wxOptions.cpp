@@ -11,7 +11,7 @@ wxOptions::wxOptions(wxWindow *parent) : wxParameters(parent) {
 		settings.colour_command_m = *wxRED;
 		settings.colour_command_tool = *wxRED;
 		settings.colour_text = *wxYELLOW;
-		settings.colour_comments = *wxBLUE;
+		settings.colour_comments = wxColour(198, 255, 242);
 		settings.maximize_on_startup = false;
 		settings.remove_m08 = false;
 	} else {
