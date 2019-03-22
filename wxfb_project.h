@@ -28,6 +28,7 @@
 #include <wx/stattext.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
+#include <wx/gbsizer.h>
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
 #include <wx/clrpicker.h>
@@ -144,6 +145,7 @@ class about : public wxDialog
 	protected:
 		wxStaticBitmap* m_bitmap2;
 		wxStaticText* m_staticText8;
+		wxStaticText* m_staticText15;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
@@ -151,7 +153,7 @@ class about : public wxDialog
 
 	public:
 
-		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 371,201 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 402,152 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~about();
 
 };

@@ -41,6 +41,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		FileManager FM(path, filename);
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
+			syntax_version = 8025;
 			is_loading = true;
 			m_statusBar->SetStatusText("Leyendo archivo...", 0);
 			m_textCtrl->SetValue("");
@@ -83,7 +84,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 /**  TRANSLATION  **/
 void MainWindow::translate( wxCommandEvent& event )  {
 	is_loading = true;
-	if (syntax_version) {
+	if (syntax_version == 8035) {
 		wxMessageBox("El código ya se encuentra en la versión 8035",
 					 "Traducir a 8025",
 					 wxOK);
