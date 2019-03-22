@@ -4,7 +4,7 @@
 #include <algorithm>
 using namespace std;
 
-string block_conversion(string end, string &code, string &replacement);
+string block_conversion(string beg, string end, string &code, string &replacement);
 
 void translate_8025_to_8035(wxTextCtrl* elem) {
 	string translated;
@@ -16,6 +16,16 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	wxString sAux, prevSentence;
 	int x;
 	double db;
+	
+	// Search blocks of prologue and epilogue
+	// Epilogue
+	string beg = "P1 = P1 F2 P2";
+	string end = "P1 = F11 P10";
+	aux = block_conversion(beg, end, aux, beg);
+	beg = "M05";
+	end = "M30";
+	block_conversion(beg, end, aux, beg);
+	// End convert epilogue
 	
 	
 	while (!aux.empty()) {
@@ -80,8 +90,6 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				break;
 			}
 			
-			cout<<line<<endl;
-			
 			/** FIXED CONVERSIONS **/
 			// analyze FIXED assign commands on remaining line before insert
 			string str = "P1=Z";
@@ -91,15 +99,6 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				sentence.append(line);
 				line = "";
 			}
-			
-			// 'Epilogue' detector. Convert a block of code.
-//			str = "P1 = P1 F2 P2";
-//			x = line.find(str,0);
-//			if (x >= 0) {
-//				string rep = "(P100 = P100 - P102)\nM00 M05\nG29 JUMP\nM30";
-//				aux = block_conversion("M30", aux, rep);
-//				line = "";
-//			}
 			
 			// Sentence "GoTo"
 			str = "G29";
@@ -111,10 +110,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			}
 			
 			// Delete Line
-			str = "P1 = F11 P10";
+			str = "P1 = P1 F2 P2";
 			x = line.find(str,0);
 			if (x >= 0) {
-				line = line.replace(x,str.length(),";");
+				line = line.replace(x,str.length(),"(P100 = P100 - P102)");
 				sentence.append(line);
 				line = "";
 			}
@@ -138,16 +137,19 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 /**
 	This function converts a block of code. The block begins on the start of &code
 	Arguments:
-	end = Command to identify end of block (INCLUSIVE)
+	beg = First command on block start
+	end = Last command to identify end of block (INCLUSIVE)
 	code = Source code
 	replacement = Block of code to raplce
 **/
-string block_conversion(string end, string &code, string &replacement) {
-	int l_end = code.find(end, 0);
-	l_end += end.length();
-	if (l_end < 0) {
+string block_conversion(string beg, string end, string &code, string &replacement) {
+	int l_beg = code.find(beg);
+	if (l_beg < 0)
+		return "";
+	int l_end = code.find(end, l_beg);
+	if (l_end < 0 || l_end < l_beg) {
 		return "";
 	}
-	
-	return code.replace(0, l_end, replacement);
+	l_end += end.length();
+	return code.replace(l_beg, l_end-l_beg, replacement);
 }
