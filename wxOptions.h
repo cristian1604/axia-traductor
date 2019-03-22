@@ -11,6 +11,9 @@ struct s_Settings {
 	wxColour colour_line_number;
 	
 	bool maximize_on_startup;
+	bool remove_m08;
+	char replace_from[10];
+	char replace_to[10];
 };
 
 class wxOptions : public wxParameters {
@@ -18,6 +21,7 @@ class wxOptions : public wxParameters {
 private:
 	
 protected:
+	void remove_m08( wxCommandEvent& event ) ;
 	void reset_defaults( wxCommandEvent& event ) ;
 	void reset( wxCommandEvent& event ) ;
 	void maximize( wxCommandEvent& event ) ;

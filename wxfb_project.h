@@ -165,11 +165,11 @@ class wxParameters : public wxDialog
 
 	protected:
 		wxStaticText* m_staticText1;
-		wxTextCtrl* m_textCtrl2;
+		wxTextCtrl* m_replace_from;
 		wxStaticText* m_staticText3;
-		wxTextCtrl* m_textCtrl3;
+		wxTextCtrl* m_replace_to;
 		wxStaticText* m_staticText2;
-		wxCheckBox* remove_m08;
+		wxCheckBox* m_remove_m08;
 		wxStaticText* m_staticText9;
 		wxColourPickerCtrl* m_colour_textCtrl;
 		wxStaticText* m_staticText18;
@@ -187,6 +187,7 @@ class wxParameters : public wxDialog
 		wxButton* m_button4;
 
 		// Virtual event handlers, overide them in your derived class
+		virtual void remove_m08( wxCommandEvent& event ) { event.Skip(); }
 		virtual void colour_textCtrl( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void colour_text( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void colour_m( wxColourPickerEvent& event ) { event.Skip(); }

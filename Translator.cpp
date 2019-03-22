@@ -2,9 +2,12 @@
 #include <wx/textctrl.h>
 #include <iostream>
 #include <algorithm>
+#include "wxOptions.h"
+#include "FileManager.h"
 using namespace std;
 
 string block_conversion(string beg, string end, string &code, string &replacement);
+void apply_settings(string &code);
 
 void translate_8025_to_8035(wxTextCtrl* elem) {
 	string translated;
@@ -130,6 +133,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 		translated += '\n';
 		
 	}
+	apply_settings(translated);
 	elem->SetValue(translated);
 	elem->SetFocus();
 }
@@ -152,4 +156,20 @@ string block_conversion(string beg, string end, string &code, string &replacemen
 	}
 	l_end += end.length();
 	return code.replace(l_beg, l_end-l_beg, replacement);
+}
+
+/**  APPLY SETTINGS RULES  **/
+void apply_settings(string &code) {
+	s_Settings s;
+	FileManager F;
+	if (F.loadSettings(s)) {
+		wxString w_code(code);
+		if (s.replace_from && s.replace_to) {
+			w_code.Replace(s.replace_from, s.replace_to, true);
+		}
+		if (s.remove_m08) {
+			w_code.Replace("M08", "", true);
+		}
+		code = w_code;
+	}
 }

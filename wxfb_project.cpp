@@ -354,15 +354,15 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxGridSizer* gSizer3;
 	gSizer3 = new wxGridSizer( 0, 3, 0, 0 );
 
-	m_textCtrl2 = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer3->Add( m_textCtrl2, 1, wxALL|wxEXPAND, 5 );
+	m_replace_from = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( m_replace_from, 1, wxALL|wxEXPAND, 5 );
 
 	m_staticText3 = new wxStaticText( sbSizer1->GetStaticBox(), wxID_ANY, wxT("por"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText3->Wrap( -1 );
 	gSizer3->Add( m_staticText3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_textCtrl3 = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer3->Add( m_textCtrl3, 1, wxALL|wxEXPAND, 5 );
+	m_replace_to = new wxTextCtrl( sbSizer1->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer3->Add( m_replace_to, 1, wxALL|wxEXPAND, 5 );
 
 
 	gSizer2->Add( gSizer3, 1, wxEXPAND, 5 );
@@ -371,8 +371,8 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_staticText2->Wrap( -1 );
 	gSizer2->Add( m_staticText2, 0, wxALL, 5 );
 
-	remove_m08 = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Quitar parámetro M08"), wxDefaultPosition, wxDefaultSize, 0 );
-	gSizer2->Add( remove_m08, 1, wxALL|wxEXPAND, 5 );
+	m_remove_m08 = new wxCheckBox( sbSizer1->GetStaticBox(), wxID_ANY, wxT("Quitar parámetro M08"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer2->Add( m_remove_m08, 1, wxALL|wxEXPAND, 5 );
 
 
 	sbSizer1->Add( gSizer2, 1, wxEXPAND|wxALL, 5 );
@@ -450,6 +450,7 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 
 	// Connect Events
+	m_remove_m08->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( wxParameters::remove_m08 ), NULL, this );
 	m_colour_textCtrl->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_textCtrl ), NULL, this );
 	m_colour_text->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_text ), NULL, this );
 	m_colour_m->Connect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_m ), NULL, this );
@@ -464,6 +465,7 @@ wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& tit
 wxParameters::~wxParameters()
 {
 	// Disconnect Events
+	m_remove_m08->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( wxParameters::remove_m08 ), NULL, this );
 	m_colour_textCtrl->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_textCtrl ), NULL, this );
 	m_colour_text->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_text ), NULL, this );
 	m_colour_m->Disconnect( wxEVT_COMMAND_COLOURPICKER_CHANGED, wxColourPickerEventHandler( wxParameters::colour_m ), NULL, this );
