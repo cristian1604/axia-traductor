@@ -318,7 +318,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_bitmap2 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
 	gbSizer1->Add( m_bitmap2, wxGBPosition( 0, 0 ), wxGBSpan( 1, 1 ), wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
 
-	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor / traductor CNC 8025 a 8035\n\nMarzo 2019\nPuesta en producción: 22/03/2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor / traductor CNC 8025 a 8035\n\nPuesta en producción: 22/03/2019\n\nVersión: 26/03/2019"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText8->Wrap( -1 );
 	gbSizer1->Add( m_staticText8, wxGBPosition( 0, 1 ), wxGBSpan( 1, 1 ), wxALL|wxEXPAND, 5 );
 

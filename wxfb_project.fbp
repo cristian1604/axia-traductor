@@ -1484,7 +1484,7 @@
                                 <property name="gripper">0</property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Editor / traductor CNC 8025 a 8035&#x0A;&#x0A;Marzo 2019&#x0A;Puesta en producción: 22/03/2019</property>
+                                <property name="label">Editor / traductor CNC 8025 a 8035&#x0A;&#x0A;Puesta en producción: 22/03/2019&#x0A;&#x0A;Versión: 26/03/2019</property>
                                 <property name="markup">0</property>
                                 <property name="max_size"></property>
                                 <property name="maximize_button">0</property>
