@@ -22,7 +22,7 @@ private:
 	
 protected:
 	void remove_m08( wxCommandEvent& event ) ;
-	void reset_defaults( wxCommandEvent& event ) ;
+	void reset_defaults( wxCommandEvent& event) ;
 	void reset( wxCommandEvent& event ) ;
 	void maximize( wxCommandEvent& event ) ;
 	void colour_text( wxColourPickerEvent& event ) ;

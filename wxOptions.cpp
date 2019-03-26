@@ -6,14 +6,8 @@ using namespace std;
 wxOptions::wxOptions(wxWindow *parent) : wxParameters(parent) {
 	FileManager F;
 	if (!F.loadSettings(settings)) {
-		settings.colour_textCtrl = wxColour( 0, 30, 60);
-		settings.colour_line_number = *wxGREEN;
-		settings.colour_command_m = *wxRED;
-		settings.colour_command_tool = *wxRED;
-		settings.colour_text = *wxYELLOW;
-		settings.colour_comments = wxColour(198, 255, 242);
-		settings.maximize_on_startup = false;
-		settings.remove_m08 = false;
+		wxCommandEvent x;
+		reset_defaults(x);
 	} else {
 		m_replace_from->SetValue(settings.replace_from);
 		m_replace_to->SetValue(settings.replace_to);
@@ -83,7 +77,8 @@ void wxOptions::reset_defaults( wxCommandEvent& event )  {
 	settings.colour_command_m = *wxRED;
 	settings.colour_command_tool = *wxRED;
 	settings.colour_text = *wxYELLOW;
-	settings.colour_comments = *wxBLUE;
+	settings.colour_comments = wxColour(200, 200, 200);
+	settings.maximize_on_startup = false;
 	settings.remove_m08 = false;
 	save(event);
 }

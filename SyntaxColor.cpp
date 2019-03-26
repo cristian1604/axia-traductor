@@ -115,5 +115,5 @@ void syntax_color_8035_OLD(wxTextCtrl* elem) {
 		elem->AppendText('\n');
 	}
 	//elem->Show(true);
-	elem->SetFocus();
+	//elem->SetFocus();
 }
