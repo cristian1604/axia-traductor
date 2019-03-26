@@ -16,7 +16,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
 	m_statusBar->SetLabel("Programa iniciado");
-	m_statusBar->SetStatusText("8025 a 8035", 1);
+	m_statusBar->SetStatusText("8025 -> 8035", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
 	this->window_title = "Traductor 8025 a 8035";
 	
@@ -74,10 +74,10 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 		break;
 	}
 	is_loading = true;
-	int ip = m_textCtrl->GetInsertionPoint();
+	//int ip = m_textCtrl->GetInsertionPoint();
 	syntax_highlight(m_textCtrl, syntax_version, settings);
 	m_textCtrl->SetFocus();
-	m_textCtrl->SetInsertionPoint(ip);
+	// m_textCtrl->SetInsertionPoint(ip);
 	is_loading = false;
 }
 
