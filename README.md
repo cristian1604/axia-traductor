@@ -14,16 +14,17 @@ _Axia-Traductor_ performs the following conversions and replacements:
 | Tool selection | `T`| `D` |
 | Angle | `A`| `Q` |
 
-##### Analysis
- - On 8035 code version, starts the program with `%` symbol
+##### Code Conversion
+ - On 8035 syntax, always starts the program with `%` symbol
  - Prevent any blank line inserting a comment character (`;`)
+ - Perform a "prologue" and "epilogue" replacement (blocks of code at the beginning or at the end of the CNC program)
 
 ### Software
 This software was developed on C++ with wxWidgets, using the following IDEs
  - [Zinjai] - An open source C/C++ IDE (integrated development environment)
  - [wxFormBuilder] -  An open source GUI designer application for wxWidgets toolkit
  
-##### Features
+### Features
 This software is not only a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
 
 ### Current status
@@ -31,18 +32,19 @@ The software is totally functional with some issues. Not on production yet.
 
 **Notice: Assign sentences `=` are not converted yet.**
 
-Explain:
+Explaination:
 
 | Math expression | 8025 syntax | 8035 syntax |
 | ------ | ------ | ------ |
+| `A = A + B` | `P1 = P1 F1 P2`| `(P101 = P101 + P102)` |
 | `A = A - 15` | `P1 = P1 F2 K15`| `(P101 = P101 - K15)` |
 | Store the Z pos on a variable | `P1 = Z`| `(P101 = PPOSZ)` |
 
 ### Changelog
  - Applying settings on translation
- - Auto-detect code epilogue
+ - Auto-detecy and convert code epilogue
 
-##### Disclaimer
+#### Disclaimer
 This software is provided **_as is_**. Axia and I won't provide any warranty of use, or support.
 Always make sure that the converted CNC program is correct before execute it. Otherwise it can result on any damage or injuries.
 This program on this development status is absolutely experimental. **Please, be careful if you use the converted program on a CNC lathe.**
