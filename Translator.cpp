@@ -16,12 +16,13 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	bool program_initiated = false;
 	bool comments_inserted = false;
 	wxString comments;
-	wxString sAux, prevSentence;
+	wxString sAux, sAux2, prevSentence;
 	int x;
 	double db;
 	
 	// Search CONSTANTS blocks, called prologue and epilogue
-	// Prologue
+	// Remember: the char ` before the line prevent conversion of the sentence
+	// Prologue:
 	string beg = "P2 = K";
 	string end = "G53\n";
 	string rep = "G05\n`(P102 = 9.40)\nG40\n`(ORGX 54=0 , ORGZ 54=P100)\nG54\n";
@@ -83,9 +84,20 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				}
 				break;
 			case 'T':
-				// Convert form Taa.bb to Dbb
+				// Convert form Taa.bb to Taa Dbb
 				x = sentence.find('.');
-				sentence = 'D' + sentence.substr(x+1,sentence.length());
+				sAux2 = "";
+				for (int i=0; i < sentence.length(); i++) {
+					sAux = sentence[i];
+					if (sAux.IsNumber()) {
+						sAux2<<sentence[i];
+					}
+				}
+				if (sAux2 != "0" && sAux2 != "00") {
+					sentence = 'T' + sAux2 + " D" + sentence.substr(x+1,sentence.length());
+				} else {
+					sentence = 'D' + sentence.substr(x+1,sentence.length());
+				}
 				break;
 			case 'K':
 				// Convert from seconds to 1/100 seconds ONLY if the prev sentence was G04 (delay)
@@ -100,7 +112,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				sentence = 'K' + sAux;
 				break;
 			case '`':
-				// Internal symbol of preserve assign
+				// Internal symbol of preserve line (non standard, only on this editor)
 				sentence = sentence.substr(1,sentence.length());
 				break;
 			}
