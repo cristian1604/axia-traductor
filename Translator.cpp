@@ -20,11 +20,19 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	int x;
 	double db;
 	
-	// Search blocks of prologue and epilogue
+	// Search CONSTANTS blocks, called prologue and epilogue
+	// Prologue
+	string beg = "P2 = K";
+	string end = "G53\n";
+	string rep = "G05\n`(P102 = 9.40)\nG40\n`(ORGX 54=0 , ORGZ 54=P100)\nG54\n";
+	aux = block_conversion(beg, end, aux, rep);
+	// End prologue
+	
 	// Epilogue
-	string beg = "P1 = P1 F2 P2";
-	string end = "P1 = F11 P10";
+	beg = "P1 = P1 F2 P2";
+	end = "P1 = F11 P10";
 	aux = block_conversion(beg, end, aux, beg);
+
 	beg = "M05";
 	end = "M30";
 	block_conversion(beg, end, aux, beg);
@@ -90,6 +98,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				sAux.Clear();
 				sAux<<db * 100;
 				sentence = 'K' + sAux;
+				break;
+			case '`':
+				// Internal symbol of preserve assign
+				sentence = sentence.substr(1,sentence.length());
 				break;
 			}
 			
@@ -159,6 +171,9 @@ string block_conversion(string beg, string end, string &code, string &replacemen
 }
 
 /**  APPLY SETTINGS RULES  **/
+/** Application of conversion rules on settings file 
+	For example: Remove M08 instruction, or replace spining direction (M03 or M04)
+**/
 void apply_settings(string &code) {
 	s_Settings s;
 	FileManager F;
