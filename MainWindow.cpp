@@ -103,6 +103,7 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	m_textCtrl->SetFocus();
 	m_textCtrl->SetInsertionPoint(ip);
 	is_loading = false;
+	enum_lines(event);
 	m_statusBar->SetStatusText("Programa convertido a versión 8035", 0);
 }
 
@@ -147,19 +148,45 @@ void MainWindow::about( wxCommandEvent& event )  {
 
 /**  Dady's re-enumerator library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
-	
 	int pos = m_textCtrl->GetInsertionPoint();
+	bool partial = false;
+	long x;
+	
+	// If the code is on 8035, we need to convert only the program and dismiss the comments section
+	text_program = m_textCtrl->GetValue();
+	if (syntax_version == 8035) {
+		partial = true;
+		x = text_program.Find("N0010");   // search the initial line
+		text_program = text_program.SubString(x, text_program.Length());
+		
+		text_program = "%tmp\n" + text_program; // temporal line
+	}
+	
 	// Write some text to the clipboard
 	if (wxTheClipboard->Open())	{
 		// This data objects are held by the clipboard,
 		// so do not delete them in the app.
-		wxTheClipboard->SetData( new wxTextDataObject(m_textCtrl->GetValue()));
+		wxTheClipboard->SetData( new wxTextDataObject(text_program));
 		wxTheClipboard->Close();
 		
 		wxExecute("Num2.exe",wxEXEC_SYNC);
 	}
 	
-	paste_program_clipboard(event);
+	if (!partial) {
+		paste_program_clipboard(event);
+	} else {
+		// Store on a temp variable the content before the beginning "N0010"
+		wxString tmp = m_textCtrl->GetValue();
+		tmp = tmp.SubString(0, x-1);
+
+		wxTextDataObject data;
+		wxTheClipboard->GetData( data );
+		text_program = data.GetText();
+		text_program = tmp + text_program.SubString(5, text_program.Length());
+		m_textCtrl->SetValue(text_program);
+		m_textCtrl->SetFocus();
+	}
+	
 	m_textCtrl->SetInsertionPoint(pos);
 }
 
