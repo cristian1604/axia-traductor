@@ -4,7 +4,7 @@
 
 Text editor and conversor from CNC Fagor 8025 code to 8035 / 8037 versions.
 
-This software was developed for internal use, but in general, you can convert any program from Fagor CNC 8025  into Fagor 8035 code.
+This software was designed for internal and specific translation requirements. Probably don't work on 100% of the cases. In general, you can convert almost any program from Fagor CNC 8025  into Fagor 8035 NC code.
 _Axia-Traductor_ performs the following conversions and replacements:
 
 ##### Replacements
@@ -28,11 +28,12 @@ This software was developed on C++ with wxWidgets, using the following IDEs
 This software is not only a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
 
 ### Current status
-The software is totally functional with some issues. Not on production yet.
-
-**Notice: Assign sentences `=` are not converted yet.**
+The software is totally functional. Only convert portion of static code.
+Notice: Assign sentences `=` are not converted.
 
 Explaination:
+
+Since variable enumeration on 8035 and 8025 are both different, the sentence are not converted directly. Is mapped internally and are replaced on execution time.
 
 | Math expression | 8025 syntax | 8035 syntax |
 | ------ | ------ | ------ |
@@ -41,13 +42,14 @@ Explaination:
 | Store the Z pos on a variable | `P1 = Z`| `(P101 = PPOSZ)` |
 
 ### Changelog
- - Applying settings on translation
- - Auto-detecy and convert code epilogue
+ - Paste formatting text to NC code (replacing commas `,` by dots `.`)
+ - BugFix: Add comment character `;` on blank lines or non-enumerated lines.
 
 #### Disclaimer
-This software is provided **_as is_**. Axia and I won't provide any warranty of use, or support.
+This software is provided **_as is_**. [Axia] and I won't provide any warranty of use, or support.
 Always make sure that the converted CNC program is correct before execute it. Otherwise it can result on any damage or injuries.
 This program on this development status is absolutely experimental. **Please, be careful if you use the converted program on a CNC lathe.**
 
 [Zinjai]: <http://zinjai.sourceforge.net/>
 [wxFormBuilder]: <https://github.com/wxFormBuilder/wxFormBuilder>
+[Axia]: <https://axia.com.ar/>

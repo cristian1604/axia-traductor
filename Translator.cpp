@@ -41,6 +41,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	
 	
 	while (!aux.empty()) {
+		// search on line. Here we got a complete line to be separated by words
 		int pos = aux.find('\n');
 		string line = aux.substr(0, pos);
 		aux = aux.substr(pos+1, aux.length());
@@ -51,7 +52,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			program_initiated = true;
 		}
 		
+		if (line.empty()) translated += "  ;";
+		
 		while (!line.empty()) {
+			// iterate by word
 			if (line[0] == ' ') {
 				translated += ' ';
 				line = line.substr(1, line.length());
@@ -60,6 +64,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			pos = line.find(' ');
 			if (pos < 0)
 				pos = line.length();
+			
 			string sentence = line.substr(0, pos);
 			line = line.substr(pos, line.length());
 			switch (sentence[0]) {

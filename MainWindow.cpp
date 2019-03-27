@@ -221,6 +221,26 @@ void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
 	}
 }
 
+void MainWindow::paste_formatting( wxCommandEvent& event )  {
+	text_program = m_textCtrl->GetValue();
+	long x = m_textCtrl->GetInsertionPoint();
+	text_program = text_program.SubString(0, x);
+
+	if (wxTheClipboard->Open()) {
+		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
+			wxTextDataObject data;
+			wxTheClipboard->GetData( data );
+			wxString aux = data.GetText();
+			aux.Replace(',', '.');
+			text_program += (m_textCtrl->GetValue()).SubString(x, (m_textCtrl->GetValue()).Length());
+			
+			m_textCtrl->SetValue(text_program);
+			m_textCtrl->SetFocus();
+		}
+		wxTheClipboard->Close();
+	}
+}
+
 void MainWindow::channels( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions

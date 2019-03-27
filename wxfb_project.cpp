@@ -81,6 +81,15 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menubar1->Append( m_menu1, wxT("&Archivo") );
 
 	m_menu3 = new wxMenu();
+	wxMenuItem* m_menuItem13;
+	m_menuItem13 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Pegar formateando a código NC") ) + wxT('\t') + wxT("CTRL+ALT+V"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem13->SetBitmaps( wxBitmap( wxT("resources/page_paste.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem13->SetBitmap( wxBitmap( wxT("resources/page_paste.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem13 );
+
 	wxMenuItem* m_menuItem10;
 	m_menuItem10 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Copiar programa completo") ) + wxT('\t') + wxT("CTRL+SHIFT+C"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
@@ -201,6 +210,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::save_program ), this, m_menuItem2->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::paste_formatting ), this, m_menuItem13->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::copy_program_clipboard ), this, m_menuItem10->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::paste_program_clipboard ), this, m_menuItem11->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());

@@ -67,6 +67,7 @@ class wxMainWindow : public wxFrame
 		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
+		virtual void paste_formatting( wxCommandEvent& event ) { event.Skip(); }
 		virtual void copy_program_clipboard( wxCommandEvent& event ) { event.Skip(); }
 		virtual void paste_program_clipboard( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_window( wxCommandEvent& event ) { event.Skip(); }
