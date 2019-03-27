@@ -131,7 +131,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->AppendSeparator();
 
 	wxMenuItem* m_menuItem9;
-	m_menuItem9 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Enumerar / Re-enumerar líneas") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem9 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Enumerar / Re-enumerar líneas") ) + wxT('\t') + wxT("F8"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem9->SetBitmaps( wxBitmap( wxT("resources/text_list_numbers.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -143,7 +143,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_menu2 = new wxMenu();
 	wxMenuItem* m_menuItem3;
-	m_menuItem3 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Actualizar coloración de sintaxis") ) + wxT('\t') + wxT("F5"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem3 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Actualizar coloración de sintaxis") ) + wxT('\t') + wxT("F11"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem3->SetBitmaps( wxBitmap( wxT("resources/refresh.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -160,7 +160,18 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	#endif
 	m_menu2->Append( m_menuItem4 );
 
-	m_menubar1->Append( m_menu2, wxT("A&cciones") );
+	m_menu2->AppendSeparator();
+
+	wxMenuItem* m_menuItem12;
+	m_menuItem12 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Canales") ) + wxT('\t') + wxT("F5"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem12->SetBitmaps( wxBitmap( wxT("resources/text_letter_omega.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem12->SetBitmap( wxBitmap( wxT("resources/text_letter_omega.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu2->Append( m_menuItem12 );
+
+	m_menubar1->Append( m_menu2, wxT("&Herramientas") );
 
 	m_menu5 = new wxMenu();
 	wxMenuItem* m_menuItem8;
@@ -198,6 +209,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::enum_lines ), this, m_menuItem9->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
+	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::channels ), this, m_menuItem12->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::about ), this, m_menuItem8->GetId());
 }
 
@@ -340,7 +352,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_bitmap2 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
 	gbSizer1->Add( m_bitmap2, wxGBPosition( 0, 0 ), wxGBSpan( 1, 1 ), wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
 
-	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor / traductor CNC 8025 a 8035\n\nPuesta en producción: 22/03/2019\n\nVersión: 26/03/2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor / traductor CNC 8025 a 8035\n\nPuesta en producción: 22/03/2019\n\nVersión: 27/03/2019"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText8->Wrap( -1 );
 	gbSizer1->Add( m_staticText8, wxGBPosition( 0, 1 ), wxGBSpan( 1, 1 ), wxALL|wxEXPAND, 5 );
 

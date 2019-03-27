@@ -194,3 +194,9 @@ void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
 	}
 }
 
+void MainWindow::channels( wxCommandEvent& event )  {
+	// Execution of external program
+	// Not included on this repository due copyright restrictions
+	wxExecute("Canalesw.exe");
+}
+
