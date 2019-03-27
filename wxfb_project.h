@@ -44,7 +44,7 @@ class wxMainWindow : public wxFrame
 	private:
 
 	protected:
-		wxChoice* syntax_slection;
+		wxChoice* m_syntax_slection;
 		wxStaticBitmap* m_bitmap1;
 		wxTextCtrl* m_textCtrl;
 		wxStatusBar* m_statusBar;

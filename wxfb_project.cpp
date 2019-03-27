@@ -20,11 +20,11 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxGridSizer* gSizer1;
 	gSizer1 = new wxGridSizer( 0, 2, 0, 0 );
 
-	wxString syntax_slectionChoices[] = { wxT("Sintaxis para 8025"), wxT("Sintaxis para 8035") };
-	int syntax_slectionNChoices = sizeof( syntax_slectionChoices ) / sizeof( wxString );
-	syntax_slection = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, syntax_slectionNChoices, syntax_slectionChoices, 0 );
-	syntax_slection->SetSelection( 0 );
-	gSizer1->Add( syntax_slection, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxRIGHT|wxLEFT, 5 );
+	wxString m_syntax_slectionChoices[] = { wxT("Sintaxis para 8025"), wxT("Sintaxis para 8035") };
+	int m_syntax_slectionNChoices = sizeof( m_syntax_slectionChoices ) / sizeof( wxString );
+	m_syntax_slection = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_syntax_slectionNChoices, m_syntax_slectionChoices, 0 );
+	m_syntax_slection->SetSelection( 0 );
+	gSizer1->Add( m_syntax_slection, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxRIGHT|wxLEFT, 5 );
 
 	m_bitmap1 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("logo_small.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
 	gSizer1->Add( m_bitmap1, 0, wxALL|wxALIGN_RIGHT, 5 );
@@ -180,7 +180,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 
 	// Connect Events
-	syntax_slection->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
+	m_syntax_slection->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	m_textCtrl->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Connect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
@@ -204,7 +204,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 wxMainWindow::~wxMainWindow()
 {
 	// Disconnect Events
-	syntax_slection->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
+	m_syntax_slection->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	m_textCtrl->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Disconnect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );

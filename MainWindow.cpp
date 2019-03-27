@@ -45,6 +45,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
 			syntax_version = 8025;
+			m_syntax_slection->SetSelection(0);
 			is_loading = true;
 			m_statusBar->SetStatusText("Leyendo archivo...", 0);
 			m_textCtrl->SetValue("");
@@ -68,7 +69,7 @@ void MainWindow::edit_text( wxKeyEvent& event )  {
 
 void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	if (is_loading) return;
-	switch (syntax_slection->GetSelection()) {
+	switch (m_syntax_slection->GetSelection()) {
 	case 0:
 		syntax_version = 8025;
 		break;
@@ -95,7 +96,7 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	}
 	m_statusBar->SetStatusText("Analizando...", 0);
 	int ip = m_textCtrl->GetInsertionPoint();
-	syntax_slection->SetSelection(1);
+	m_syntax_slection->SetSelection(1);
 	syntax_version = 8035;
 	translate_8025_to_8035(m_textCtrl);
 	syntax_highlight(m_textCtrl, syntax_version, settings);
