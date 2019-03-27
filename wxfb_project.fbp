@@ -522,7 +522,7 @@
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">Buscar siguiente</property>
-                        <property name="name">m_menuItem6</property>
+                        <property name="name">m_search_next</property>
                         <property name="permission">none</property>
                         <property name="shortcut">F3</property>
                         <property name="unchecked_bitmap"></property>

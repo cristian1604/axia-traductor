@@ -110,14 +110,14 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	#endif
 	m_menu3->Append( m_menuItem5 );
 
-	wxMenuItem* m_menuItem6;
-	m_menuItem6 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar siguiente") ) + wxT('\t') + wxT("F3"), wxT("Buscar próximo término"), wxITEM_NORMAL );
+	wxMenuItem* m_search_next;
+	m_search_next = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar siguiente") ) + wxT('\t') + wxT("F3"), wxT("Buscar próximo término"), wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem6->SetBitmaps( wxBitmap( wxT("resources/magnifier_zoom_in.png"), wxBITMAP_TYPE_ANY ) );
+	m_search_next->SetBitmaps( wxBitmap( wxT("resources/magnifier_zoom_in.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem6->SetBitmap( wxBitmap( wxT("resources/magnifier_zoom_in.png"), wxBITMAP_TYPE_ANY ) );
+	m_search_next->SetBitmap( wxBitmap( wxT("resources/magnifier_zoom_in.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
-	m_menu3->Append( m_menuItem6 );
+	m_menu3->Append( m_search_next );
 
 	wxMenuItem* m_menuItem7;
 	m_menuItem7 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar y reemplazar") ) + wxT('\t') + wxT("CTRL+R"), wxEmptyString, wxITEM_NORMAL );
@@ -204,7 +204,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::copy_program_clipboard ), this, m_menuItem10->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::paste_program_clipboard ), this, m_menuItem11->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());
-	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_menuItem6->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_search_next->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::enum_lines ), this, m_menuItem9->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
