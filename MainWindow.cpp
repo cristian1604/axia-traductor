@@ -9,6 +9,9 @@
 #include "wxAbout.h"
 #include <wx/clipbrd.h>
 #include <wx/msgdlg.h>
+#include <wx/utils.h>
+#include <wx/wx.h>
+
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
@@ -143,30 +146,20 @@ void MainWindow::about( wxCommandEvent& event )  {
 
 /**  Dady's re-enumerator library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
+	
 	int pos = m_textCtrl->GetInsertionPoint();
 	// Write some text to the clipboard
 	if (wxTheClipboard->Open())	{
 		// This data objects are held by the clipboard,
 		// so do not delete them in the app.
-		wxTheClipboard->SetData( new wxTextDataObject(m_textCtrl->GetValue()) );
+		wxTheClipboard->SetData( new wxTextDataObject(m_textCtrl->GetValue()));
 		wxTheClipboard->Close();
 		
-		ShellExecute(NULL, L"open", L"Num2.exe", NULL, NULL, SW_SHOWDEFAULT);
+		wxExecute("Num2.exe",wxEXEC_SYNC);
 	}
 	
-	wxMessageBox( "Mensaje temporal de re enumeración", "Mensaje temporal", wxICON_INFORMATION);
-	
-	if (wxTheClipboard->Open()) {
-		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
-			wxTextDataObject data;
-			wxTheClipboard->GetData( data );
-			text_program = data.GetText();
-			m_textCtrl->SetValue(text_program);
-			m_textCtrl->SetInsertionPoint(pos);
-			m_textCtrl->SetFocus();
-		}
-		wxTheClipboard->Close();
-	}
+	paste_program_clipboard(event);
+	m_textCtrl->SetInsertionPoint(pos);
 }
 
 void MainWindow::loadSettings() {
@@ -177,3 +170,26 @@ void MainWindow::loadSettings() {
 		this->Maximize(settings.maximize_on_startup);
 	}
 }
+
+void MainWindow::copy_program_clipboard( wxCommandEvent& event )  {
+	if (wxTheClipboard->Open())	{
+		// This data objects are held by the clipboard,
+		// so do not delete them in the app.
+		wxTheClipboard->SetData( new wxTextDataObject(m_textCtrl->GetValue()));
+		wxTheClipboard->Close();
+	}
+}
+
+void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
+	if (wxTheClipboard->Open()) {
+		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
+			wxTextDataObject data;
+			wxTheClipboard->GetData( data );
+			text_program = data.GetText();
+			m_textCtrl->SetValue(text_program);
+			m_textCtrl->SetFocus();
+		}
+		wxTheClipboard->Close();
+	}
+}
+

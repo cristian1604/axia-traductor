@@ -16,6 +16,8 @@ private:
 	wxString path;               // current path of loaded file
 	s_Settings settings;
 protected:
+	void copy_program_clipboard( wxCommandEvent& event ) ;
+	void paste_program_clipboard( wxCommandEvent& event ) ;
 	void enum_lines( wxCommandEvent& event ) ;
 	void about( wxCommandEvent& event ) ;
 	void save_program( wxCommandEvent& event ) ;
