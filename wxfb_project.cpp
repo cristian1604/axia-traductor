@@ -24,7 +24,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	int syntax_slectionNChoices = sizeof( syntax_slectionChoices ) / sizeof( wxString );
 	syntax_slection = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, syntax_slectionNChoices, syntax_slectionChoices, 0 );
 	syntax_slection->SetSelection( 0 );
-	gSizer1->Add( syntax_slection, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	gSizer1->Add( syntax_slection, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxRIGHT|wxLEFT, 5 );
 
 	m_bitmap1 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("logo_small.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
 	gSizer1->Add( m_bitmap1, 0, wxALL|wxALIGN_RIGHT, 5 );
@@ -81,6 +81,26 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menubar1->Append( m_menu1, wxT("&Archivo") );
 
 	m_menu3 = new wxMenu();
+	wxMenuItem* m_menuItem10;
+	m_menuItem10 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Copiar programa completo") ) + wxT('\t') + wxT("CTRL+SHIFT+C"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem10->SetBitmaps( wxBitmap( wxT("resources/copy.gif"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem10->SetBitmap( wxBitmap( wxT("resources/copy.gif"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem10 );
+
+	wxMenuItem* m_menuItem11;
+	m_menuItem11 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Pegar reemplazando todo") ) + wxT('\t') + wxT("CTRL+SHIFT+V"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem11->SetBitmaps( wxBitmap( wxT("resources/paste_plain.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem11->SetBitmap( wxBitmap( wxT("resources/paste_plain.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem11 );
+
+	m_menu3->AppendSeparator();
+
 	wxMenuItem* m_menuItem5;
 	m_menuItem5 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar") ) + wxT('\t') + wxT("CTRL+F"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
@@ -111,7 +131,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->AppendSeparator();
 
 	wxMenuItem* m_menuItem9;
-	m_menuItem9 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Enumerar líneas") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem9 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Enumerar / Re-enumerar líneas") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem9->SetBitmaps( wxBitmap( wxT("resources/text_list_numbers.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -170,6 +190,8 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::save_program ), this, m_menuItem2->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::copy_program_clipboard ), this, m_menuItem10->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::paste_program_clipboard ), this, m_menuItem11->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_window ), this, m_menuItem5->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_menuItem6->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
