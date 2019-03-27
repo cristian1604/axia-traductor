@@ -74,6 +74,7 @@ class wxMainWindow : public wxFrame
 		virtual void search_next( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_replace_window( wxCommandEvent& event ) { event.Skip(); }
 		virtual void enum_lines( wxCommandEvent& event ) { event.Skip(); }
+		virtual void simulate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void channels( wxCommandEvent& event ) { event.Skip(); }
 		virtual void about( wxCommandEvent& event ) { event.Skip(); }
 

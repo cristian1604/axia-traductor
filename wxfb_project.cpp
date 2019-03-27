@@ -171,6 +171,15 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_menu2->AppendSeparator();
 
+	wxMenuItem* m_menuItem14;
+	m_menuItem14 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Simular") ) + wxT('\t') + wxT("F4"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem14->SetBitmaps( wxBitmap( wxT("resources/chart_line.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem14->SetBitmap( wxBitmap( wxT("resources/chart_line.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu2->Append( m_menuItem14 );
+
 	wxMenuItem* m_menuItem12;
 	m_menuItem12 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Canales") ) + wxT('\t') + wxT("F5"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
@@ -219,6 +228,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::enum_lines ), this, m_menuItem9->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
+	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::simulate ), this, m_menuItem14->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::channels ), this, m_menuItem12->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::about ), this, m_menuItem8->GetId());
 }

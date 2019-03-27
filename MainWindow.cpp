@@ -223,6 +223,7 @@ void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
 
 void MainWindow::paste_formatting( wxCommandEvent& event )  {
 	text_program = m_textCtrl->GetValue();
+	long aaa = m_textCtrl->GetScrollPos(wxVERTICAL);
 	long x = m_textCtrl->GetInsertionPoint();
 	text_program = text_program.SubString(0, x);
 
@@ -236,6 +237,7 @@ void MainWindow::paste_formatting( wxCommandEvent& event )  {
 			
 			m_textCtrl->SetValue(text_program);
 			m_textCtrl->SetInsertionPoint(x + aux.Length());
+			m_textCtrl->SetScrollPos(wxVERTICAL, aaa*2);
 			m_textCtrl->SetFocus();
 		}
 		wxTheClipboard->Close();
@@ -246,5 +248,19 @@ void MainWindow::channels( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
 	wxExecute("Canalesw.exe");
+}
+
+void MainWindow::simulate( wxCommandEvent& event )  {
+	// Execution of external program
+	// Not included on this repository due copyright restrictions
+	if (syntax_version != 8025) {
+		wxMessageBox( "La sintaxis no es 8025", "Versión incorrecta", wxICON_ERROR);
+		return;
+	}
+	FileManager F("tmp.txt", "tmp.txt");
+	text_program = m_textCtrl->GetValue();
+	if (F.writeFile(text_program)) {
+		wxExecute("ABsim.exe tmp.txt");
+	}
 }
 
