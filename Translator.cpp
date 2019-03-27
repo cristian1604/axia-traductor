@@ -87,7 +87,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				// Convert form Taa.bb to Taa Dbb
 				x = sentence.find('.');
 				sAux2 = "";
-				for (int i=0; i < sentence.length(); i++) {
+				for (int i=0; i < sentence.length()-x; i++) {
 					sAux = sentence[i];
 					if (sAux.IsNumber()) {
 						sAux2<<sentence[i];
