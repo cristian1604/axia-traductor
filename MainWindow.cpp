@@ -232,9 +232,10 @@ void MainWindow::paste_formatting( wxCommandEvent& event )  {
 			wxTheClipboard->GetData( data );
 			wxString aux = data.GetText();
 			aux.Replace(',', '.');
-			text_program += (m_textCtrl->GetValue()).SubString(x, (m_textCtrl->GetValue()).Length());
+			text_program += aux + (m_textCtrl->GetValue()).SubString(x, (m_textCtrl->GetValue()).Length());
 			
 			m_textCtrl->SetValue(text_program);
+			m_textCtrl->SetInsertionPoint(x + aux.Length());
 			m_textCtrl->SetFocus();
 		}
 		wxTheClipboard->Close();

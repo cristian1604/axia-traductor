@@ -188,7 +188,7 @@ exec_script=
 env_vars=PATH+=;${MINGW_DIR}\wx3\bin
 wait_for_key=0
 temp_folder=debug.w32
-output_file=${TEMP_DIR}\Proyecto.exe
+output_file=${TEMP_DIR}\Traductor.exe
 icon_file=resources\Webalys.ico
 manifest_file=manifest.xml
 compiling_extra=-Wno-unused-local-typedefs
