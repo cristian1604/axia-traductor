@@ -286,14 +286,14 @@ search_and_replace::search_and_replace( wxWindow* parent, wxWindowID id, const w
 	m_staticText6->Wrap( -1 );
 	fgSizer1->Add( m_staticText6, 0, wxALL, 5 );
 
-	m_search = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_search = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	fgSizer1->Add( m_search, 0, wxALL|wxEXPAND, 5 );
 
 	m_staticText7 = new wxStaticText( this, wxID_ANY, wxT("Y reemplazarlas por"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText7->Wrap( -1 );
 	fgSizer1->Add( m_staticText7, 0, wxALL, 5 );
 
-	m_replace = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_replace = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	fgSizer1->Add( m_replace, 0, wxALL|wxEXPAND, 5 );
 
 
@@ -321,7 +321,9 @@ search_and_replace::search_and_replace( wxWindow* parent, wxWindowID id, const w
 	// Connect Events
 	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ) );
 	m_search->Connect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
+	m_search->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_replace->Connect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
+	m_replace->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button3->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
 }
@@ -331,7 +333,9 @@ search_and_replace::~search_and_replace()
 	// Disconnect Events
 	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ) );
 	m_search->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
+	m_search->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_replace->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( search_and_replace::evt_key_up ), NULL, this );
+	m_replace->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::start_replace ), NULL, this );
 	m_button3->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( search_and_replace::close ), NULL, this );
 
