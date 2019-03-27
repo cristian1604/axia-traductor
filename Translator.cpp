@@ -173,10 +173,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 string block_conversion(string beg, string end, string &code, string &replacement) {
 	int l_beg = code.find(beg);
 	if (l_beg < 0)
-		return "";
+		return code;
 	int l_end = code.find(end, l_beg);
 	if (l_end < 0 || l_end < l_beg) {
-		return "";
+		return code;
 	}
 	l_end += end.length();
 	return code.replace(l_beg, l_end-l_beg, replacement);
