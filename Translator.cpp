@@ -22,24 +22,21 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	double db;
 	
 	// Search CONSTANTS blocks, called prologue and epilogue
-	// Remember: the char ` before the line prevent conversion of the sentence
+	// The char ` before the line prevent the conversion of the entire line
 	// Prologue:
-	string beg = "P2 = K";
-	string end = "G53\n";
-	string rep = "G05\n`(P102 = 9.40)\nG40\n`(ORGX 54=0 , ORGZ 54=P100)\nG54\n";
+	string beg = "P2 = K";        // start of block
+	string end = "G53\n";         // end of block
+	string p1 = obtain_parameter(0, aux, "P2 =");
+	string rep = "G05\n`(P102 = " + p1.substr(1, p1.length()) + ")\nG40\n`(ORGX 54=0 , ORGZ 54=P100)\nG54\n";
 	aux = block_conversion(beg, end, aux, rep);
 	// End prologue
 	
 	// Epilogue
 	beg = "P1 = P1 F2 P2";
 	end = "M30";
-	rep = "(P100 = P100 - P102)\nM00 M05\nG29 N0090\n";
-	aux = block_conversion(beg, end, aux, beg);
-
-	beg = "M05";
-	end = "M30";
-	
-	block_conversion(beg, end, aux, beg);
+	p1 = obtain_parameter(0, aux, "G29");
+	rep = "`(P100 = P100 - P102)\nM00 M05\n`(GOTO "+ p1 +")\nM30";
+	aux = block_conversion(beg, end, aux, rep);
 	// End convert epilogue
 	
 	
@@ -233,8 +230,14 @@ string obtain_parameter(long beg, string &code, string param) {
 	long char_spacing_end = line.find(' ', char_spacing_beg);
 	if (char_spacing_end < 0) {
 		line = line.substr(char_spacing_beg, line.length()-char_spacing_beg);
+		// erase carriage return char
+		pos = line.find('\n');
+		if (pos >= 0) {
+			line = line.substr(0, pos);
+		}
 	} else {
 		line = line.substr(char_spacing_beg, char_spacing_end-char_spacing_beg);
 	}
+	
 	return line;
 }
