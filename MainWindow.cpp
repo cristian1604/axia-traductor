@@ -14,6 +14,9 @@
 
 using namespace std;
 
+#define FAGOR_8025 8025
+#define FAGOR_8035 8035
+
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
@@ -44,13 +47,13 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		FileManager FM(path, filename);
 		bool flag = FM.readFile(this->text_program);
 		if (flag) {
-			syntax_version = 8025;
+			syntax_version = FAGOR_8025;
 			m_syntax_slection->SetSelection(0);
 			is_loading = true;
 			m_statusBar->SetStatusText("Leyendo archivo...", 0);
 			m_textCtrl->SetValue("");
 			m_textCtrl->SetValue(this->text_program);
-			syntax_highlight(m_textCtrl, 8025, settings);
+			syntax_highlight(m_textCtrl, syntax_version, settings);
 			m_textCtrl->SetInsertionPoint(0);
 			is_loading = false;
 			m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
@@ -71,10 +74,10 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	if (is_loading) return;
 	switch (m_syntax_slection->GetSelection()) {
 	case 0:
-		syntax_version = 8025;
+		syntax_version = FAGOR_8025;
 		break;
 	case 1:
-		syntax_version = 8035;
+		syntax_version = FAGOR_8035;
 		break;
 	}
 	is_loading = true;
@@ -88,16 +91,17 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 /**  TRANSLATION  **/
 void MainWindow::translate( wxCommandEvent& event )  {
 	is_loading = true;
-	if (syntax_version == 8035) {
+	if (syntax_version == FAGOR_8035) {
 		wxMessageBox("El código ya se encuentra en la versión 8035",
 					 "Traducir a 8025",
 					 wxOK);
+		is_loading = false;
 		return;
 	}
 	m_statusBar->SetStatusText("Analizando...", 0);
 	int ip = m_textCtrl->GetInsertionPoint();
 	m_syntax_slection->SetSelection(1);
-	syntax_version = 8035;
+	syntax_version = FAGOR_8035;
 	translate_8025_to_8035(m_textCtrl);
 	syntax_highlight(m_textCtrl, syntax_version, settings);
 	m_textCtrl->SetFocus();
@@ -154,7 +158,7 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 	
 	// If the code is on 8035, we need to convert only the program and dismiss the comments section
 	text_program = m_textCtrl->GetValue();
-	if (syntax_version == 8035) {
+	if (syntax_version == FAGOR_8035) {
 		partial = true;
 		x = text_program.Find("N0010");   // search the initial line
 		text_program = text_program.SubString(x, text_program.Length());
@@ -247,7 +251,7 @@ void MainWindow::paste_formatting( wxCommandEvent& event )  {
 void MainWindow::channels( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
-	if (syntax_version != 8025) {
+	if (syntax_version != FAGOR_8035) {
 		wxMessageBox( "Solo puede simular programas de 8025.\nEl código G actual es 8035", "Versión G no compatible", wxICON_ERROR);
 		return;
 	}
@@ -257,7 +261,7 @@ void MainWindow::channels( wxCommandEvent& event )  {
 void MainWindow::simulate( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
-	if (syntax_version != 8025) {
+	if (syntax_version != FAGOR_8035) {
 		wxMessageBox( "Solo puede simular programas de 8025.\nEl código G actual es 8035", "Versión G no compatible", wxICON_ERROR);
 		return;
 	}
