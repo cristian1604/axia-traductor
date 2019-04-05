@@ -60,7 +60,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			program_initiated = true;
 		}
 		
-		if (line.empty()) translated += "  ; ...";
+		if (line.empty()) translated += "  ;";
 		
 		while (!line.empty()) {
 			// iterate by word
