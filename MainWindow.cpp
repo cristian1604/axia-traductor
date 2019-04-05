@@ -149,7 +149,7 @@ void MainWindow::about( wxCommandEvent& event )  {
 	a->ShowModal();
 }
 
-/**  Dady's re-enumerator library call **/
+/**  Dady's re-enumerator lines library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_textCtrl->GetInsertionPoint();
 	bool partial = false;
@@ -163,6 +163,11 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 		text_program = text_program.SubString(x, text_program.Length());
 		
 		text_program = "%tmp\n" + text_program; // temporal line
+	}
+	
+	if (x < 1 && text_program.Find("%") < 0) {
+		wxMessageBox( "No se detectó el inicio de programa.\nRecuerde iniciar el programa con el caracter %", "Inicio de programa no encontrado", wxICON_ERROR);
+		return;
 	}
 	
 	// Write some text to the clipboard
