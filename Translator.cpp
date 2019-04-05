@@ -8,6 +8,7 @@ using namespace std;
 
 string block_conversion(string beg, string end, string &code, string &replacement);
 void apply_settings(string &code);
+string obtain_parameter(long beg, string &code, string param);
 
 void translate_8025_to_8035(wxTextCtrl* elem) {
 	string translated;
@@ -31,11 +32,13 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	
 	// Epilogue
 	beg = "P1 = P1 F2 P2";
-	end = "P1 = F11 P10";
+	end = "M30";
+	rep = "(P100 = P100 - P102)\nM00 M05\nG29 N0090\n";
 	aux = block_conversion(beg, end, aux, beg);
 
 	beg = "M05";
 	end = "M30";
+	
 	block_conversion(beg, end, aux, beg);
 	// End convert epilogue
 	
@@ -52,7 +55,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 			program_initiated = true;
 		}
 		
-		if (line.empty()) translated += "  ;";
+		if (line.empty()) translated += "  ; ...";
 		
 		while (!line.empty()) {
 			// iterate by word
@@ -118,6 +121,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				break;
 			case '`':
 				// Internal symbol of preserve line (non standard, only on this editor)
+				// when this character is found, the line is not converted
 				sentence = sentence.substr(1,sentence.length());
 				break;
 			}
@@ -170,9 +174,9 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 /**
 	This function converts a block of code. The block begins on the start of &code
 	Arguments:
-	beg = First command on block start
+	beg = First command as block start
 	end = Last command to identify end of block (INCLUSIVE)
-	code = Source code
+	code = Source code to be edited
 	replacement = Block of code to raplce
 **/
 string block_conversion(string beg, string end, string &code, string &replacement) {
@@ -190,6 +194,7 @@ string block_conversion(string beg, string end, string &code, string &replacemen
 /**  APPLY SETTINGS RULES  **/
 /** Application of conversion rules on settings file 
 	For example: Remove M08 instruction, or replace spining direction (M03 or M04)
+	Stored on settings file
 **/
 void apply_settings(string &code) {
 	s_Settings s;
@@ -204,4 +209,32 @@ void apply_settings(string &code) {
 		}
 		code = w_code;
 	}
+}
+
+/**
+	FUNCTION TO OBTAIN A PARAMETER
+	This function obtains a paramter from a sentence. Example: G29 N1234 -> obtains -> N1234
+	Arguments:
+	beg = position to start the search
+	code = source code
+	param = command where obtain the parameter
+***/
+string obtain_parameter(long beg, string &code, string param) {
+	long pos = code.find(param, beg);
+	if (pos < 0) {
+		return "";
+	}
+	// Getting the entire line
+	long carriage_return = code.find('\n', pos);
+	string line = code.substr(pos + param.length(), carriage_return-pos);
+	// obtaining the parameter
+	long char_spacing_beg = line.find(' ');
+	++char_spacing_beg;
+	long char_spacing_end = line.find(' ', char_spacing_beg);
+	if (char_spacing_end < 0) {
+		line = line.substr(char_spacing_beg, line.length()-char_spacing_beg);
+	} else {
+		line = line.substr(char_spacing_beg, char_spacing_end-char_spacing_beg);
+	}
+	return line;
 }
