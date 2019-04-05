@@ -130,7 +130,7 @@ void MainWindow::search_replace_window( wxCommandEvent& event )  {
 /** SAVE PROGRAM GENERATED **/
 void MainWindow::save_program( wxCommandEvent& event )  {
 	wxString suggested = filename.SubString(0,filename.Find('.') - 1) + "_35";
-	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
+	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado PIT (*.PIT)|*.PIT|Programa de mecanizado NC (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
 	if (OpenDialog->ShowModal() == wxID_OK) {
 		this->text_program = m_textCtrl->GetValue();
 		path = OpenDialog->GetPath();
