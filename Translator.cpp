@@ -29,7 +29,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	string beg = "P2 = K";        // start of block
 	string end = "G53\n";         // end of block
 	string p1 = obtain_parameter(0, aux, "P2 =");
-	string rep = "G05\n`(P102 = " + p1.substr(1, p1.length()) + ")\nG40\n`(ORGX 54=0 , ORGZ 54=P100)\nG54\n";
+	if (p1.length() > 0) {
+		p1 = p1.substr(1, p1.length());
+	}
+	string rep = "G05\n`(P102 = " + p1 + ")\nG40\n`(ORGX 54=0 , ORGZ 54=P100)\nG54\n";
 	aux = block_conversion(beg, end, aux, rep);
 	// End prologue
 	
@@ -37,9 +40,12 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	beg = "P1 = P1 F2 P2";
 	end = "M30";
 	p1 = obtain_parameter(0, aux, "G29"); // we need to sum 10 on line because on the epilogue we added a new line ("G05")
-	p1 = p1.substr(1, p1.length());
-	p1 = to_string(atoi(p1.c_str()) + 10);
-	rep = "`(P100 = P100 - P102)\nM00 M05\n`(GOTO N"+ string(4-p1.length(), '0').append(p1) +")\nM30";
+	if (p1.length() > 0) {
+		p1 = p1.substr(1, p1.length());
+		p1 = to_string(atoi(p1.c_str()) + 10);
+		p1 = string(4-p1.length(), '0').append(p1);
+	} 
+	rep = "`(P100 = P100 - P102)\nM00 M05\n`(GOTO N"+ p1 +")\nM30";
 	aux = block_conversion(beg, end, aux, rep);
 	// End convert epilogue
 	
@@ -174,6 +180,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 
 /**
 	This function converts a block of code. The block begins on the start of &code
+	if any of beg or end are not found, the functon doesn't make any change
 	Arguments:
 	beg = First command as block start
 	end = Last command to identify end of block (INCLUSIVE)
@@ -222,14 +229,13 @@ void apply_settings(string &code) {
 ***/
 string obtain_parameter(long beg, string &code, string param) {
 	long pos = code.find(param, beg);
-	if (pos < 0) {
-		return "";
-	}
+	if (pos < 0) return "";
 	// Getting the entire line
 	long carriage_return = code.find('\n', pos);
 	string line = code.substr(pos + param.length(), carriage_return-pos);
 	// obtaining the parameter
 	long char_spacing_beg = line.find(' ');
+	if (char_spacing_beg < 0) return "";
 	++char_spacing_beg;
 	long char_spacing_end = line.find(' ', char_spacing_beg);
 	if (char_spacing_end < 0) {
