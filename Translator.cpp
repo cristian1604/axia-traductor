@@ -4,6 +4,8 @@
 #include <algorithm>
 #include "wxOptions.h"
 #include "FileManager.h"
+#include <iomanip>
+#include <cstdlib>
 using namespace std;
 
 string block_conversion(string beg, string end, string &code, string &replacement);
@@ -34,8 +36,10 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	// Epilogue
 	beg = "P1 = P1 F2 P2";
 	end = "M30";
-	p1 = obtain_parameter(0, aux, "G29");
-	rep = "`(P100 = P100 - P102)\nM00 M05\n`(GOTO "+ p1 +")\nM30";
+	p1 = obtain_parameter(0, aux, "G29"); // we need to sum 10 on line because on the epilogue we added a new line ("G05")
+	p1 = p1.substr(1, p1.length());
+	p1 = to_string(atoi(p1.c_str()) + 10);
+	rep = "`(P100 = P100 - P102)\nM00 M05\n`(GOTO N"+ string(4-p1.length(), '0').append(p1) +")\nM30";
 	aux = block_conversion(beg, end, aux, rep);
 	// End convert epilogue
 	
