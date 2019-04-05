@@ -4,8 +4,6 @@
 #include <algorithm>
 #include "wxOptions.h"
 #include "FileManager.h"
-#include <iomanip>
-#include <cstdlib>
 using namespace std;
 
 string block_conversion(string beg, string end, string &code, string &replacement);
