@@ -11,7 +11,6 @@
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
 #include <wx/wx.h>
-
 using namespace std;
 
 #define FAGOR_8025 8025
@@ -251,7 +250,7 @@ void MainWindow::paste_formatting( wxCommandEvent& event )  {
 void MainWindow::channels( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
-	if (syntax_version != FAGOR_8035) {
+	if (syntax_version != FAGOR_8025) {
 		wxMessageBox( "Solo puede simular programas de 8025.\nEl código G actual es 8035", "Versión G no compatible", wxICON_ERROR);
 		return;
 	}
@@ -261,7 +260,7 @@ void MainWindow::channels( wxCommandEvent& event )  {
 void MainWindow::simulate( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
-	if (syntax_version != FAGOR_8035) {
+	if (syntax_version != FAGOR_8025) {
 		wxMessageBox( "Solo puede simular programas de 8025.\nEl código G actual es 8035", "Versión G no compatible", wxICON_ERROR);
 		return;
 	}
