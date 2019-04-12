@@ -376,9 +376,30 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_bitmap2 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
 	gbSizer1->Add( m_bitmap2, wxGBPosition( 0, 0 ), wxGBSpan( 1, 1 ), wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
 
-	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor / traductor CNC 8025 a 8035\n\nPuesta en producción: 22/03/2019\n\nVersión: 05/04/2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	wxBoxSizer* bSizer5;
+	bSizer5 = new wxBoxSizer( wxVERTICAL );
+
+	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor Traductor - CNC 8025 / 8035"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText8->Wrap( -1 );
-	gbSizer1->Add( m_staticText8, wxGBPosition( 0, 1 ), wxGBSpan( 1, 1 ), wxALL|wxEXPAND|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL, 5 );
+	m_staticText8->SetFont( wxFont( 9, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+
+	bSizer5->Add( m_staticText8, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer5->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
+
+	m_staticText17 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción: 22/03/2019\nÚltima actualización: 12/04/2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText17->Wrap( -1 );
+	bSizer5->Add( m_staticText17, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Versión 1.2.8"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18->Wrap( -1 );
+	m_staticText18->SetFont( wxFont( 9, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+
+	bSizer5->Add( m_staticText18, 0, wxALL, 5 );
+
+
+	gbSizer1->Add( bSizer5, wxGBPosition( 0, 2 ), wxGBSpan( 1, 1 ), wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
 
 
 	bSizer4->Add( gbSizer1, 1, wxEXPAND, 1 );

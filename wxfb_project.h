@@ -28,6 +28,7 @@
 #include <wx/stattext.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
+#include <wx/statline.h>
 #include <wx/gbsizer.h>
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
@@ -81,7 +82,7 @@ class wxMainWindow : public wxFrame
 
 	public:
 
-		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor 8025 -> 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor código CNC 8025 / 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxMainWindow();
 
@@ -150,6 +151,9 @@ class about : public wxDialog
 	protected:
 		wxStaticBitmap* m_bitmap2;
 		wxStaticText* m_staticText8;
+		wxStaticLine* m_staticline1;
+		wxStaticText* m_staticText17;
+		wxStaticText* m_staticText18;
 		wxStaticText* m_staticText15;
 
 		// Virtual event handlers, overide them in your derived class

@@ -23,7 +23,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 -> 8035", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
-	this->window_title = "Traductor 8025 a 8035";
+	this->window_title = "Traductor código CNC 8025 / 8035";
 	
 	//search window
 	srch = new wxSearch(this);
