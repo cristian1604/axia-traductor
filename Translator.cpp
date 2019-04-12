@@ -21,8 +21,9 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	int x;
 	double db;
 	
-	// Search CONSTANTS blocks, called prologue and epilogue
+	/** Search CONSTANTS blocks, called prologue and epilogue **/
 	// The char ` before the line prevent the conversion of the entire line
+	// This is useful when you have a code blocks to replace
 	// Prologue:
 	string beg = "P2 = K";        // start of block
 	string end = "G53\n";         // end of block
@@ -37,7 +38,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	// Epilogue
 	beg = "P1 = P1 F2 P2";
 	end = "M30";
-	p1 = obtain_parameter(0, aux, "G29"); // we need to sum 10 on line because on the epilogue we added a new line ("G05")
+	p1 = obtain_parameter(0, aux, "G29"); // we need to sum 10 to the current line because on the epilogue we added a new line ("G05")
 	if (p1.length() > 0) {
 		p1 = p1.substr(1, p1.length());
 		p1 = to_string(atoi(p1.c_str()) + 10);
@@ -47,9 +48,11 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	aux = block_conversion(beg, end, aux, rep);
 	// End convert epilogue
 	
+	/** End block conv**/
+	
 	
 	while (!aux.empty()) {
-		// search on line. Here we got a complete line to be separated by words
+		// search on the current line. Here we got a complete string to be separated by words
 		int pos = aux.find('\n');
 		string line = aux.substr(0, pos);
 		aux = aux.substr(pos+1, aux.length());
@@ -183,7 +186,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 	beg = First command as block start
 	end = Last command to identify end of block (INCLUSIVE)
 	code = Source code to be edited
-	replacement = Block of code to raplce
+	replacement = Block of code to be raplced
 **/
 string block_conversion(string beg, string end, string &code, string &replacement) {
 	int l_beg = code.find(beg);
