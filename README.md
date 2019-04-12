@@ -4,15 +4,16 @@
 
 Text editor and conversor from CNC Fagor 8025 code to 8035 / 8037 versions.
 
-This software was designed for internal and specific translation requirements. Probably don't work on 100% of the cases. In general, you can convert almost any program from Fagor CNC 8025  into Fagor 8035 NC code.
+This software was designed for internal and specific translation requirements. Probably don't work on 100% of the cases. In general, you can convert almost any program from Fagor CNC 8025  into Fagor 8035 NC code. But if you need to convert from CNC 8025 to 8035 file, you can use it.
 _Axia-Traductor_ performs the following conversions and replacements:
 
-##### Replacements
-| Type | Character on 8025 | Character on 8035 |
-| ------ | ------ | ------ |
-| Comment line | `(`| `;` |
-| Tool selection | `T`| `D` |
-| Angle | `A`| `Q` |
+##### Replacements and conversions
+| Type | Character on 8025 | Character on 8035 | Example |
+| ------ | ------ | ------ | ------ |
+| Comment line | `(`| `;` | `(I'm a comment)` -> `;(I'm a comment)` |
+| Tool selection | `T`| `D` | `T02.03` -> `T02 D03` |
+| Angle | `A`| `Q` | `A315.000` -> `Q315.000` |
+| Delay | Time in seconds | time: 1/100 seconds | `G04 K0.3` -> `G04 K30` |
 
 ##### Code Conversion
  - On 8035 syntax, always starts the program with `%` symbol
@@ -25,15 +26,15 @@ This software was developed on C++ with wxWidgets, using the following IDEs
  - [wxFormBuilder] -  An open source GUI designer application for wxWidgets toolkit
  
 ### Features
-This software is not only a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
+This software is not just a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
 
 ### Current status
-The software is totally functional. Only convert portion of static code.
-Notice: Assign sentences `=` are not converted.
+The software is totally functional.
+Notice: Not all assign sentences `=` are converted.
 
 Explaination:
 
-Since variable enumeration on 8035 and 8025 are both different, the sentence are not converted directly. Is mapped internally and are replaced on execution time.
+Since variable enumeration on 8035 and 8025 are both different, the sentence are not converted directly.
 
 | Math expression | 8025 syntax | 8035 syntax |
 | ------ | ------ | ------ |
@@ -42,12 +43,13 @@ Since variable enumeration on 8035 and 8025 are both different, the sentence are
 | Store the Z pos on a variable | `P1 = Z`| `(P101 = PPOSZ)` |
 
 ### Changelog
- - Paste formatting text to NC code (replacing commas `,` by dots `.`)
- - BugFix: Add comment character `;` on blank lines or non-enumerated lines.
+ - Added semantic versioning
+ - Prologue and epilogue functions went reimplemented.
+
 
 #### Disclaimer
 This software is provided **_as is_**. [Axia] and I won't provide any warranty of use, or support.
-Always make sure that the converted CNC program is correct before execute it. Otherwise it can result on any damage or injuries.
+Always make sure that the converted CNC program is correct before execute it. Otherwise it can result on any damage or injuries. Remember: the translation process jumps all the assignations.
 This program on this development status is absolutely experimental. **Please, be careful if you use the converted program on a CNC lathe.**
 
 [Zinjai]: <http://zinjai.sourceforge.net/>
