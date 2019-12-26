@@ -3,6 +3,7 @@
 #include "wxfb_project.h"
 #include "wxSearch.h"
 #include "wxOptions.h"
+#include <SFML/Network.hpp>
 
 class MainWindow : public wxMainWindow {
 	
@@ -15,7 +16,19 @@ private:
 	wxSearch *srch;              // Search Window
 	wxString path;               // current path of loaded file
 	s_Settings settings;
+	sf::Ftp ftp;				// FTP Connection
 protected:
+	void refreshFtpFileList();
+	void FtpRefresh( wxCommandEvent& event ) ;
+	void deleteFtpFile( wxCommandEvent& event ) ;
+	void RenameFtpFile( wxCommandEvent& event ) ;
+	void ftpFileOptions( wxTreeEvent& event ) ;
+	void connectFtpMenu( wxCommandEvent& event ) ;
+	void FtpConnect8035( wxCommandEvent& event ) ;
+	void FtpConnect8037( wxCommandEvent& event ) ;
+	void FtpDisconnect( wxCommandEvent& event ) ;
+	void openFtpFile( wxMouseEvent& event ) ;
+	void connectFTP( int idMachine ) ;
 	void simulate( wxCommandEvent& event ) ;
 	void paste_formatting( wxCommandEvent& event ) ;
 	void channels( wxCommandEvent& event ) ;

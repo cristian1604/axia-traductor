@@ -11,10 +11,13 @@
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
 #include <wx/wx.h>
+#include "resources/icons.xpm"
+#include <wx/textdlg.h>
 using namespace std;
 
 #define FAGOR_8025 8025
 #define FAGOR_8035 8035
+#define FAGOR_8037 8037
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
@@ -32,7 +35,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 }
 
 MainWindow::~MainWindow() {
-	
+	ftp.disconnect();
 }
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
@@ -276,3 +279,157 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 	}
 }
 
+///**  FTP OPTIONS  ** ///
+
+void MainWindow::connectFTP( int idMachine )  {
+	wxString conn;
+	ftp.disconnect();
+	
+	switch (idMachine) {
+	case FAGOR_8035:
+		ftp.connect("192.168.100.81", 21, sf::seconds(5));
+		conn = "WASINO";
+		break;
+	case FAGOR_8037:
+		ftp.connect("192.168.100.80", 21, sf::seconds(5));
+		conn = "TAKISAWA";
+		break;
+	}
+	ftp.login();
+	ftp.changeDirectory("/disk/prg/");
+	
+	m_statusBar->SetStatusText("Conectado a " + conn, 1);
+	refreshFtpFileList();
+}
+
+/** Double click on FTP file**/
+void MainWindow::openFtpFile( wxMouseEvent& event)  {
+	wxTreeItemId item = m_treeCtrl1->GetSelection();
+	filename = m_treeCtrl1->GetItemText(item);
+	m_statusBar->SetLabel("Descargando " + m_treeCtrl1->GetItemText(item));
+	
+	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();
+	sf::Ftp::Response r = ftp.download(std::string((m_treeCtrl1->GetItemText(item)).mb_str()), "tmp\\", sf::Ftp::Binary);
+	
+	if (r.isOk()) {
+		m_statusBar->SetLabel("Archivo descargado.");
+	} else {
+		m_statusBar->SetLabel("Error " + r.getStatus());
+	}
+	
+	m_statusBar->SetLabel("Abriendo archivo");
+	
+	this->SetTitle(this->window_title + " - " + filename);
+	FileManager FM("tmp\\" + filename, filename);
+	bool flag = FM.readFile(this->text_program);
+	if (flag) {
+		syntax_version = FAGOR_8025;
+		m_syntax_slection->SetSelection(0);
+		is_loading = true;
+		m_statusBar->SetStatusText("Leyendo archivo...", 0);
+		m_textCtrl->SetValue("");
+		m_textCtrl->SetValue(this->text_program);
+		syntax_highlight(m_textCtrl, syntax_version, settings);
+		m_textCtrl->SetInsertionPoint(0);
+		is_loading = false;
+		m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
+	}
+}
+
+void MainWindow::FtpDisconnect( wxCommandEvent& event )  {
+	ftp.disconnect();
+	m_treeCtrl1->DeleteAllItems();
+	m_statusBar->SetStatusText("8025 -> 8035", 1);
+	m_statusBar->SetStatusText("Desconectado", 0);
+}
+
+void MainWindow::connectFtpMenu( wxCommandEvent& event )  {
+	PopupMenu(ftpOptions);
+}
+
+void MainWindow::FtpConnect8035( wxCommandEvent& event )  {
+	connectFTP(FAGOR_8035);
+}
+
+void MainWindow::FtpConnect8037( wxCommandEvent& event )  {
+	connectFTP(FAGOR_8037);
+}
+
+void MainWindow::deleteFtpFile( wxCommandEvent& event )  {
+	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
+	wxTreeItemId item = m_treeCtrl1->GetSelection();
+	if (directory.isOk()) {
+		string file(m_treeCtrl1->GetItemText(item));
+		sf::Ftp::Response r = ftp.deleteFile(file);
+		if (r.isOk()) {
+			m_treeCtrl1->Delete(item);
+			refreshFtpFileList();
+			m_statusBar->SetLabel("Archivo eliminado");
+		} else {
+			m_statusBar->SetLabel("Error al intentar borrar el archivo");
+		}
+	}
+}
+
+void MainWindow::RenameFtpFile( wxCommandEvent& event )  {
+	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
+	wxTreeItemId item = m_treeCtrl1->GetSelection();
+	if (!directory.isOk()) {
+		m_statusBar->SetLabel("FTP no conectado");
+		return;
+	}
+	
+	wxString fname = wxGetTextFromUser ("Renombrar",
+					   "Renombrar archivo",
+					   m_treeCtrl1->GetItemText(item));
+	if (!fname.IsEmpty()) {
+		if (fname.Find(wxT(".pit")) == -1) {
+			fname += ".pit";
+		}
+		fname.Replace(' ', '_', true);
+		ftp.renameFile(std::string((m_treeCtrl1->GetItemText(item)).mb_str()), std::string(fname.mb_str()));
+		refreshFtpFileList();
+	}
+}
+
+void MainWindow::ftpFileOptions( wxTreeEvent& event )  {
+	event.Skip();
+}
+
+void MainWindow::FtpRefresh( wxCommandEvent& event )  {
+	refreshFtpFileList();
+}
+
+void MainWindow::refreshFtpFileList() {
+	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
+	wxTreeItemId item = m_treeCtrl1->GetSelection();
+	if (!directory.isOk()) {
+		m_statusBar->SetLabel("FTP no conectado");
+		return;
+	}
+	
+	m_treeCtrl1->DeleteAllItems();
+	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();
+	wxTreeItemId raiz;
+	wxString aux = m_statusBar->GetStatusText(1);
+	aux = aux.SubString(12,aux.Length()-12);							// Substract string "conectado a"
+	if (response.isOk()) {
+		const std::vector<std::string>& listing = response.getListing();
+		raiz = m_treeCtrl1->AddRoot(aux, 1);
+		for (std::vector<std::string>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
+			m_treeCtrl1->AppendItem(raiz, *it, 2);
+		}
+		
+		m_treeCtrl1->Expand(raiz);
+		
+		wxImageList* imageList = new wxImageList(16, 16);
+		imageList->Add(wxIcon(folder_xpm));		// 0
+		imageList->Add(wxIcon(netw_xpm));		// 1
+		imageList->Add(wxIcon(xpm_file));		// 2
+		m_treeCtrl1->AssignImageList(imageList);
+		
+		ftp.keepAlive();
+		m_statusBar->SetStatusText("Conectado a " + aux, 1);
+		m_statusBar->SetStatusText("Directorio listado correctamente", 0);
+	}
+}

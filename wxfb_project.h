@@ -20,10 +20,13 @@
 #include <wx/icon.h>
 #include <wx/statbmp.h>
 #include <wx/sizer.h>
-#include <wx/textctrl.h>
-#include <wx/statusbr.h>
 #include <wx/toolbar.h>
+#include <wx/treectrl.h>
 #include <wx/menu.h>
+#include <wx/panel.h>
+#include <wx/textctrl.h>
+#include <wx/splitter.h>
+#include <wx/statusbr.h>
 #include <wx/frame.h>
 #include <wx/stattext.h>
 #include <wx/button.h>
@@ -47,6 +50,17 @@ class wxMainWindow : public wxFrame
 	protected:
 		wxChoice* m_syntax_slection;
 		wxStaticBitmap* m_bitmap1;
+		wxSplitterWindow* m_splitter1;
+		wxPanel* m_panel1;
+		wxToolBar* m_toolBar2;
+		wxToolBarToolBase* m_tool6;
+		wxToolBarToolBase* ftp_desconectar;
+		wxToolBarToolBase* m_tool10;
+		wxToolBarToolBase* ftp_eliminar;
+		wxToolBarToolBase* ftp_renombrar;
+		wxTreeCtrl* m_treeCtrl1;
+		wxMenu* ftpOptions;
+		wxPanel* m_panel2;
 		wxTextCtrl* m_textCtrl;
 		wxStatusBar* m_statusBar;
 		wxToolBar* m_toolBar1;
@@ -63,6 +77,15 @@ class wxMainWindow : public wxFrame
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
+		virtual void connectFtpMenu( wxCommandEvent& event ) { event.Skip(); }
+		virtual void FtpDisconnect( wxCommandEvent& event ) { event.Skip(); }
+		virtual void FtpRefresh( wxCommandEvent& event ) { event.Skip(); }
+		virtual void deleteFtpFile( wxCommandEvent& event ) { event.Skip(); }
+		virtual void RenameFtpFile( wxCommandEvent& event ) { event.Skip(); }
+		virtual void openFtpFile( wxMouseEvent& event ) { event.Skip(); }
+		virtual void ftpFileOptions( wxTreeEvent& event ) { event.Skip(); }
+		virtual void FtpConnect8035( wxCommandEvent& event ) { event.Skip(); }
+		virtual void FtpConnect8037( wxCommandEvent& event ) { event.Skip(); }
 		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }
@@ -85,6 +108,17 @@ class wxMainWindow : public wxFrame
 		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor código CNC 8025 / 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxMainWindow();
+
+		void m_splitter1OnIdle( wxIdleEvent& )
+		{
+			m_splitter1->SetSashPosition( 280 );
+			m_splitter1->Disconnect( wxEVT_IDLE, wxIdleEventHandler( wxMainWindow::m_splitter1OnIdle ), NULL, this );
+		}
+
+		void m_panel1OnContextMenu( wxMouseEvent &event )
+		{
+			m_panel1->PopupMenu( ftpOptions, event.GetPosition() );
+		}
 
 };
 
@@ -162,7 +196,7 @@ class about : public wxDialog
 
 	public:
 
-		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 420,162 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 449,178 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~about();
 
 };

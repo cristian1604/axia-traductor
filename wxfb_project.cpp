@@ -32,8 +32,71 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	bSizer1->Add( gSizer1, 0, wxEXPAND, 5 );
 
-	m_textCtrl = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_AUTO_URL|wxTE_MULTILINE|wxTE_RICH2 );
-	bSizer1->Add( m_textCtrl, 1, wxALL|wxEXPAND, 5 );
+	m_splitter1 = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_3DBORDER|wxSP_3DSASH|wxSP_BORDER );
+	m_splitter1->Connect( wxEVT_IDLE, wxIdleEventHandler( wxMainWindow::m_splitter1OnIdle ), NULL, this );
+
+	m_panel1 = new wxPanel( m_splitter1, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer( wxVERTICAL );
+
+	m_toolBar2 = new wxToolBar( m_panel1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL );
+	m_tool6 = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/plug-connect.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Conectar a CNC"), wxT("Conectar a CNC"), NULL );
+
+	ftp_desconectar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/plug-disconnect.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Desconectar de control CNC"), wxT("Desconectar de control CNC"), NULL );
+
+	m_toolBar2->AddSeparator();
+
+	m_tool10 = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/refresh.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar"), wxT("Actualizar"), NULL );
+
+	ftp_eliminar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cross.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Eliminar archivo seleccionado"), wxT("Eliminar archivo seleccionado"), NULL );
+
+	ftp_renombrar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/document-rename.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Renombrar archivo seleccionado"), wxT("Renombrar archivo seleccionado"), NULL );
+
+	m_toolBar2->Realize();
+
+	bSizer6->Add( m_toolBar2, 0, wxEXPAND, 5 );
+
+	m_treeCtrl1 = new wxTreeCtrl( m_panel1, wxID_ANY, wxDefaultPosition, wxSize( -1,-1 ), wxTR_DEFAULT_STYLE );
+	bSizer6->Add( m_treeCtrl1, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_panel1->SetSizer( bSizer6 );
+	m_panel1->Layout();
+	bSizer6->Fit( m_panel1 );
+	ftpOptions = new wxMenu();
+	wxMenuItem* m_menuItem16;
+	m_menuItem16 = new wxMenuItem( ftpOptions, wxID_ANY, wxString( wxT("WASINO 8035") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem16->SetBitmaps( wxBitmap( wxT("resources/server.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem16->SetBitmap( wxBitmap( wxT("resources/server.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	ftpOptions->Append( m_menuItem16 );
+
+	wxMenuItem* m_menuItem161;
+	m_menuItem161 = new wxMenuItem( ftpOptions, wxID_ANY, wxString( wxT("TAKISAWA 8037") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem161->SetBitmaps( wxBitmap( wxT("resources/server.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem161->SetBitmap( wxBitmap( wxT("resources/server.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	ftpOptions->Append( m_menuItem161 );
+
+	m_panel1->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( wxMainWindow::m_panel1OnContextMenu ), NULL, this );
+
+	m_panel2 = new wxPanel( m_splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer7;
+	bSizer7 = new wxBoxSizer( wxVERTICAL );
+
+	m_textCtrl = new wxTextCtrl( m_panel2, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_AUTO_URL|wxTE_MULTILINE|wxTE_RICH2 );
+	bSizer7->Add( m_textCtrl, 1, wxEXPAND|wxALL, 5 );
+
+
+	m_panel2->SetSizer( bSizer7 );
+	m_panel2->Layout();
+	bSizer7->Fit( m_panel2 );
+	m_splitter1->SplitVertically( m_panel1, m_panel2, 280 );
+	bSizer1->Add( m_splitter1, 1, wxEXPAND, 5 );
 
 
 	this->SetSizer( bSizer1 );
@@ -44,7 +107,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_tool1 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/folder.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Cargar archivo"), wxT("Cargar un archivo generado para 8025"), NULL );
 
-	m_tool2 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/script_save.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Guardar archivo"), wxT("Guardar archivo en el estado actual"), NULL );
+	m_tool2 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/disk.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Guardar archivo"), wxT("Guardar archivo en el estado actual"), NULL );
 
 	m_toolBar1->AddSeparator();
 
@@ -131,9 +194,9 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxMenuItem* m_menuItem7;
 	m_menuItem7 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Buscar y reemplazar") ) + wxT('\t') + wxT("CTRL+R"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem7->SetBitmaps( wxBitmap( wxT("resources/text_replace.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem7->SetBitmaps( wxBitmap( wxT("resources/edit-replace.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem7->SetBitmap( wxBitmap( wxT("resources/text_replace.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem7->SetBitmap( wxBitmap( wxT("resources/edit-replace.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu3->Append( m_menuItem7 );
 
@@ -189,6 +252,17 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	#endif
 	m_menu2->Append( m_menuItem12 );
 
+	m_menu2->AppendSeparator();
+
+	wxMenuItem* m_menuItem15;
+	m_menuItem15 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Enviar programa a torno") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem15->SetBitmaps( wxBitmap( wxT("resources/navigation-000-frame.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem15->SetBitmap( wxBitmap( wxT("resources/navigation-000-frame.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu2->Append( m_menuItem15 );
+
 	m_menubar1->Append( m_menu2, wxT("&Herramientas") );
 
 	m_menu5 = new wxMenu();
@@ -210,6 +284,15 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	// Connect Events
 	m_syntax_slection->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
+	this->Connect( m_tool6->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::connectFtpMenu ) );
+	this->Connect( ftp_desconectar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::FtpDisconnect ) );
+	this->Connect( m_tool10->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::FtpRefresh ) );
+	this->Connect( ftp_eliminar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::deleteFtpFile ) );
+	this->Connect( ftp_renombrar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::RenameFtpFile ) );
+	m_treeCtrl1->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( wxMainWindow::openFtpFile ), NULL, this );
+	m_treeCtrl1->Connect( wxEVT_COMMAND_TREE_ITEM_MENU, wxTreeEventHandler( wxMainWindow::ftpFileOptions ), NULL, this );
+	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnect8035 ), this, m_menuItem16->GetId());
+	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnect8037 ), this, m_menuItem161->GetId());
 	m_textCtrl->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Connect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
@@ -237,6 +320,13 @@ wxMainWindow::~wxMainWindow()
 {
 	// Disconnect Events
 	m_syntax_slection->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
+	this->Disconnect( m_tool6->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::connectFtpMenu ) );
+	this->Disconnect( ftp_desconectar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::FtpDisconnect ) );
+	this->Disconnect( m_tool10->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::FtpRefresh ) );
+	this->Disconnect( ftp_eliminar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::deleteFtpFile ) );
+	this->Disconnect( ftp_renombrar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::RenameFtpFile ) );
+	m_treeCtrl1->Disconnect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( wxMainWindow::openFtpFile ), NULL, this );
+	m_treeCtrl1->Disconnect( wxEVT_COMMAND_TREE_ITEM_MENU, wxTreeEventHandler( wxMainWindow::ftpFileOptions ), NULL, this );
 	m_textCtrl->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Disconnect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
@@ -245,6 +335,7 @@ wxMainWindow::~wxMainWindow()
 	this->Disconnect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
 	this->Disconnect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 
+	delete ftpOptions;
 }
 
 searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
@@ -388,11 +479,11 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer5->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
 
-	m_staticText17 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción: 22/03/2019\nÚltima actualización: 12/04/2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText17 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción: 22/03/2019\nÚltima actualización: 26/12/2019"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText17->Wrap( -1 );
 	bSizer5->Add( m_staticText17, 0, wxALL|wxEXPAND, 5 );
 
-	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Versión 1.2.8"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Versión 1.4"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText18->Wrap( -1 );
 	m_staticText18->SetFont( wxFont( 9, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
 
