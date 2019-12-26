@@ -21,9 +21,13 @@ _Axia-Traductor_ performs the following conversions and replacements:
  - Perform a "prologue" and "epilogue" replacement (blocks of code at the beginning or at the end of the CNC program)
 
 ### Software
-This software was developed on C++ with wxWidgets, using the following IDEs
+This software was developed on C++ with [wxWidgets], using the following IDEs
  - [Zinjai] - An open source C/C++ IDE (integrated development environment)
  - [wxFormBuilder] -  An open source GUI designer application for wxWidgets toolkit
+
+### Libraries
+ - [wxWidgets]
+ - [SFML] to FTP connection utility
  
 ### Features
 This software is not just a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
@@ -43,8 +47,7 @@ Since variable enumeration on 8035 and 8025 are both different, the sentence are
 | Store the Z pos on a variable | `P1 = Z`| `(P101 = PPOSZ)` |
 
 ### Changelog
- - Added semantic versioning
- - Prologue and epilogue functions went reimplemented.
+ - FTP connection utility
 
 
 #### Disclaimer
@@ -55,3 +58,5 @@ This program on this development status is absolutely experimental. **Please, be
 [Zinjai]: <http://zinjai.sourceforge.net/>
 [wxFormBuilder]: <https://github.com/wxFormBuilder/wxFormBuilder>
 [Axia]: <https://axia.com.ar/>
+[SFML]: <https://www.sfml-dev.org/index.php>
+[wxWidgets]: <https://www.wxwidgets.org/>
