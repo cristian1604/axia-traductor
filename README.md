@@ -1,10 +1,13 @@
 # Axia-Traductor
 
-![Generic badge](https://img.shields.io/badge/made%20with-C++-blue.svg) ![Generic badge](https://img.shields.io/badge/status-FUNCTIONAL-yellow.svg) ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+![Generic badge](https://img.shields.io/badge/made%20with-C++-blue.svg) ![Generic badge](https://img.shields.io/badge/status-FUNCTIONAL-yellow.svg) ![Maintenance](https://img.shields.io/badge/Maintained%3F-NO-red.svg)
 
 Text editor and conversor from CNC Fagor 8025 code to 8035 / 8037 versions.
 
-This software was designed for internal and specific translation requirements. Probably don't work on 100% of the cases. In general, you can convert almost any program from Fagor CNC 8025  into Fagor 8035 NC code. But if you need to convert from CNC 8025 to 8035 file, you can use it.
+This software was designed for internal and specific translation requirements. Probably don't work on 100% of the cases. In general, you can convert almost any program from Fagor CNC 8025  into Fagor 8035 NC G-Code. So, if you need to convert from Fagor CNC 8025 to 8035 file, you can use it.
+
+This version is no longer maintained, due corporate restrictions. But I'll leave this repository to everyone that could need it.
+
 _Axia-Traductor_ performs the following conversions and replacements:
 
 ##### Replacements and conversions
