@@ -32,7 +32,6 @@
 #include <wx/button.h>
 #include <wx/dialog.h>
 #include <wx/statline.h>
-#include <wx/gbsizer.h>
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
 #include <wx/clrpicker.h>
@@ -68,7 +67,6 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool2;
 		wxToolBarToolBase* m_tool3;
 		wxToolBarToolBase* m_tool4;
-		wxToolBarToolBase* m_tool5;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
 		wxMenu* m_menu3;
@@ -90,7 +88,6 @@ class wxMainWindow : public wxFrame
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
-		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void paste_formatting( wxCommandEvent& event ) { event.Skip(); }
 		virtual void copy_program_clipboard( wxCommandEvent& event ) { event.Skip(); }
 		virtual void paste_program_clipboard( wxCommandEvent& event ) { event.Skip(); }
@@ -98,6 +95,7 @@ class wxMainWindow : public wxFrame
 		virtual void search_next( wxCommandEvent& event ) { event.Skip(); }
 		virtual void search_replace_window( wxCommandEvent& event ) { event.Skip(); }
 		virtual void enum_lines( wxCommandEvent& event ) { event.Skip(); }
+		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void simulate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void channels( wxCommandEvent& event ) { event.Skip(); }
 		virtual void about( wxCommandEvent& event ) { event.Skip(); }
@@ -183,11 +181,11 @@ class about : public wxDialog
 	private:
 
 	protected:
-		wxStaticBitmap* m_bitmap2;
-		wxStaticText* m_staticText8;
-		wxStaticLine* m_staticline1;
-		wxStaticText* m_staticText17;
+		wxStaticBitmap* m_bitmap5;
 		wxStaticText* m_staticText18;
+		wxStaticLine* m_staticline2;
+		wxStaticText* m_staticText19;
+		wxStaticText* m_staticText20;
 		wxStaticText* m_staticText15;
 
 		// Virtual event handlers, overide them in your derived class
@@ -196,7 +194,7 @@ class about : public wxDialog
 
 	public:
 
-		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 449,178 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 454,233 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~about();
 
 };

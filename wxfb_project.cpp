@@ -26,7 +26,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_syntax_slection->SetSelection( 0 );
 	gSizer1->Add( m_syntax_slection, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxRIGHT|wxLEFT, 5 );
 
-	m_bitmap1 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("logo_small.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	m_bitmap1 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,40 ), 0 );
 	gSizer1->Add( m_bitmap1, 0, wxALL|wxALIGN_RIGHT, 5 );
 
 
@@ -103,7 +103,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Layout();
 	m_statusBar = this->CreateStatusBar( 3, 0, wxID_ANY );
 	m_toolBar1 = this->CreateToolBar( wxTB_HORIZONTAL, wxID_ANY );
-	m_toolBar1->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_ACTIVECAPTION ) );
+	m_toolBar1->SetBackgroundColour( wxColour( 213, 213, 255 ) );
 
 	m_tool1 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/folder.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Cargar archivo"), wxT("Cargar un archivo generado para 8025"), NULL );
 
@@ -111,13 +111,11 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_toolBar1->AddSeparator();
 
-	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/refresh.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloración de sintaxis"), wxT("Actualizar coloración de sintaxis"), NULL );
+	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/wand.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloración de sintaxis"), wxT("Actualizar coloración de sintaxis"), NULL );
 
-	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035"), wxT("Convertir código a Fagor 8035"), NULL );
+	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/convert.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035 (F9)"), wxT("Convertir código a Fagor 8035  (F9)"), NULL );
 
 	m_toolBar1->AddSeparator();
-
-	m_tool5 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/wrench.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Parámetros de conversión"), wxT("Parámetros de conversión"), NULL );
 
 	m_toolBar1->Realize();
 
@@ -135,9 +133,9 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxMenuItem* m_menuItem2;
 	m_menuItem2 = new wxMenuItem( m_menu1, wxID_ANY, wxString( wxT("Guardar programa") ) + wxT('\t') + wxT("CTRL+S"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem2->SetBitmaps( wxBitmap( wxT("resources/script_save.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem2->SetBitmaps( wxBitmap( wxT("resources/disk.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem2->SetBitmap( wxBitmap( wxT("resources/script_save.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem2->SetBitmap( wxBitmap( wxT("resources/disk.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu1->Append( m_menuItem2 );
 
@@ -211,6 +209,17 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	#endif
 	m_menu3->Append( m_menuItem9 );
 
+	m_menu3->AppendSeparator();
+
+	wxMenuItem* m_menuItem18;
+	m_menuItem18 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Parámetros") ) + wxT('\t') + wxT("F10"), wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem18->SetBitmaps( wxBitmap( wxT("resources/settings-icon16.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem18->SetBitmap( wxBitmap( wxT("resources/settings-icon16.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu3->Append( m_menuItem18 );
+
 	m_menubar1->Append( m_menu3, wxT("Editar") );
 
 	m_menu2 = new wxMenu();
@@ -224,7 +233,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu2->Append( m_menuItem3 );
 
 	wxMenuItem* m_menuItem4;
-	m_menuItem4 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Traducir a 8035") ) + wxT('\t') + wxT("F9"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem4 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Convertir a 8035") ) + wxT('\t') + wxT("F9"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem4->SetBitmaps( wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -267,7 +276,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_menu5 = new wxMenu();
 	wxMenuItem* m_menuItem8;
-	m_menuItem8 = new wxMenuItem( m_menu5, wxID_ANY, wxString( wxT("Acerca de...") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menuItem8 = new wxMenuItem( m_menu5, wxID_ANY, wxString( wxT("Acerca de...") ) + wxT('\t') + wxT("F12"), wxT("Información del programa"), wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem8->SetBitmaps( wxBitmap( wxT("resources/information.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -299,7 +308,6 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Connect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
 	this->Connect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
-	this->Connect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::save_program ), this, m_menuItem2->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::paste_formatting ), this, m_menuItem13->GetId());
@@ -309,6 +317,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_next ), this, m_search_next->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::search_replace_window ), this, m_menuItem7->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::enum_lines ), this, m_menuItem9->GetId());
+	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::open_options ), this, m_menuItem18->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::simulate ), this, m_menuItem14->GetId());
@@ -333,7 +342,6 @@ wxMainWindow::~wxMainWindow()
 	this->Disconnect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Disconnect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
 	this->Disconnect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
-	this->Disconnect( m_tool5->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::open_options ) );
 
 	delete ftpOptions;
 }
@@ -414,9 +422,13 @@ search_and_replace::search_and_replace( wxWindow* parent, wxWindowID id, const w
 	gSizer4 = new wxGridSizer( 0, 2, 0, 0 );
 
 	m_button2 = new wxButton( this, wxID_ANY, wxT("Reemplazar"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	m_button2->SetBitmap( wxBitmap( wxT("resources/edit-replace.png"), wxBITMAP_TYPE_ANY ) );
 	gSizer4->Add( m_button2, 0, wxALL, 5 );
 
 	m_button3 = new wxButton( this, wxID_ANY, wxT("Cancelar"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	m_button3->SetBitmap( wxBitmap( wxT("resources/cross.png"), wxBITMAP_TYPE_ANY ) );
 	gSizer4->Add( m_button3, 0, wxALL, 5 );
 
 
@@ -455,47 +467,42 @@ search_and_replace::~search_and_replace()
 about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	this->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
+	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxVERTICAL );
 
-	wxGridBagSizer* gbSizer1;
-	gbSizer1 = new wxGridBagSizer( 0, 0 );
-	gbSizer1->SetFlexibleDirection( wxBOTH );
-	gbSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	m_bitmap5 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, 0 );
+	m_bitmap5->SetForegroundColour( wxColour( 255, 255, 255 ) );
+	m_bitmap5->SetBackgroundColour( wxColour( 255, 255, 255 ) );
 
-	m_bitmap2 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxSize( -1,-1 ), 0 );
-	gbSizer1->Add( m_bitmap2, wxGBPosition( 0, 0 ), wxGBSpan( 1, 1 ), wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
+	bSizer4->Add( m_bitmap5, 1, wxALL|wxEXPAND, 5 );
 
-	wxBoxSizer* bSizer5;
-	bSizer5 = new wxBoxSizer( wxVERTICAL );
-
-	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("Editor Traductor - CNC 8025 / 8035"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText8->Wrap( -1 );
-	m_staticText8->SetFont( wxFont( 9, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
-
-	bSizer5->Add( m_staticText8, 0, wxALL|wxEXPAND, 5 );
-
-	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSizer5->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticText17 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción: 22/03/2019\nÚltima actualización: 26/12/2019"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText17->Wrap( -1 );
-	bSizer5->Add( m_staticText17, 0, wxALL|wxEXPAND, 5 );
-
-	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Versión 1.4"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18->SetLabelMarkup( wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035") );
 	m_staticText18->Wrap( -1 );
-	m_staticText18->SetFont( wxFont( 9, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+	m_staticText18->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+	m_staticText18->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
 
-	bSizer5->Add( m_staticText18, 0, wxALL, 5 );
+	bSizer4->Add( m_staticText18, 0, wxALL, 5 );
 
+	m_staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer4->Add( m_staticline2, 0, wxEXPAND | wxALL, 5 );
 
-	gbSizer1->Add( bSizer5, wxGBPosition( 0, 2 ), wxGBSpan( 1, 1 ), wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxEXPAND, 5 );
+	m_staticText19 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción 22-03-2019\nÚltima actualización 25-02-2021"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText19->Wrap( -1 );
+	m_staticText19->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
 
+	bSizer4->Add( m_staticText19, 0, wxALL, 5 );
 
-	bSizer4->Add( gbSizer1, 1, wxEXPAND, 1 );
+	m_staticText20 = new wxStaticText( this, wxID_ANY, wxT("Versión 1.5"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText20->Wrap( -1 );
+	m_staticText20->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
 
-	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 AXIA"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer4->Add( m_staticText20, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2021 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText15->Wrap( -1 );
 	m_staticText15->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNSHADOW ) );
 

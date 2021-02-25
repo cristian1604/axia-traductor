@@ -424,8 +424,8 @@ void MainWindow::refreshFtpFileList() {
 		
 		wxImageList* imageList = new wxImageList(16, 16);
 		imageList->Add(wxIcon(folder_xpm));		// 0
-		imageList->Add(wxIcon(netw_xpm));		// 1
-		imageList->Add(wxIcon(xpm_file));		// 2
+		imageList->Add(wxIcon(server_xpm));		// 1
+		imageList->Add(wxIcon(pit_extension_xpm));		// 2
 		m_treeCtrl1->AssignImageList(imageList);
 		
 		ftp.keepAlive();
