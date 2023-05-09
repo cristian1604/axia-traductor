@@ -3,20 +3,22 @@
 #include "wxfb_project.h"
 #include "wxSearch.h"
 #include "wxOptions.h"
+#include "FileManager.h"
 #include <SFML/Network.hpp>
 
 class MainWindow : public wxMainWindow {
 	
 private:
-	wxString text_program;       // Text contained on the input box
-	wxString window_title;       // Window title
-	wxString filename;           // Opened file name
-	int syntax_version;          // 8025, 8035
-	bool is_loading;             // When this variable is on TRUE, the syntax highlight is turned off
-	wxSearch *srch;              // Search Window
-	wxString path;               // current path of loaded file
-	s_Settings settings;
-	sf::Ftp ftp;				// FTP Connection
+	wxString text_program;        // Text contained on the input box
+	wxString window_title;        // Window title
+	wxString filename;            // Opened file name
+	int syntax_version;           // 8025, 8035
+	bool is_loading;              // When this variable is on TRUE, the syntax highlight is turned off
+	wxSearch *srch;               // Search Window
+	wxString path;                // current path of loaded file
+	s_Settings settings;		  // Settings object
+	sf::Ftp ftp;				  // FTP Connection
+	FileManager FM;				  // FileManager object
 protected:
 	void checkUpdates( wxCommandEvent& event ) ;
 	void refreshFtpFileList();

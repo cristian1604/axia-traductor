@@ -111,7 +111,7 @@ class wxMainWindow : public wxFrame
 
 		void m_splitter1OnIdle( wxIdleEvent& )
 		{
-			m_splitter1->SetSashPosition( 280 );
+			m_splitter1->SetSashPosition( 198 );
 			m_splitter1->Disconnect( wxEVT_IDLE, wxIdleEventHandler( wxMainWindow::m_splitter1OnIdle ), NULL, this );
 		}
 
@@ -215,10 +215,15 @@ class ComprobarActualizaciones : public wxDialog
 		wxStaticBitmap* m_bitmap3;
 		wxGauge* m_gauge;
 		wxStaticText* m_staticText21;
+		wxButton* m_button6;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void close( wxCommandEvent& event ) { event.Skip(); }
+
 
 	public:
 
-		ComprobarActualizaciones( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Comprobar actualizaciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 339,224 ), long style = wxDEFAULT_DIALOG_STYLE );
+		ComprobarActualizaciones( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Comprobar actualizaciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 300,160 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~ComprobarActualizaciones();
 
 };

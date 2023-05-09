@@ -95,7 +95,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_panel2->SetSizer( bSizer7 );
 	m_panel2->Layout();
 	bSizer7->Fit( m_panel2 );
-	m_splitter1->SplitVertically( m_panel1, m_panel2, 280 );
+	m_splitter1->SplitVertically( m_panel1, m_panel2, 198 );
 	bSizer1->Add( m_splitter1, 1, wxEXPAND, 5 );
 
 
@@ -561,25 +561,32 @@ ComprobarActualizaciones::ComprobarActualizaciones( wxWindow* parent, wxWindowID
 	bSizer7 = new wxBoxSizer( wxVERTICAL );
 
 	m_bitmap3 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/network-2-icon.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer7->Add( m_bitmap3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND, 5 );
+	bSizer7->Add( m_bitmap3, 0, wxALL|wxEXPAND, 5 );
 
-	m_gauge = new wxGauge( this, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL );
+	m_gauge = new wxGauge( this, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, 0 );
 	m_gauge->SetValue( 0 );
-	bSizer7->Add( m_gauge, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+	bSizer7->Add( m_gauge, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
 
 	m_staticText21 = new wxStaticText( this, wxID_ANY, wxT("Comprobando actualizaciones"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText21->Wrap( -1 );
 	bSizer7->Add( m_staticText21, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
 
+	m_button6 = new wxButton( this, wxID_ANY, wxT("Cerrar"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer7->Add( m_button6, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
 
 	this->SetSizer( bSizer7 );
 	this->Layout();
 
-	this->Centre( wxBOTH );
+	// Connect Events
+	m_button6->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ComprobarActualizaciones::close ), NULL, this );
 }
 
 ComprobarActualizaciones::~ComprobarActualizaciones()
 {
+	// Disconnect Events
+	m_button6->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ComprobarActualizaciones::close ), NULL, this );
+
 }
 
 wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )

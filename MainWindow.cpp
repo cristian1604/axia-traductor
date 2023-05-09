@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include <wx/filedlg.h>
-#include "FileManager.h"
 #include "SyntaxColor.h"
 #include "Translator.h"
 #include "wxOptions.h"
@@ -14,6 +13,7 @@
 #include "resources/icons.xpm"
 #include <wx/textdlg.h>
 #include "wxActualizaciones.h"
+#include <unistd.h>
 using namespace std;
 
 #define FAGOR_8025 8025
@@ -136,16 +136,45 @@ void MainWindow::search_replace_window( wxCommandEvent& event )  {
 
 /** SAVE PROGRAM GENERATED **/
 void MainWindow::save_program( wxCommandEvent& event )  {
-	wxString suggested = filename.SubString(0,filename.Find('.') - 1) + "_35";
-	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado PIT (*.PIT)|*.PIT|Programa de mecanizado NC (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
-	if (OpenDialog->ShowModal() == wxID_OK) {
+	if (!FM.isDefined()) {
+		wxString suggested = filename.SubString(0,filename.Find('.') - 1) + "_35";
+		wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado PIT (*.PIT)|*.PIT|Programa de mecanizado NC (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
+		if (OpenDialog->ShowModal() == wxID_OK) {
+			this->text_program = m_textCtrl->GetValue();
+			path = OpenDialog->GetPath();
+			FileManager FM(path, OpenDialog->GetFilename());
+			if (FM.writeFile(this->text_program)) {
+				m_statusBar->SetStatusText("Guardado.",0);
+			}
+		}
+	} else {
 		this->text_program = m_textCtrl->GetValue();
-		path = OpenDialog->GetPath();
-		FileManager FM(path, OpenDialog->GetFilename());
 		if (FM.writeFile(this->text_program)) {
-			m_statusBar->SetStatusText("Programa guardado exitosamente",0);
+			m_statusBar->SetStatusText("Guardado.",0);
 		}
 	}
+	
+	// Now check and send file through FTP
+	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
+	if (directory.isOk()) {
+		char tmp[256];
+		getcwd(tmp, 256);
+		string aa(tmp);
+		
+		string origin = "tmp\\" + FM.getFilename();
+		ftp.keepAlive();
+		
+		sf::Ftp::Response response = ftp.deleteFile(FM.getFilename());
+		if (response.isOk()) {
+			std::cout<<response.getStatus()<<std::endl;
+			response = ftp.upload(origin, "", sf::Ftp::Binary);
+			
+			if (response.isOk()) {
+				m_statusBar->SetStatusText("Guardado y enviado al control como " + FM.getFilename(),0);
+			}
+		}
+	}
+	
 }
 
 void MainWindow::about( wxCommandEvent& event )  {
@@ -300,6 +329,7 @@ void MainWindow::connectFTP( int idMachine )  {
 	ftp.changeDirectory("/disk/prg/");
 	
 	m_statusBar->SetStatusText("Conectado a " + conn, 1);
+	ftp.keepAlive();
 	refreshFtpFileList();
 }
 
@@ -321,10 +351,10 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	m_statusBar->SetLabel("Abriendo archivo");
 	
 	this->SetTitle(this->window_title + " - " + filename);
-	FileManager FM("tmp\\" + filename, filename);
+	FM = FileManager("tmp\\" + filename, filename);
 	bool flag = FM.readFile(this->text_program);
 	if (flag) {
-		syntax_version = FAGOR_8025;
+		syntax_version = FAGOR_8035;
 		m_syntax_slection->SetSelection(0);
 		is_loading = true;
 		m_statusBar->SetStatusText("Leyendo archivo...", 0);
@@ -333,14 +363,14 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 		syntax_highlight(m_textCtrl, syntax_version, settings);
 		m_textCtrl->SetInsertionPoint(0);
 		is_loading = false;
-		m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
+		m_statusBar->SetStatusText("Archivo abierto del torno: " + filename, 0);
 	}
 }
 
 void MainWindow::FtpDisconnect( wxCommandEvent& event )  {
 	ftp.disconnect();
 	m_treeCtrl1->DeleteAllItems();
-	m_statusBar->SetStatusText("8025 -> 8035", 1);
+	m_statusBar->SetStatusText("Local. 8025 -> 8035", 1);
 	m_statusBar->SetStatusText("Desconectado", 0);
 }
 
@@ -421,12 +451,13 @@ void MainWindow::refreshFtpFileList() {
 			m_treeCtrl1->AppendItem(raiz, *it, 2);
 		}
 		
+		m_treeCtrl1->SortChildren(raiz);
 		m_treeCtrl1->Expand(raiz);
 		
 		wxImageList* imageList = new wxImageList(16, 16);
-		imageList->Add(wxIcon(folder_xpm));		// 0
-		imageList->Add(wxIcon(server_xpm));		// 1
-		imageList->Add(wxIcon(pit_extension_xpm));		// 2
+		imageList->Add(wxIcon(folder_xpm));								// 0
+		imageList->Add(wxIcon(server_xpm));								// 1
+		imageList->Add(wxIcon(pit_extension_xpm));						// 2
 		m_treeCtrl1->AssignImageList(imageList);
 		
 		ftp.keepAlive();
@@ -437,6 +468,7 @@ void MainWindow::refreshFtpFileList() {
 
 void MainWindow::checkUpdates( wxCommandEvent& event )  {
 	wxActualizaciones* w = new wxActualizaciones(this);
-	w->ShowModal();
+	w->CenterOnParent();
+	w->Show(true);
 }
 

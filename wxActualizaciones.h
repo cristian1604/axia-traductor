@@ -7,6 +7,7 @@ class wxActualizaciones : public ComprobarActualizaciones {
 private:
 	
 protected:
+	void close( wxCommandEvent& event ) ;
 	
 public:
 	wxActualizaciones(wxWindow *parent=NULL);

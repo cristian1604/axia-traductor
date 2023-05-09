@@ -5,6 +5,7 @@ using namespace std;
 FileManager::FileManager(wxString path, wxString filename) {
 	this->path = path;
 	this->filename = filename;
+	this->defined = false;
 }
 
 FileManager::FileManager() {
@@ -19,6 +20,7 @@ bool FileManager::readFile(wxString &content) {
 			content.Append(line);
 			content.Append('\n');
 		}
+		this->defined = true;
 		file.close();
 		return true;
 	}
@@ -59,4 +61,16 @@ bool FileManager::saveSettings(s_Settings &s) {
 		return true;
 	}
 	return false;
+}
+
+bool FileManager::isDefined() {
+	return this->defined;
+}
+
+string FileManager::getFilename() {
+	return (string) this->filename.mb_str();
+}
+
+string FileManager::getPath() {
+	return (string) this->path.mb_str();
 }
