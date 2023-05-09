@@ -1,7 +1,8 @@
 #include "wxAbout.h"
 
 wxAbout::wxAbout(wxWindow *parent) : about(parent) {
-	
+	m_staticText_fechaUltimaActualizacion->SetLabel("09-05-2023");
+	m_staticText_version->SetLabel("Versión 1.6");
 }
 
 wxAbout::~wxAbout() {
