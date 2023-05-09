@@ -13,6 +13,7 @@
 #include <wx/wx.h>
 #include "resources/icons.xpm"
 #include <wx/textdlg.h>
+#include "wxActualizaciones.h"
 using namespace std;
 
 #define FAGOR_8025 8025
@@ -433,3 +434,9 @@ void MainWindow::refreshFtpFileList() {
 		m_statusBar->SetStatusText("Directorio listado correctamente", 0);
 	}
 }
+
+void MainWindow::checkUpdates( wxCommandEvent& event )  {
+	wxActualizaciones* w = new wxActualizaciones(this);
+	w->ShowModal();
+}
+

@@ -18,6 +18,7 @@ private:
 	s_Settings settings;
 	sf::Ftp ftp;				// FTP Connection
 protected:
+	void checkUpdates( wxCommandEvent& event ) ;
 	void refreshFtpFileList();
 	void FtpRefresh( wxCommandEvent& event ) ;
 	void deleteFtpFile( wxCommandEvent& event ) ;
