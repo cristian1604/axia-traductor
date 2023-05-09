@@ -284,6 +284,15 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	#endif
 	m_menu5->Append( m_menuItem8 );
 
+	wxMenuItem* m_menuItem19;
+	m_menuItem19 = new wxMenuItem( m_menu5, wxID_ANY, wxString( wxT("Comprobar actualizaciones") ) , wxT("Comprobar si hay actualizaciones del software"), wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem19->SetBitmaps( wxBitmap( wxT("resources/application-browser-icon.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem19->SetBitmap( wxBitmap( wxT("resources/application-browser-icon.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	m_menu5->Append( m_menuItem19 );
+
 	m_menubar1->Append( m_menu5, wxT("Ayuda") );
 
 	this->SetMenuBar( m_menubar1 );
@@ -323,6 +332,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::simulate ), this, m_menuItem14->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::channels ), this, m_menuItem12->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::about ), this, m_menuItem8->GetId());
+	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::checkUpdates ), this, m_menuItem19->GetId());
 }
 
 wxMainWindow::~wxMainWindow()
@@ -475,9 +485,9 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 
 	m_bitmap5 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/logo_md.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, 0 );
 	m_bitmap5->SetForegroundColour( wxColour( 255, 255, 255 ) );
-	m_bitmap5->SetBackgroundColour( wxColour( 255, 255, 255 ) );
+	m_bitmap5->SetBackgroundColour( wxColour( 250, 250, 250 ) );
 
-	bSizer4->Add( m_bitmap5, 1, wxALL|wxEXPAND, 5 );
+	bSizer4->Add( m_bitmap5, 1, wxEXPAND|wxBOTTOM, 5 );
 
 	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText18->SetLabelMarkup( wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035") );
@@ -490,19 +500,37 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 	m_staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer4->Add( m_staticline2, 0, wxEXPAND | wxALL, 5 );
 
-	m_staticText19 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción 22-03-2019\nÚltima actualización 25-02-2021"), wxDefaultPosition, wxDefaultSize, 0 );
+	wxGridSizer* gSizer6;
+	gSizer6 = new wxGridSizer( 2, 2, 0, 0 );
+
+	m_staticText19 = new wxStaticText( this, wxID_ANY, wxT("Puesta en producción"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText19->Wrap( -1 );
 	m_staticText19->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
 
-	bSizer4->Add( m_staticText19, 0, wxALL, 5 );
+	gSizer6->Add( m_staticText19, 0, wxALL, 5 );
 
-	m_staticText20 = new wxStaticText( this, wxID_ANY, wxT("Versión 1.5"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText20->Wrap( -1 );
-	m_staticText20->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+	m_staticText201 = new wxStaticText( this, wxID_ANY, wxT("22-03-2019"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText201->Wrap( -1 );
+	gSizer6->Add( m_staticText201, 0, wxALL, 5 );
 
-	bSizer4->Add( m_staticText20, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+	m_staticText181 = new wxStaticText( this, wxID_ANY, wxT("Última actualización:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText181->Wrap( -1 );
+	gSizer6->Add( m_staticText181, 0, wxALL, 5 );
 
-	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2021 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText_fechaUltimaActualizacion = new wxStaticText( this, wxID_ANY, wxT("Cargando..."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText_fechaUltimaActualizacion->Wrap( -1 );
+	gSizer6->Add( m_staticText_fechaUltimaActualizacion, 0, wxALL, 5 );
+
+
+	bSizer4->Add( gSizer6, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_staticText_version = new wxStaticText( this, wxID_ANY, wxT("Versión 1.5"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText_version->Wrap( -1 );
+	m_staticText_version->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+
+	bSizer4->Add( m_staticText_version, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2023 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText15->Wrap( -1 );
 	m_staticText15->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNSHADOW ) );
 
@@ -523,6 +551,35 @@ about::~about()
 	// Disconnect Events
 	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( about::evt_key_up ) );
 
+}
+
+ComprobarActualizaciones::ComprobarActualizaciones( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer7;
+	bSizer7 = new wxBoxSizer( wxVERTICAL );
+
+	m_bitmap3 = new wxStaticBitmap( this, wxID_ANY, wxBitmap( wxT("resources/network-2-icon.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer7->Add( m_bitmap3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND, 5 );
+
+	m_gauge = new wxGauge( this, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL );
+	m_gauge->SetValue( 0 );
+	bSizer7->Add( m_gauge, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_staticText21 = new wxStaticText( this, wxID_ANY, wxT("Comprobando actualizaciones"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText21->Wrap( -1 );
+	bSizer7->Add( m_staticText21, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	this->SetSizer( bSizer7 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+}
+
+ComprobarActualizaciones::~ComprobarActualizaciones()
+{
 }
 
 wxParameters::wxParameters( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )

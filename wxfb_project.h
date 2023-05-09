@@ -32,6 +32,7 @@
 #include <wx/button.h>
 #include <wx/dialog.h>
 #include <wx/statline.h>
+#include <wx/gauge.h>
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
 #include <wx/clrpicker.h>
@@ -99,11 +100,12 @@ class wxMainWindow : public wxFrame
 		virtual void simulate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void channels( wxCommandEvent& event ) { event.Skip(); }
 		virtual void about( wxCommandEvent& event ) { event.Skip(); }
+		virtual void checkUpdates( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
-		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor código CNC 8025 / 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 964,729 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor código CNC 8025 / 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1270,730 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxMainWindow();
 
@@ -185,7 +187,10 @@ class about : public wxDialog
 		wxStaticText* m_staticText18;
 		wxStaticLine* m_staticline2;
 		wxStaticText* m_staticText19;
-		wxStaticText* m_staticText20;
+		wxStaticText* m_staticText201;
+		wxStaticText* m_staticText181;
+		wxStaticText* m_staticText_fechaUltimaActualizacion;
+		wxStaticText* m_staticText_version;
 		wxStaticText* m_staticText15;
 
 		// Virtual event handlers, overide them in your derived class
@@ -196,6 +201,25 @@ class about : public wxDialog
 
 		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 454,233 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 		~about();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ComprobarActualizaciones
+///////////////////////////////////////////////////////////////////////////////
+class ComprobarActualizaciones : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticBitmap* m_bitmap3;
+		wxGauge* m_gauge;
+		wxStaticText* m_staticText21;
+
+	public:
+
+		ComprobarActualizaciones( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Comprobar actualizaciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 339,224 ), long style = wxDEFAULT_DIALOG_STYLE );
+		~ComprobarActualizaciones();
 
 };
 
