@@ -472,3 +472,7 @@ void MainWindow::checkUpdates( wxCommandEvent& event )  {
 	w->Show(true);
 }
 
+void MainWindow::openFormSendProgram( wxCommandEvent& event )  {
+	wxExecute("EnvioCNC.exe");
+}
+
