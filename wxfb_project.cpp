@@ -264,7 +264,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu2->AppendSeparator();
 
 	wxMenuItem* m_menuItem15;
-	m_menuItem15 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Enviar programa a torno") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menuItem15 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Enviar programa a torno") ) + wxT('\t') + wxT("F2"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem15->SetBitmaps( wxBitmap( wxT("resources/navigation-000-frame.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -331,6 +331,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::simulate ), this, m_menuItem14->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::channels ), this, m_menuItem12->GetId());
+	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::openFormSendProgram ), this, m_menuItem15->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::about ), this, m_menuItem8->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::checkUpdates ), this, m_menuItem19->GetId());
 }
@@ -569,7 +570,7 @@ ComprobarActualizaciones::ComprobarActualizaciones( wxWindow* parent, wxWindowID
 
 	m_staticText21 = new wxStaticText( this, wxID_ANY, wxT("Comprobando actualizaciones"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText21->Wrap( -1 );
-	bSizer7->Add( m_staticText21, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+	bSizer7->Add( m_staticText21, 1, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 
 	m_button6 = new wxButton( this, wxID_ANY, wxT("Cerrar"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer7->Add( m_button6, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );

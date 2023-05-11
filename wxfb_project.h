@@ -99,6 +99,7 @@ class wxMainWindow : public wxFrame
 		virtual void open_options( wxCommandEvent& event ) { event.Skip(); }
 		virtual void simulate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void channels( wxCommandEvent& event ) { event.Skip(); }
+		virtual void openFormSendProgram( wxCommandEvent& event ) { event.Skip(); }
 		virtual void about( wxCommandEvent& event ) { event.Skip(); }
 		virtual void checkUpdates( wxCommandEvent& event ) { event.Skip(); }
 
@@ -223,7 +224,7 @@ class ComprobarActualizaciones : public wxDialog
 
 	public:
 
-		ComprobarActualizaciones( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Comprobar actualizaciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 300,160 ), long style = wxDEFAULT_DIALOG_STYLE );
+		ComprobarActualizaciones( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Comprobar actualizaciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 370,225 ), long style = wxDEFAULT_DIALOG_STYLE );
 		~ComprobarActualizaciones();
 
 };

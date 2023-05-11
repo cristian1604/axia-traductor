@@ -982,7 +982,7 @@
                         <event name="OnMenuSelection">open_options</event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">&amp;Herramientas</property>
                     <property name="name">m_menu2</property>
                     <property name="permission">protected</property>
@@ -1060,8 +1060,9 @@
                         <property name="label">Enviar programa a torno</property>
                         <property name="name">m_menuItem15</property>
                         <property name="permission">none</property>
-                        <property name="shortcut"></property>
+                        <property name="shortcut">F2</property>
                         <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">openFormSendProgram</event>
                     </object>
                 </object>
                 <object class="wxMenu" expanded="1">
@@ -2468,7 +2469,7 @@
             <property name="minimum_size"></property>
             <property name="name">ComprobarActualizaciones</property>
             <property name="pos"></property>
-            <property name="size">300,160</property>
+            <property name="size">370,225</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass">; ; forward_declare</property>
             <property name="title">Comprobar actualizaciones</property>
@@ -2605,8 +2606,8 @@
                 </object>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxALL|wxALIGN_CENTER_HORIZONTAL</property>
-                    <property name="proportion">0</property>
+                    <property name="flag">wxALIGN_CENTER_HORIZONTAL|wxALL</property>
+                    <property name="proportion">1</property>
                     <object class="wxStaticText" expanded="1">
                         <property name="BottomDockable">1</property>
                         <property name="LeftDockable">1</property>
