@@ -4,8 +4,8 @@
 #include "json.hpp"
 
 wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
-	float version = 1.7;
-	wxString fecha = "09-05-2023";	
+	using json = nlohmann::json;
+	json jsonVersion = json::parse(R"({"fecha": "11-05-2023", "version": 1.8})");
 	
 	m_gauge->SetValue(10);
 	// Crear una solicitud HTTP
@@ -19,16 +19,16 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 	if (response.getStatus() == sf::Http::Response::Ok) {
 		m_gauge->SetValue(50);
 		
-		// Analizar el contenido JSON
-		using json = nlohmann::json;		
 		json data = json::parse(response.getBody());
+		wxString webVersion = data["traductor"]["version"].dump();
+		wxString thisVersion = jsonVersion["version"].dump();
 
-		if (data["traductor"]["version"] > version) {
-			m_staticText21->SetLabel("HAY UNA NUEVA VERSIÓN DISPONIBLE");
+		if (data["traductor"]["version"] > thisVersion) {
+			m_staticText21->SetLabel("HAY UNA NUEVA VERSIÓN DISPONIBLE: " + webVersion);
 		} else {
-			m_staticText21->SetLabel("Esta es la última versión");
+			m_staticText21->SetLabel("Está usando la última versión\nSu version: "+ thisVersion +"    "+ jsonVersion["fecha"].dump() +"\nÚltima versión: " + webVersion + "    "+ data["traductor"]["fecha"].dump() +".");
 		}
-		
+
 		
 		m_gauge->SetValue(100);
 	} else {
