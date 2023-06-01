@@ -83,8 +83,9 @@ class wxMainWindow : public wxFrame
 		virtual void RenameFtpFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void openFtpFile( wxMouseEvent& event ) { event.Skip(); }
 		virtual void ftpFileOptions( wxTreeEvent& event ) { event.Skip(); }
-		virtual void FtpConnect8035( wxCommandEvent& event ) { event.Skip(); }
-		virtual void FtpConnect8037( wxCommandEvent& event ) { event.Skip(); }
+		virtual void FtpConnectWas8037( wxCommandEvent& event ) { event.Skip(); }
+		virtual void FtpConnectWas8035( wxCommandEvent& event ) { event.Skip(); }
+		virtual void FtpConnectTaki8037( wxCommandEvent& event ) { event.Skip(); }
 		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }

@@ -64,6 +64,15 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_panel1->Layout();
 	bSizer6->Fit( m_panel1 );
 	ftpOptions = new wxMenu();
+	wxMenuItem* m_menuItem162;
+	m_menuItem162 = new wxMenuItem( ftpOptions, wxID_ANY, wxString( wxT("WASINO 8037") ) , wxEmptyString, wxITEM_NORMAL );
+	#ifdef __WXMSW__
+	m_menuItem162->SetBitmaps( wxBitmap( wxT("resources/server.png"), wxBITMAP_TYPE_ANY ) );
+	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
+	m_menuItem162->SetBitmap( wxBitmap( wxT("resources/server.png"), wxBITMAP_TYPE_ANY ) );
+	#endif
+	ftpOptions->Append( m_menuItem162 );
+
 	wxMenuItem* m_menuItem16;
 	m_menuItem16 = new wxMenuItem( ftpOptions, wxID_ANY, wxString( wxT("WASINO 8035") ) , wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
@@ -309,8 +318,9 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( ftp_renombrar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::RenameFtpFile ) );
 	m_treeCtrl1->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( wxMainWindow::openFtpFile ), NULL, this );
 	m_treeCtrl1->Connect( wxEVT_COMMAND_TREE_ITEM_MENU, wxTreeEventHandler( wxMainWindow::ftpFileOptions ), NULL, this );
-	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnect8035 ), this, m_menuItem16->GetId());
-	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnect8037 ), this, m_menuItem161->GetId());
+	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectWas8037 ), this, m_menuItem162->GetId());
+	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectWas8035 ), this, m_menuItem16->GetId());
+	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectTaki8037 ), this, m_menuItem161->GetId());
 	m_textCtrl->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
 	m_textCtrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Connect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );

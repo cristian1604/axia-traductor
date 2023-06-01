@@ -16,9 +16,10 @@
 #include <unistd.h>
 using namespace std;
 
-#define FAGOR_8025 8025
-#define FAGOR_8035 8035
-#define FAGOR_8037 8037
+#define FAGOR_8025 1
+#define WAS_8037 2
+#define WAS_8035 3
+#define TAKI_8037 4
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
@@ -80,7 +81,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 		syntax_version = FAGOR_8025;
 		break;
 	case 1:
-		syntax_version = FAGOR_8035;
+		syntax_version = WAS_8035;
 		break;
 	}
 	is_loading = true;
@@ -94,7 +95,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 /**  TRANSLATION  **/
 void MainWindow::translate( wxCommandEvent& event )  {
 	is_loading = true;
-	if (syntax_version == FAGOR_8035) {
+	if (syntax_version == WAS_8035) {
 		wxMessageBox("El código ya se encuentra en la versión 8035",
 					 "Traducir a 8025",
 					 wxOK);
@@ -104,7 +105,7 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	m_statusBar->SetStatusText("Analizando...", 0);
 	int ip = m_textCtrl->GetInsertionPoint();
 	m_syntax_slection->SetSelection(1);
-	syntax_version = FAGOR_8035;
+	syntax_version = WAS_8035;
 	translate_8025_to_8035(m_textCtrl);
 	syntax_highlight(m_textCtrl, syntax_version, settings);
 	m_textCtrl->SetFocus();
@@ -190,7 +191,7 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 	
 	// If the code is on 8035, we need to convert only the program and dismiss the comments section
 	text_program = m_textCtrl->GetValue();
-	if (syntax_version == FAGOR_8035) {
+	if (syntax_version == WAS_8035) {
 		partial = true;
 		x = text_program.Find("N0010");   // search the initial line
 		text_program = text_program.SubString(x, text_program.Length());
@@ -314,15 +315,20 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 void MainWindow::connectFTP( int idMachine )  {
 	wxString conn;
 	ftp.disconnect();
+	m_treeCtrl1->DeleteAllItems();
 	
 	switch (idMachine) {
-	case FAGOR_8035:
+	case WAS_8035:
 		ftp.connect("192.168.100.81", 21, sf::seconds(5));
 		conn = "WASINO";
 		break;
-	case FAGOR_8037:
+	case TAKI_8037:
 		ftp.connect("192.168.100.80", 21, sf::seconds(5));
 		conn = "TAKISAWA";
+		break;
+	case WAS_8037:
+		ftp.connect("192.168.100.82", 21, sf::seconds(5));
+		conn = "WASINO 8037";
 		break;
 	}
 	ftp.login();
@@ -354,7 +360,7 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	FM = FileManager("tmp\\" + filename, filename);
 	bool flag = FM.readFile(this->text_program);
 	if (flag) {
-		syntax_version = FAGOR_8035;
+		syntax_version = WAS_8035;
 		m_syntax_slection->SetSelection(0);
 		is_loading = true;
 		m_statusBar->SetStatusText("Leyendo archivo...", 0);
@@ -378,12 +384,16 @@ void MainWindow::connectFtpMenu( wxCommandEvent& event )  {
 	PopupMenu(ftpOptions);
 }
 
-void MainWindow::FtpConnect8035( wxCommandEvent& event )  {
-	connectFTP(FAGOR_8035);
+void MainWindow::FtpConnectWas8035( wxCommandEvent& event )  {
+	connectFTP(WAS_8035);
 }
 
-void MainWindow::FtpConnect8037( wxCommandEvent& event )  {
-	connectFTP(FAGOR_8037);
+void MainWindow::FtpConnectTaki8037( wxCommandEvent& event )  {
+	connectFTP(TAKI_8037);
+}
+
+void MainWindow::FtpConnectWas8037( wxCommandEvent& event )  {
+	connectFTP(WAS_8037);
 }
 
 void MainWindow::deleteFtpFile( wxCommandEvent& event )  {
@@ -475,4 +485,3 @@ void MainWindow::checkUpdates( wxCommandEvent& event )  {
 void MainWindow::openFormSendProgram( wxCommandEvent& event )  {
 	wxExecute("EnvioCNC.exe");
 }
-

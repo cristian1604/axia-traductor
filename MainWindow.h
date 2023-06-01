@@ -20,6 +20,9 @@ private:
 	sf::Ftp ftp;				  // FTP Connection
 	FileManager FM;				  // FileManager object
 protected:
+	void FtpConnectWas8037( wxCommandEvent& event ) ;
+	void FtpConnectWas8035( wxCommandEvent& event ) ;
+	void FtpConnectTaki8037( wxCommandEvent& event ) ;
 	void openFormSendProgram( wxCommandEvent& event ) ;
 	void checkUpdates( wxCommandEvent& event ) ;
 	void refreshFtpFileList();
