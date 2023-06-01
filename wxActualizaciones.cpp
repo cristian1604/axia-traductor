@@ -5,7 +5,7 @@
 
 wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
 	using json = nlohmann::json;
-	json jsonVersion = json::parse(R"({"fecha": "11-05-2023", "version": 1.8})");
+	json jsonVersion = json::parse(R"({"fecha": "02-06-2023", "version": 1.9})");
 	
 	m_gauge->SetValue(10);
 	// Crear una solicitud HTTP
