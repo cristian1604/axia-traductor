@@ -58,6 +58,7 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool10;
 		wxToolBarToolBase* ftp_eliminar;
 		wxToolBarToolBase* ftp_renombrar;
+		wxToolBarToolBase* ftp_enviar;
 		wxTreeCtrl* m_treeCtrl1;
 		wxMenu* ftpOptions;
 		wxPanel* m_panel2;
@@ -68,6 +69,7 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool2;
 		wxToolBarToolBase* m_tool3;
 		wxToolBarToolBase* m_tool4;
+		wxToolBarToolBase* ftp_enviar1;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
 		wxMenu* m_menu3;
@@ -81,6 +83,7 @@ class wxMainWindow : public wxFrame
 		virtual void FtpRefresh( wxCommandEvent& event ) { event.Skip(); }
 		virtual void deleteFtpFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void RenameFtpFile( wxCommandEvent& event ) { event.Skip(); }
+		virtual void sendProgramOnFly( wxCommandEvent& event ) { event.Skip(); }
 		virtual void openFtpFile( wxMouseEvent& event ) { event.Skip(); }
 		virtual void ftpFileOptions( wxTreeEvent& event ) { event.Skip(); }
 		virtual void FtpConnectWas8037( wxCommandEvent& event ) { event.Skip(); }
@@ -121,6 +124,30 @@ class wxMainWindow : public wxFrame
 		{
 			m_panel1->PopupMenu( ftpOptions, event.GetPosition() );
 		}
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class saveFtpWindow
+///////////////////////////////////////////////////////////////////////////////
+class saveFtpWindow : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText5;
+		wxTextCtrl* save_filename;
+		wxButton* m_button2;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
+		virtual void saveFtpCommand( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		saveFtpWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Enviar archivo a CNC"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 286,129 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+		~saveFtpWindow();
 
 };
 

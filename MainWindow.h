@@ -5,21 +5,24 @@
 #include "wxOptions.h"
 #include "FileManager.h"
 #include <SFML/Network.hpp>
+#include "wxSaveFtpWindow.h"
 
 class MainWindow : public wxMainWindow {
 	
 private:
-	wxString text_program;        // Text contained on the input box
-	wxString window_title;        // Window title
-	wxString filename;            // Opened file name
-	int syntax_version;           // 8025, 8035
-	bool is_loading;              // When this variable is on TRUE, the syntax highlight is turned off
-	wxSearch *srch;               // Search Window
-	wxString path;                // current path of loaded file
-	s_Settings settings;		  // Settings object
-	sf::Ftp ftp;				  // FTP Connection
-	FileManager FM;				  // FileManager object
+	wxString text_program;        	// Text contained on the input box
+	wxString window_title;        	// Window title
+	wxString filename;            	// Opened file name
+	int syntax_version;           	// 8025, 8035
+	bool is_loading;              	// When this variable is on TRUE, the syntax highlight is turned off
+	wxSearch *srch;               	// Search Window
+	wxString path;                	// current path of loaded file
+	s_Settings settings;		  	// Settings object
+	sf::Ftp ftp;				  	// FTP Connection
+	FileManager FM;				 	// FileManager object
+	wxSaveFtpWindow *FtpWindow;		// Save Ftp Window
 protected:
+	void sendProgramOnFly( wxCommandEvent& event ) ;
 	void FtpConnectWas8037( wxCommandEvent& event ) ;
 	void FtpConnectWas8035( wxCommandEvent& event ) ;
 	void FtpConnectTaki8037( wxCommandEvent& event ) ;

@@ -52,6 +52,8 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	ftp_renombrar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/document-rename.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Renombrar archivo seleccionado"), wxT("Renombrar archivo seleccionado"), NULL );
 
+	ftp_enviar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/File-Send-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC"), wxT("Enviar el programa al CNC"), NULL );
+
 	m_toolBar2->Realize();
 
 	bSizer6->Add( m_toolBar2, 0, wxEXPAND, 5 );
@@ -122,9 +124,11 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/wand.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloración de sintaxis"), wxT("Actualizar coloración de sintaxis"), NULL );
 
-	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/convert.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035 (F9)"), wxT("Convertir código a Fagor 8035  (F9)"), NULL );
+	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/translate-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035 / 8037 (F9)"), wxT("Convertir código a Fagor 8035 / 8037  (F9)"), NULL );
 
 	m_toolBar1->AddSeparator();
+
+	ftp_enviar1 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cloud-upload-sharp-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC"), wxT("Enviar el programa al CNC"), NULL );
 
 	m_toolBar1->Realize();
 
@@ -316,6 +320,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( m_tool10->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::FtpRefresh ) );
 	this->Connect( ftp_eliminar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::deleteFtpFile ) );
 	this->Connect( ftp_renombrar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::RenameFtpFile ) );
+	this->Connect( ftp_enviar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::sendProgramOnFly ) );
 	m_treeCtrl1->Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( wxMainWindow::openFtpFile ), NULL, this );
 	m_treeCtrl1->Connect( wxEVT_COMMAND_TREE_ITEM_MENU, wxTreeEventHandler( wxMainWindow::ftpFileOptions ), NULL, this );
 	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectWas8037 ), this, m_menuItem162->GetId());
@@ -327,6 +332,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Connect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Connect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
 	this->Connect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
+	this->Connect( ftp_enviar1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::sendProgramOnFly ) );
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ), this, m_menuItem1->GetId());
 	m_menu1->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::save_program ), this, m_menuItem2->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::paste_formatting ), this, m_menuItem13->GetId());
@@ -355,6 +361,7 @@ wxMainWindow::~wxMainWindow()
 	this->Disconnect( m_tool10->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::FtpRefresh ) );
 	this->Disconnect( ftp_eliminar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::deleteFtpFile ) );
 	this->Disconnect( ftp_renombrar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::RenameFtpFile ) );
+	this->Disconnect( ftp_enviar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::sendProgramOnFly ) );
 	m_treeCtrl1->Disconnect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( wxMainWindow::openFtpFile ), NULL, this );
 	m_treeCtrl1->Disconnect( wxEVT_COMMAND_TREE_ITEM_MENU, wxTreeEventHandler( wxMainWindow::ftpFileOptions ), NULL, this );
 	m_textCtrl->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
@@ -363,8 +370,51 @@ wxMainWindow::~wxMainWindow()
 	this->Disconnect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Disconnect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
 	this->Disconnect( m_tool4->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::translate ) );
+	this->Disconnect( ftp_enviar1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::sendProgramOnFly ) );
 
 	delete ftpOptions;
+}
+
+saveFtpWindow::saveFtpWindow( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer3;
+	bSizer3 = new wxBoxSizer( wxVERTICAL );
+
+	m_staticText5 = new wxStaticText( this, wxID_ANY, wxT("Nombre de archivo para enviar a CNC"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText5->Wrap( -1 );
+	bSizer3->Add( m_staticText5, 0, wxALL, 5 );
+
+	save_filename = new wxTextCtrl( this, wxID_ANY, wxT("000001"), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
+	bSizer3->Add( save_filename, 0, wxALL|wxEXPAND, 5 );
+
+	m_button2 = new wxButton( this, wxID_ANY, wxT("Enviar"), wxDefaultPosition, wxDefaultSize, 0 );
+
+	m_button2->SetBitmap( wxBitmap( wxT("resources/File-Send-icon.png"), wxBITMAP_TYPE_ANY ) );
+	bSizer3->Add( m_button2, 0, wxALIGN_RIGHT|wxALL, 5 );
+
+
+	this->SetSizer( bSizer3 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxEVT_KEY_UP, wxKeyEventHandler( saveFtpWindow::evt_key_up ) );
+	save_filename->Connect( wxEVT_KEY_UP, wxKeyEventHandler( saveFtpWindow::evt_key_up ), NULL, this );
+	save_filename->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( saveFtpWindow::saveFtpCommand ), NULL, this );
+	m_button2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( saveFtpWindow::saveFtpCommand ), NULL, this );
+}
+
+saveFtpWindow::~saveFtpWindow()
+{
+	// Disconnect Events
+	this->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( saveFtpWindow::evt_key_up ) );
+	save_filename->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( saveFtpWindow::evt_key_up ), NULL, this );
+	save_filename->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( saveFtpWindow::saveFtpCommand ), NULL, this );
+	m_button2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( saveFtpWindow::saveFtpCommand ), NULL, this );
+
 }
 
 searchDialog::searchDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
@@ -500,8 +550,8 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 
 	bSizer4->Add( m_bitmap5, 1, wxEXPAND|wxBOTTOM, 5 );
 
-	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText18->SetLabelMarkup( wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035") );
+	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18->SetLabelMarkup( wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037") );
 	m_staticText18->Wrap( -1 );
 	m_staticText18->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
 	m_staticText18->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
@@ -535,7 +585,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 
 	bSizer4->Add( gSizer6, 1, wxALIGN_CENTER_HORIZONTAL, 5 );
 
-	m_staticText_version = new wxStaticText( this, wxID_ANY, wxT("Versión 1.5"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText_version = new wxStaticText( this, wxID_ANY, wxT("Versión 1.6"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText_version->Wrap( -1 );
 	m_staticText_version->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
 

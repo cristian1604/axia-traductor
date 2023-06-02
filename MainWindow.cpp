@@ -32,6 +32,11 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	
 	//search window
 	srch = new wxSearch(this);
+	
+	// saveFtpWindow
+	FtpWindow = new wxSaveFtpWindow(this);
+	FtpWindow->inheritFtpConnection(&ftp, m_textCtrl);
+	
 	srch->assignSearchField(m_textCtrl);
 	loadSettings();
 }
@@ -485,3 +490,37 @@ void MainWindow::checkUpdates( wxCommandEvent& event )  {
 void MainWindow::openFormSendProgram( wxCommandEvent& event )  {
 	wxExecute("EnvioCNC.exe");
 }
+
+/** Enviar programa al vuelo (sin nombre de archivo de destino) */
+void MainWindow::sendProgramOnFly( wxCommandEvent& event )  {
+	if (FtpWindow->checkConnection()) {
+		FtpWindow->ShowModal();
+	}
+	this->refreshFtpFileList();
+	/*sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
+	if (directory.isOk()) {
+		char tmp[256];
+		getcwd(tmp, 256);
+		string aa(tmp);
+		
+		string origin;
+		wxTreeItemId item = m_treeCtrl1->GetSelection();
+		if (!m_treeCtrl1->IsEmpty() && m_treeCtrl1->IsSelected(item)) {
+			origin = "tmp\\" + m_treeCtrl1->GetItemText(item);
+		} else {
+			origin = "tmp\\tmp.pit";
+		}
+		ftp.keepAlive();
+		
+		sf::Ftp::Response response = ftp.deleteFile(FM.getFilename());
+		if (response.isOk()) {
+			std::cout<<response.getStatus()<<std::endl;
+			response = ftp.upload(origin, "", sf::Ftp::Binary);
+			
+			if (response.isOk()) {
+				m_statusBar->SetStatusText("Enviado al control como " + origin,0);
+			}
+		}
+	}*/
+}
+

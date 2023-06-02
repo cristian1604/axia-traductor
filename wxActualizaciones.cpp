@@ -26,7 +26,7 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 		if (data["traductor"]["version"] > thisVersion) {
 			m_staticText21->SetLabel("HAY UNA NUEVA VERSIÓN DISPONIBLE: " + webVersion);
 		} else {
-			m_staticText21->SetLabel("Está usando la última versión\nSu version: "+ thisVersion +"    "+ jsonVersion["fecha"].dump() +"\nÚltima versión: " + webVersion + "    "+ data["traductor"]["fecha"].dump() +".");
+			m_staticText21->SetLabel("Está usando la última versión\n\nSu version: "+ thisVersion +"    "+ jsonVersion["fecha"].dump() +"\n\nÚltima versión: " + webVersion + "    "+ data["traductor"]["fecha"].dump() +".");
 		}
 
 		
