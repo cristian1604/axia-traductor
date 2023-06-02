@@ -325,11 +325,11 @@ void MainWindow::connectFTP( int idMachine )  {
 	switch (idMachine) {
 	case WAS_8035:
 		ftp.connect("192.168.100.81", 21, sf::seconds(5));
-		conn = "WASINO";
+		conn = "WASINO 8035";
 		break;
 	case TAKI_8037:
 		ftp.connect("192.168.100.80", 21, sf::seconds(5));
-		conn = "TAKISAWA";
+		conn = "TAKISAWA 8037";
 		break;
 	case WAS_8037:
 		ftp.connect("192.168.100.82", 21, sf::seconds(5));
@@ -458,7 +458,7 @@ void MainWindow::refreshFtpFileList() {
 	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();
 	wxTreeItemId raiz;
 	wxString aux = m_statusBar->GetStatusText(1);
-	aux = aux.SubString(12,aux.Length()-12);							// Substract string "conectado a"
+	aux = aux.SubString(12,aux.Length());							// Substract string "conectado a"
 	if (response.isOk()) {
 		const std::vector<std::string>& listing = response.getListing();
 		raiz = m_treeCtrl1->AddRoot(aux, 1);
@@ -476,7 +476,7 @@ void MainWindow::refreshFtpFileList() {
 		m_treeCtrl1->AssignImageList(imageList);
 		
 		ftp.keepAlive();
-		m_statusBar->SetStatusText("Conectado a " + aux, 1);
+		//m_statusBar->SetStatusText("Conectado a " + aux, 1);
 		m_statusBar->SetStatusText("Directorio listado correctamente", 0);
 	}
 }
@@ -497,30 +497,5 @@ void MainWindow::sendProgramOnFly( wxCommandEvent& event )  {
 		FtpWindow->ShowModal();
 	}
 	this->refreshFtpFileList();
-	/*sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
-	if (directory.isOk()) {
-		char tmp[256];
-		getcwd(tmp, 256);
-		string aa(tmp);
-		
-		string origin;
-		wxTreeItemId item = m_treeCtrl1->GetSelection();
-		if (!m_treeCtrl1->IsEmpty() && m_treeCtrl1->IsSelected(item)) {
-			origin = "tmp\\" + m_treeCtrl1->GetItemText(item);
-		} else {
-			origin = "tmp\\tmp.pit";
-		}
-		ftp.keepAlive();
-		
-		sf::Ftp::Response response = ftp.deleteFile(FM.getFilename());
-		if (response.isOk()) {
-			std::cout<<response.getStatus()<<std::endl;
-			response = ftp.upload(origin, "", sf::Ftp::Binary);
-			
-			if (response.isOk()) {
-				m_statusBar->SetStatusText("Enviado al control como " + origin,0);
-			}
-		}
-	}*/
 }
 
