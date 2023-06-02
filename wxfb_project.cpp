@@ -52,7 +52,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	ftp_renombrar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/document-rename.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Renombrar archivo seleccionado"), wxT("Renombrar archivo seleccionado"), NULL );
 
-	ftp_enviar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/File-Send-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC"), wxT("Enviar el programa al CNC"), NULL );
+	ftp_enviar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cloud-upload-sharp-icon-16.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC"), wxT("Enviar el programa al CNC"), NULL );
 
 	m_toolBar2->Realize();
 
@@ -248,9 +248,9 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxMenuItem* m_menuItem4;
 	m_menuItem4 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Convertir a 8035") ) + wxT('\t') + wxT("F9"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem4->SetBitmaps( wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem4->SetBitmaps( wxBitmap( wxT("resources/translate-icon-16.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem4->SetBitmap( wxBitmap( wxT("resources/cog_go.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem4->SetBitmap( wxBitmap( wxT("resources/translate-icon-16.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu2->Append( m_menuItem4 );
 

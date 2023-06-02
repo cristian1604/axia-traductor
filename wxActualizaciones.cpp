@@ -28,7 +28,6 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 		} else {
 			m_staticText21->SetLabel("Está usando la última versión\n\nSu version: "+ thisVersion +"    "+ jsonVersion["fecha"].dump() +"\n\nÚltima versión: " + webVersion + "    "+ data["traductor"]["fecha"].dump() +".");
 		}
-
 		
 		m_gauge->SetValue(100);
 	} else {
