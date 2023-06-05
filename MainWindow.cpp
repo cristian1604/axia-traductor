@@ -14,6 +14,8 @@
 #include <wx/textdlg.h>
 #include "wxActualizaciones.h"
 #include <unistd.h>
+#include <wx/filefn.h>
+#include <wx/dir.h>
 using namespace std;
 
 #define FAGOR_8025 1
@@ -348,6 +350,12 @@ void MainWindow::connectFTP( int idMachine )  {
 void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	filename = m_treeCtrl1->GetItemText(item);
+	
+	// check if tmp directory exists. If not, it'll create it.
+	if (!wxDir::Exists("tmp")) {
+		wxMkdir("tmp");
+	}
+	
 	m_statusBar->SetLabel("Descargando " + m_treeCtrl1->GetItemText(item));
 	
 	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();

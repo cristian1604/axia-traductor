@@ -23,8 +23,8 @@ path=Application.cpp
 cursor=2:20
 [source]
 path=MainWindow.cpp
-cursor=462:66
-marker=162
+cursor=337:23
+marker=164
 open=true
 [source]
 path=wxfb_project.cpp
