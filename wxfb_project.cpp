@@ -391,7 +391,7 @@ saveFtpWindow::saveFtpWindow( wxWindow* parent, wxWindowID id, const wxString& t
 
 	m_button2 = new wxButton( this, wxID_ANY, wxT("Enviar"), wxDefaultPosition, wxDefaultSize, 0 );
 
-	m_button2->SetBitmap( wxBitmap( wxT("resources/File-Send-icon.png"), wxBITMAP_TYPE_ANY ) );
+	m_button2->SetBitmap( wxBitmap( wxT("resources/navigation-000-frame.png"), wxBITMAP_TYPE_ANY ) );
 	bSizer3->Add( m_button2, 0, wxALIGN_RIGHT|wxALL, 5 );
 
 
