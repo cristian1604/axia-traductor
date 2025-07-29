@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Oct 26 2018)
+// C++ code generated with wxFormBuilder (version 4.2.1-0-g80c4cb6)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -39,7 +39,6 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////////////////////////////////////////////////////////
 /// Class wxMainWindow
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,6 +68,7 @@ class wxMainWindow : public wxFrame
 		wxToolBarToolBase* m_tool2;
 		wxToolBarToolBase* m_tool3;
 		wxToolBarToolBase* m_tool4;
+		wxToolBarToolBase* m_tool5;
 		wxToolBarToolBase* ftp_enviar1;
 		wxMenuBar* m_menubar1;
 		wxMenu* m_menu1;
@@ -76,7 +76,7 @@ class wxMainWindow : public wxFrame
 		wxMenu* m_menu2;
 		wxMenu* m_menu5;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void update_syntax_highlight( wxCommandEvent& event ) { event.Skip(); }
 		virtual void connectFtpMenu( wxCommandEvent& event ) { event.Skip(); }
 		virtual void FtpDisconnect( wxCommandEvent& event ) { event.Skip(); }
@@ -93,6 +93,7 @@ class wxMainWindow : public wxFrame
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }
+		virtual void translateFanuc( wxCommandEvent& event ) { event.Skip(); }
 		virtual void paste_formatting( wxCommandEvent& event ) { event.Skip(); }
 		virtual void copy_program_clipboard( wxCommandEvent& event ) { event.Skip(); }
 		virtual void paste_program_clipboard( wxCommandEvent& event ) { event.Skip(); }
@@ -139,7 +140,7 @@ class saveFtpWindow : public wxDialog
 		wxTextCtrl* save_filename;
 		wxButton* m_button2;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
 		virtual void saveFtpCommand( wxCommandEvent& event ) { event.Skip(); }
 
@@ -147,6 +148,7 @@ class saveFtpWindow : public wxDialog
 	public:
 
 		saveFtpWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Enviar archivo a CNC"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 286,129 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+
 		~saveFtpWindow();
 
 };
@@ -164,7 +166,7 @@ class searchDialog : public wxDialog
 		wxStaticText* hint;
 		wxButton* m_button2;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
 		virtual void search( wxCommandEvent& event ) { event.Skip(); }
 
@@ -172,6 +174,7 @@ class searchDialog : public wxDialog
 	public:
 
 		searchDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar..."), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 286,156 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+
 		~searchDialog();
 
 };
@@ -191,7 +194,7 @@ class search_and_replace : public wxDialog
 		wxButton* m_button2;
 		wxButton* m_button3;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
 		virtual void start_replace( wxCommandEvent& event ) { event.Skip(); }
 		virtual void close( wxCommandEvent& event ) { event.Skip(); }
@@ -200,6 +203,7 @@ class search_and_replace : public wxDialog
 	public:
 
 		search_and_replace( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Buscar y reemplazar"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU );
+
 		~search_and_replace();
 
 };
@@ -222,13 +226,14 @@ class about : public wxDialog
 		wxStaticText* m_staticText_version;
 		wxStaticText* m_staticText15;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void evt_key_up( wxKeyEvent& event ) { event.Skip(); }
 
 
 	public:
 
 		about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Acerca de"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 454,233 ), long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
+
 		~about();
 
 };
@@ -246,13 +251,14 @@ class ComprobarActualizaciones : public wxDialog
 		wxStaticText* m_staticText21;
 		wxButton* m_button6;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void close( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 
 		ComprobarActualizaciones( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Comprobar actualizaciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 370,225 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~ComprobarActualizaciones();
 
 };
@@ -287,7 +293,7 @@ class wxParameters : public wxDialog
 		wxButton* reset;
 		wxButton* m_button4;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void remove_m08( wxCommandEvent& event ) { event.Skip(); }
 		virtual void colour_textCtrl( wxColourPickerEvent& event ) { event.Skip(); }
 		virtual void colour_text( wxColourPickerEvent& event ) { event.Skip(); }
@@ -303,6 +309,7 @@ class wxParameters : public wxDialog
 	public:
 
 		wxParameters( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Opciones"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 485,433 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~wxParameters();
 
 };

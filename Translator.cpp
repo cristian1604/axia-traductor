@@ -10,6 +10,189 @@ string block_conversion(string beg, string end, string &code, string &replacemen
 void apply_settings(string &code);
 string obtain_parameter(long beg, string &code, string param);
 
+//------------------------------------------------------------------------------------------------------------------
+
+void translate_8025_to_Fanuc(wxTextCtrl* elem){
+string translated;
+
+
+	string aux = std::string(elem->GetValue() + '\n');
+	elem->SetValue("");
+	bool program_initiated = false;
+	bool comments_inserted = false;
+	wxString comments;
+	wxString sAux, sAux2, prevSentence;
+	int x;
+	double db;
+	
+	/** Search CONSTANTS blocks, called prologue and epilogue **/
+	// The char ` before the line prevent the conversion of the entire line
+	// This is useful when you have a code blocks to replace
+	// Prologue:
+	int inicio = aux.find('%', 0);
+	int fin = aux.find("P2 = K", inicio);
+	while(aux[inicio] != '\n') {
+		++inicio;
+	}
+	while(aux[fin] != '\n') {
+		--fin;
+	}
+	aux = aux.erase(inicio,fin-inicio);
+	
+	string beg = "P2 = K";        // start of block
+	string end = "G53\n";         // end of block
+	string p1 = obtain_parameter(0, aux, "P2 =");
+	if (p1.length() > 0) {
+		p1 = p1.substr(1, p1.length());
+	}
+	string rep = "#501 = " + p1 + "\nG40\nG55\nT2.2\nM00\n#500=#5022\nG10 L2 P1 Z#500\nG54\nG00 W50\n" ;	
+	aux = block_conversion(beg, end, aux, rep);
+	// End prologue
+		
+	// Epilogue
+	beg = "P1 = P1 F2 P2";
+	end = "M30";
+	p1 = obtain_parameter(0, aux, "G29"); // we need to sum 10 to the current line because on the epilogue we added a new line ("G05")
+	if (p1.length() > 0) {
+		p1 = p1.substr(1, p1.length());
+		p1 = to_string(atoi(p1.c_str()) + 10);
+		p1 = string(4-p1.length(), '0').append(p1);
+	} 
+	rep = "M00\n#500=#5222-#501\nG10 L2 P1 Z#500\nG54\nGOTO"+p1+"\n" ;
+	aux = block_conversion(beg, end, aux, rep);
+	// End convert epilogue
+
+	/** End block conv**/
+	
+	while (!aux.empty()) {
+		// search on the current line. Here we got a complete string to be separated by words
+		int pos = aux.find('\n');
+		string line = aux.substr(0, pos);
+		aux = aux.substr(pos+1, aux.length());
+		if (!program_initiated && line[0] != '%') {
+			//comments.Append(';' + line + '\n');
+			continue;
+		} else {
+			program_initiated = true;
+		}
+		
+		if (line.empty()) translated += "  ";
+		
+		while (!line.empty()) {
+			// iterate by word
+			if (line[0] == ' ') {
+				translated += ' ';
+				line = line.substr(1, line.length());
+				continue;
+			}
+			pos = line.find(' ');
+			if (pos < 0)
+				pos = line.length();
+			
+			string sentence = line.substr(0, pos);
+			line = line.substr(pos, line.length());
+			switch (sentence[0]) {
+			case '%':
+				if (!comments_inserted) {
+					translated.append(sentence + '\n');
+					//translated.append(comments);
+					comments_inserted = true;
+				}
+				break;
+			case '(':
+				sentence = sentence + line;
+				line = "";
+				break;
+			case 'N':
+				// blank lines (block separator)
+				if (line.length() <= 2) {
+					sentence = sentence + "  ";
+				}
+				break;
+			case 'T':
+				// Convert form Taa.bb to Taa Dbb
+				x = sentence.find('.');
+				sAux2 = sentence.substr(1, x-1);
+				if (sAux2.IsNumber()) {
+					if (atoi(sAux2) < 10) {
+						sAux2 = "0" + sAux2;
+					}
+				}
+				sAux = sAux2;
+				
+				sAux2 = sentence.substr(x+1, sentence.find('\n'));
+				if (sAux2.IsNumber()) {
+					if (atoi(sAux2) < 10 && sAux2[0] != '0') {
+						sAux2 = "0" + sAux2;
+					}
+				}
+				
+				sentence = 'T' + sAux + sAux2;
+				
+				break;
+			case 'K':
+				// Convert from seconds to 1/100 seconds ONLY if the prev sentence was G04 (delay)
+				if (prevSentence != "G04") {
+					break;
+				}
+				x = min(sentence.find(' ',0), sentence.find('\n',0));
+				sAux = sentence.substr(1,x);
+				sAux.ToDouble(&db);
+				sAux.Clear();
+				sAux<<db * 100;
+				sentence = 'K' + sAux;
+				break;
+			case '`':
+				// Internal symbol of preserve line (non standard, only on this editor)
+				// when this character is found, the line is not converted
+				sentence = sentence.substr(1,sentence.length());
+				break;
+			}
+			
+			/** FIXED CONVERSIONS **/
+			// analyze FIXED assign commands on remaining line before insert
+			string str = "P1=Z";
+			int x = line.find(str,0);
+			if (x >= 0) {
+				line = line.replace(x,str.length(),"(P100=PPOSZ)");
+				sentence.append(line);
+				line = "";
+			}
+			
+			// Sentence "GoTo"
+			str = "G29";
+			x = line.find(str,0);
+			if (x >= 0) {
+				line = line.replace(x,str.length(),"(GOTO");
+				sentence.append(line + ")");
+				line = "";
+			}
+			
+			// Delete Line
+			str = "P1 = P1 F2 P2";
+			x = line.find(str,0);
+			if (x >= 0) {
+				line = line.replace(x,str.length(),"(P100 = P100 - P102)");
+				sentence.append(line);
+				line = "";
+			}
+			
+			
+			if (comments_inserted && sentence[0] != '%') {
+				translated.append(sentence);
+				prevSentence = sentence;
+			}
+			
+		}
+		translated += '\n';
+		
+	}	
+	apply_settings(translated);
+	elem->SetValue(translated);
+	elem->SetFocus();
+}
+//------------------------------------------------------------------------------------------------------------------
+
 void translate_8025_to_8035(wxTextCtrl* elem) {
 	string translated;
 	string aux = std::string(elem->GetValue() + '\n');
@@ -103,7 +286,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				// Convert form Taa.bb to Taa Dbb
 				x = sentence.find('.');
 				sAux2 = "";
-				for (int i=0; i < sentence.length()-x; i++) {
+				for (unsigned int i=0; i < sentence.length()-x; i++) {
 					sAux = sentence[i];
 					if (sAux.IsNumber()) {
 						sAux2<<sentence[i];
@@ -171,6 +354,7 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				translated += ';';
 			
 		}
+
 		translated += '\n';
 		
 	}
@@ -211,10 +395,10 @@ void apply_settings(string &code) {
 	if (F.loadSettings(s)) {
 		wxString w_code(code);
 		if (s.replace_from && s.replace_to) {
-			w_code.Replace(s.replace_from, s.replace_to, true);
+			//w_code.Replace(s.replace_from, s.replace_to, true);
 		}
 		if (s.remove_m08) {
-			w_code.Replace("M08", "", true);
+			w_code.Replace(wxT("M08"), wxT(""), true);
 		}
 		code = w_code;
 	}

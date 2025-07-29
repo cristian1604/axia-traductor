@@ -7,6 +7,7 @@
 #include <SFML/Network.hpp>
 #include "wxSaveFtpWindow.h"
 
+
 class MainWindow : public wxMainWindow {
 	
 private:
@@ -53,6 +54,7 @@ protected:
 	void search_window( wxCommandEvent& event )  override;
 	void open_options( wxCommandEvent& event )  override;
 	void translate( wxCommandEvent& event )  override;
+	void translateFanuc( wxCommandEvent& event )  override;
 	void update_syntax_highlight( wxCommandEvent& event )  override;
 	void edit_text( wxKeyEvent& event )  override;
 	void loadProgramFromFile( wxCommandEvent& event )  override;

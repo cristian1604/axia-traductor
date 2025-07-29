@@ -22,7 +22,6 @@ using namespace std;
 #define WAS_8037 2
 #define WAS_8035 3
 #define TAKI_8037 4
-#define KIA_FANUC 5
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
@@ -121,29 +120,6 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	is_loading = false;
 	enum_lines(event);
 	m_statusBar->SetStatusText("Programa convertido a versión 8035", 0);
-}
-
-void MainWindow::translateFanuc( wxCommandEvent& event )  {
-	is_loading = true;
-	if (syntax_version == KIA_FANUC) {
-		wxMessageBox("El código ya se encuentra en la versión FANUC",
-					 "Traducir a FANUC",
-					 wxOK);
-		is_loading = false;
-		return;
-	}
-	m_statusBar->SetStatusText("Analizando...", 0);
-	int ip = m_textCtrl->GetInsertionPoint();
-	m_syntax_slection->SetSelection(1);
-	syntax_version = KIA_FANUC;
-	translate_8025_to_Fanuc(m_textCtrl);
-	syntax_highlight(m_textCtrl, syntax_version, settings);
-	m_textCtrl->SetFocus();
-	m_textCtrl->SetInsertionPoint(ip);
-	is_loading = false;
-	enum_lines(event);
-	m_statusBar->SetStatusText("Programa convertido a versión Fanuc", 0);
-	m_statusBar->SetStatusText("Programa convertido a Fanuc", 0);	
 }
 
 void MainWindow::open_options( wxCommandEvent& event )  {
@@ -260,12 +236,6 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 		m_textCtrl->SetFocus();
 	}
 	
-	//if (syntax_version == KIA_FANUC) {
-	wxString aux = m_textCtrl->GetValue();
-	aux[aux.Find(wxT('%'))] = 'O';
-	m_textCtrl->SetValue(aux);
-	//}
-	
 	m_textCtrl->SetInsertionPoint(pos);
 }
 
@@ -311,7 +281,7 @@ void MainWindow::paste_formatting( wxCommandEvent& event )  {
 			wxTextDataObject data;
 			wxTheClipboard->GetData( data );
 			wxString aux = data.GetText();
-			aux.Replace(wxT(','), wxT('.'));
+			aux.Replace(',', '.');
 			text_program += aux + (m_textCtrl->GetValue()).SubString(x, (m_textCtrl->GetValue()).Length());
 			
 			m_textCtrl->SetValue(text_program);
@@ -470,7 +440,7 @@ void MainWindow::RenameFtpFile( wxCommandEvent& event )  {
 		if (fname.Find(wxT(".pit")) == -1) {
 			fname += ".pit";
 		}
-		fname.Replace(wxT(' '), wxT('_'), true);
+		fname.Replace(' ', '_', true);
 		ftp.renameFile(std::string((m_treeCtrl1->GetItemText(item)).mb_str()), std::string(fname.mb_str()));
 		refreshFtpFileList();
 	}
@@ -536,6 +506,4 @@ void MainWindow::sendProgramOnFly( wxCommandEvent& event )  {
 	}
 	this->refreshFtpFileList();
 }
-
-
 
