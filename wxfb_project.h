@@ -111,7 +111,7 @@ class wxMainWindow : public wxFrame
 
 	public:
 
-		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor código CNC 8025 / 8035"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1270,730 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		wxMainWindow( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Traductor código CNC 8025 a 8035 / 8037 / FANUC"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1270,730 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~wxMainWindow();
 

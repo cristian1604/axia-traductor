@@ -53,14 +53,14 @@
       <property name="size">1270,730</property>
       <property name="style">wxDEFAULT_FRAME_STYLE</property>
       <property name="subclass"></property>
-      <property name="title">Traductor código CNC 8025 / 8035</property>
+      <property name="title">Traductor código CNC 8025 a 8035 / 8037 / FANUC</property>
       <property name="tooltip"></property>
       <property name="two_step_creation">0</property>
       <property name="window_extra_style"></property>
       <property name="window_name"></property>
       <property name="window_style">wxTAB_TRAVERSAL</property>
       <property name="xrc_skip_sizer">1</property>
-      <object class="wxBoxSizer" expanded="false">
+      <object class="wxBoxSizer" expanded="true">
         <property name="minimum_size"></property>
         <property name="name">bSizer1</property>
         <property name="orient">wxVERTICAL</property>
@@ -204,11 +204,11 @@
             </object>
           </object>
         </object>
-        <object class="sizeritem" expanded="false">
+        <object class="sizeritem" expanded="true">
           <property name="border">5</property>
           <property name="flag">wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxSplitterWindow" expanded="false">
+          <object class="wxSplitterWindow" expanded="true">
             <property name="BottomDockable">1</property>
             <property name="LeftDockable">1</property>
             <property name="RightDockable">1</property>
@@ -266,8 +266,8 @@
             <property name="window_extra_style"></property>
             <property name="window_name"></property>
             <property name="window_style"></property>
-            <object class="splitteritem" expanded="false">
-              <object class="wxPanel" expanded="false">
+            <object class="splitteritem" expanded="true">
+              <object class="wxPanel" expanded="true">
                 <property name="BottomDockable">1</property>
                 <property name="LeftDockable">1</property>
                 <property name="RightDockable">1</property>
@@ -825,7 +825,7 @@
           <event name="OnToolClicked">update_syntax_highlight</event>
         </object>
         <object class="tool" expanded="false">
-          <property name="bitmap">Load From File; resources/translate-icon.png</property>
+          <property name="bitmap">Load From File; resources/fagor.jpg</property>
           <property name="context_menu">0</property>
           <property name="id">wxID_ANY</property>
           <property name="kind">wxITEM_NORMAL</property>
@@ -837,7 +837,7 @@
           <event name="OnToolClicked">translate</event>
         </object>
         <object class="tool" expanded="true">
-          <property name="bitmap">Load From File; resources/translate-icon.png</property>
+          <property name="bitmap">Load From File; resources/fanuc.png</property>
           <property name="context_menu">0</property>
           <property name="id">wxID_ANY</property>
           <property name="kind">wxITEM_NORMAL</property>
@@ -864,7 +864,7 @@
           <event name="OnToolClicked">sendProgramOnFly</event>
         </object>
       </object>
-      <object class="wxMenuBar" expanded="false">
+      <object class="wxMenuBar" expanded="true">
         <property name="bg"></property>
         <property name="context_help"></property>
         <property name="context_menu">1</property>
@@ -1067,7 +1067,7 @@
             <event name="OnMenuSelection">update_syntax_highlight</event>
           </object>
           <object class="wxMenuItem" expanded="false">
-            <property name="bitmap">Load From File; resources/translate-icon-16.png</property>
+            <property name="bitmap">Load From File; resources/fagor.jpg</property>
             <property name="checked">0</property>
             <property name="enabled">1</property>
             <property name="help"></property>
@@ -1081,7 +1081,7 @@
             <event name="OnMenuSelection">translate</event>
           </object>
           <object class="wxMenuItem" expanded="false">
-            <property name="bitmap">Load From File; resources/translate-icon-16.png</property>
+            <property name="bitmap">Load From File; resources/fanuc.png</property>
             <property name="checked">0</property>
             <property name="enabled">1</property>
             <property name="help"></property>
@@ -2323,7 +2323,7 @@
             <property name="gripper">0</property>
             <property name="hidden">0</property>
             <property name="id">wxID_ANY</property>
-            <property name="label">Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037</property>
+            <property name="label">Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037 / FANUC</property>
             <property name="markup">1</property>
             <property name="max_size"></property>
             <property name="maximize_button">0</property>
@@ -2768,7 +2768,7 @@
             <property name="gripper">0</property>
             <property name="hidden">0</property>
             <property name="id">wxID_ANY</property>
-            <property name="label">© 2019 - 2023 AXIA S.A.</property>
+            <property name="label">© 2019 - 2025 AXIA S.A.</property>
             <property name="markup">0</property>
             <property name="max_size"></property>
             <property name="maximize_button">0</property>

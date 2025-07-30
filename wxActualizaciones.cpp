@@ -5,7 +5,7 @@
 
 wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
 	using json = nlohmann::json;
-	json jsonVersion = json::parse(R"({"fecha": "02-06-2023", "version": 1.9})");
+	json jsonVersion = json::parse(R"({"fecha": "30-07-2025", "version": 20250730})");
 	
 	m_gauge->SetValue(10);
 	// Crear una solicitud HTTP
@@ -20,13 +20,28 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 		m_gauge->SetValue(50);
 		
 		json data = json::parse(response.getBody());
-		wxString webVersion = data["traductor"]["version"].dump();
-		wxString thisVersion = jsonVersion["version"].dump();
+		int webVersion  = data["traductor"]["version"].get<int>();
+		int thisVersion = jsonVersion["version"].get<int>();
+		
+		wxString fechaLocal  = wxString::FromUTF8(jsonVersion["fecha"].get<std::string>().c_str());
+		wxString fechaRemota = wxString::FromUTF8(data["traductor"]["fecha"].get<std::string>().c_str());
+		
 
-		if (data["traductor"]["version"] > thisVersion) {
-			m_staticText21->SetLabel("HAY UNA NUEVA VERSIÓN DISPONIBLE: " + webVersion);
+		if (data["traductor"]["version"] == thisVersion) {
+			
+			m_staticText21->SetLabel(
+									 wxString::Format(
+													  "Está usando la última versión\n\n"
+													  "Su versión: %d    %s\n\n"
+													  "Última versión: %d    %s.",
+													  thisVersion,     // %d
+													  fechaLocal,      // %s
+													  webVersion,      // %d
+													  fechaRemota      // %s
+													  )
+									 );
 		} else {
-			m_staticText21->SetLabel("Está usando la última versión\n\nSu version: "+ thisVersion +"    "+ jsonVersion["fecha"].dump() +"\n\nÚltima versión: " + webVersion + "    "+ data["traductor"]["fecha"].dump() +".");
+			m_staticText21->SetLabel(wxString::Format("HAY UNA NUEVA VERSIÓN DISPONIBLE: %d", webVersion));
 		}
 		
 		m_gauge->SetValue(100);

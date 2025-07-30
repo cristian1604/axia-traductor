@@ -29,9 +29,9 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
 	m_statusBar->SetLabel("Programa iniciado");
-	m_statusBar->SetStatusText("8025 -> 8035", 1);
+	m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
-	this->window_title = "Traductor código CNC 8025 / 8035";
+	this->window_title = "Traductor código CNC 8025 a 8035 / 8037 / FANUC";
 	
 	//search window
 	srch = new wxSearch(this);

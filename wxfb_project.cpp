@@ -124,9 +124,9 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_tool3 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/wand.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Actualizar coloración de sintaxis"), wxT("Actualizar coloración de sintaxis"), NULL );
 
-	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/translate-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035 / 8037 (F9)"), wxT("Convertir código a Fagor 8035 / 8037  (F9)"), NULL );
+	m_tool4 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/fagor.jpg"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fagor 8035 / 8037 (F9)"), wxT("Convertir código a Fagor 8035 / 8037  (F9)"), NULL );
 
-	m_tool5 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/translate-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fanuc (F10)"), wxT("Convertir código a Fanuc (F10)"), NULL );
+	m_tool5 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/fanuc.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Convertir código a Fanuc (F10)"), wxT("Convertir código a Fanuc (F10)"), NULL );
 
 	m_toolBar1->AddSeparator();
 
@@ -250,18 +250,18 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxMenuItem* m_menuItem4;
 	m_menuItem4 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Convertir a 8035") ) + wxT('\t') + wxT("F9"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem4->SetBitmaps( wxBitmap( wxT("resources/translate-icon-16.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem4->SetBitmaps( wxBitmap( wxT("resources/fagor.jpg"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem4->SetBitmap( wxBitmap( wxT("resources/translate-icon-16.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem4->SetBitmap( wxBitmap( wxT("resources/fagor.jpg"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu2->Append( m_menuItem4 );
 
 	wxMenuItem* m_menuItem41;
 	m_menuItem41 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Convertir a FANUC") ) + wxT('\t') + wxT("F10"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem41->SetBitmaps( wxBitmap( wxT("resources/translate-icon-16.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem41->SetBitmaps( wxBitmap( wxT("resources/fanuc.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem41->SetBitmap( wxBitmap( wxT("resources/translate-icon-16.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem41->SetBitmap( wxBitmap( wxT("resources/fanuc.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu2->Append( m_menuItem41 );
 
@@ -564,8 +564,8 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 
 	bSizer4->Add( m_bitmap5, 1, wxEXPAND|wxBOTTOM, 5 );
 
-	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText18->SetLabelMarkup( wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037") );
+	m_staticText18 = new wxStaticText( this, wxID_ANY, wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037 / FANUC"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18->SetLabelMarkup( wxT("Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037 / FANUC") );
 	m_staticText18->Wrap( -1 );
 	m_staticText18->SetFont( wxFont( 10, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
 	m_staticText18->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
@@ -605,7 +605,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 
 	bSizer4->Add( m_staticText_version, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2023 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2025 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText15->Wrap( -1 );
 	m_staticText15->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNSHADOW ) );
 

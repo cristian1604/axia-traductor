@@ -39,7 +39,7 @@ path=SyntaxColor.cpp
 cursor=47:22
 [source]
 path=Translator.cpp
-cursor=56:3
+cursor=9:34
 open=true
 [source]
 path=wxOptions.cpp
