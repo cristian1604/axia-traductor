@@ -290,9 +290,9 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxMenuItem* m_menuItem15;
 	m_menuItem15 = new wxMenuItem( m_menu2, wxID_ANY, wxString( wxT("Enviar programa a torno") ) + wxT('\t') + wxT("F2"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
-	m_menuItem15->SetBitmaps( wxBitmap( wxT("resources/navigation-000-frame.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem15->SetBitmaps( wxBitmap( wxT("resources/sender_ico.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
-	m_menuItem15->SetBitmap( wxBitmap( wxT("resources/navigation-000-frame.png"), wxBITMAP_TYPE_ANY ) );
+	m_menuItem15->SetBitmap( wxBitmap( wxT("resources/sender_ico.png"), wxBITMAP_TYPE_ANY ) );
 	#endif
 	m_menu2->Append( m_menuItem15 );
 

@@ -886,7 +886,7 @@
         <property name="window_extra_style"></property>
         <property name="window_name"></property>
         <property name="window_style"></property>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">&amp;Archivo</property>
           <property name="name">m_menu1</property>
           <property name="permission">protected</property>
@@ -1048,7 +1048,7 @@
             <event name="OnMenuSelection">open_options</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">&amp;Herramientas</property>
           <property name="name">m_menu2</property>
           <property name="permission">protected</property>
@@ -1131,7 +1131,7 @@
             <property name="permission">none</property>
           </object>
           <object class="wxMenuItem" expanded="false">
-            <property name="bitmap">Load From File; resources/navigation-000-frame.png</property>
+            <property name="bitmap">Load From File; resources/sender_ico.png</property>
             <property name="checked">0</property>
             <property name="enabled">1</property>
             <property name="help"></property>
