@@ -5,7 +5,7 @@
 
 wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
 	using json = nlohmann::json;
-	json jsonVersion = json::parse(R"({"fecha": "30-07-2025", "version": 20250730})");
+	json jsonVersion = json::parse(R"({"fecha": "30-07-2025", "version": 20250815})");
 	
 	m_gauge->SetValue(10);
 	// Crear una solicitud HTTP
@@ -41,7 +41,11 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 													  )
 									 );
 		} else {
-			m_staticText21->SetLabel(wxString::Format("HAY UNA NUEVA VERSIÓN DISPONIBLE: %d", webVersion));
+			if (data["traductor"]["version"] > thisVersion) {
+				m_staticText21->SetLabel(wxString::Format("HAY UNA NUEVA VERSIÓN DISPONIBLE: %d", webVersion));
+			} else {
+				m_staticText21->SetLabel(wxString::Format("ESTÁS ADELANTADO!!!: %d", webVersion));
+			}
 		}
 		
 		m_gauge->SetValue(100);
