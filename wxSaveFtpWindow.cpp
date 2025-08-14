@@ -14,18 +14,21 @@ void wxSaveFtpWindow::saveFtpCommand( wxCommandEvent& event )  {
 	sf::Ftp::DirectoryResponse directory = ftp->getWorkingDirectory();
 	if (directory.isOk()) {
 		ftp->keepAlive();
-		string origin = "tmp\\" + (save_filename->GetValue()).ToStdString() + ".pit";
-		FileManager FM(origin, save_filename->GetValue());
-		wxString text(textCtrl->GetValue());
-		FM.writeFile(text);
+		
+		FileManager FM("tmp", "tmp.pit");
+		
+		wxString fileToCopy = "tmp\\" + (save_filename->GetValue()).ToStdString() + ".pit";
+		wxCopyFile("tmp\\tmp.pit", fileToCopy, true);
 		
 		sf::Ftp::Response response = ftp->deleteFile(FM.getFilename());
-		response = ftp->upload(origin, "", sf::Ftp::Binary);
-		cout<<"OK"<<endl;
+		response = ftp->upload(fileToCopy.ToStdString(), "", sf::Ftp::Binary);
+		if (response.isOk()) {
+			wxMessageBox( "Programa transferido como " + (save_filename->GetValue()).ToStdString() + ".pit", "OK", wxICON_INFORMATION);
+		}
 	} else {
 		// Show no connection error
 		cout<<"ERROR"<<endl;
-		wxMessageBox( "No está conectado al control", "No conectado", wxICON_ERROR);
+		wxMessageBox( "No está conectado al control numérico", "No conectado", wxICON_ERROR);
 	}
 	
 	this->Close();

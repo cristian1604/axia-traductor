@@ -29,7 +29,7 @@ bool FileManager::readFile(wxString &content) {
 
 
 bool FileManager::writeFile(wxString &content) {
-	fstream file(this->path, ios::out);
+	fstream file(this->path + "\\" + this->filename, ios::out);
 	if (file.is_open()) {
 		file<<content;
 		file.close();

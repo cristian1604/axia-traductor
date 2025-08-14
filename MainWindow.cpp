@@ -189,22 +189,22 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 	// Now check and send file through FTP
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	if (directory.isOk()) {
-		char tmp[256];
-		getcwd(tmp, 256);
-		string aa(tmp);
-		
-		string origin = "tmp\\" + FM.getFilename();
 		ftp.keepAlive();
 		
+		FileManager FM("tmp", filename);
+		this->text_program = m_textCtrl->GetValue();
+		FM.writeFile(this->text_program);
+		
 		sf::Ftp::Response response = ftp.deleteFile(FM.getFilename());
+		response = ftp.upload("tmp\\" + filename.ToStdString(), "", sf::Ftp::Binary);
 		if (response.isOk()) {
-			std::cout<<response.getStatus()<<std::endl;
-			response = ftp.upload(origin, "", sf::Ftp::Binary);
-			
-			if (response.isOk()) {
-				m_statusBar->SetStatusText("Guardado y enviado al control como " + FM.getFilename(),0);
-			}
+			//wxMessageBox( "Programa transferido como ", "OK", wxICON_INFORMATION);
+			m_statusBar->SetLabel("Programa transferido como " + filename.ToStdString());
 		}
+	} else {
+		// Show no connection error
+		cout<<"ERROR"<<endl;
+		wxMessageBox( "No está conectado al control numérico", "No conectado", wxICON_ERROR);
 	}
 	
 }
@@ -525,16 +525,28 @@ void MainWindow::checkUpdates( wxCommandEvent& event )  {
 	w->Show(true);
 }
 
-void MainWindow::openFormSendProgram( wxCommandEvent& event )  {
-	wxExecute("EnvioCNC.exe");
+void MainWindow::openFormSendProgram( wxCommandEvent& event ) {
+	FileManager FM("tmp\\", "tmp.pit");
+	this->text_program = m_textCtrl->GetValue();
+	if (FM.writeFile(this->text_program)) {
+		m_statusBar->SetStatusText("Guardado. Abriendo EnvioCNC...",0);
+		wxExecute("EnvioCNC.exe");
+	}
 }
 
 /** Enviar programa al vuelo (sin nombre de archivo de destino) */
-void MainWindow::sendProgramOnFly( wxCommandEvent& event )  {
-	if (FtpWindow->checkConnection()) {
-		FtpWindow->ShowModal();
+void MainWindow::sendProgramOnFly( wxCommandEvent& event ) {
+	FileManager FM("tmp", "tmp.pit");
+	this->text_program = m_textCtrl->GetValue();
+	if (FM.writeFile(this->text_program)) {
+		m_statusBar->SetStatusText("Programa guardado. Por enviar...",0);
+		if (FtpWindow->checkConnection()) {
+			FtpWindow->ShowModal();
+		}
+		this->refreshFtpFileList();
+	} else {
+		wxMessageBox( "Ocurrió un error al guardar el archivo en forma temporal", "¡Ocurrió un error!", wxICON_ERROR);
 	}
-	this->refreshFtpFileList();
 }
 
 
