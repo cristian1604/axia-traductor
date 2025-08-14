@@ -52,7 +52,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	ftp_renombrar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/document-rename.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Renombrar archivo seleccionado"), wxT("Renombrar archivo seleccionado"), NULL );
 
-	ftp_enviar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cloud-upload-sharp-icon-16.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC"), wxT("Enviar el programa al CNC"), NULL );
+	ftp_enviar = m_toolBar2->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/sender_ico.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC conectado"), wxT("Enviar el programa al CNC conectado"), NULL );
 
 	m_toolBar2->Realize();
 
@@ -106,7 +106,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_panel2->SetSizer( bSizer7 );
 	m_panel2->Layout();
 	bSizer7->Fit( m_panel2 );
-	m_splitter1->SplitVertically( m_panel1, m_panel2, 198 );
+	m_splitter1->SplitVertically( m_panel1, m_panel2, 242 );
 	bSizer1->Add( m_splitter1, 1, wxEXPAND, 5 );
 
 
@@ -130,7 +130,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	m_toolBar1->AddSeparator();
 
-	ftp_enviar1 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/cloud-upload-sharp-icon.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC"), wxT("Enviar el programa al CNC"), NULL );
+	ftp_enviar1 = m_toolBar1->AddTool( wxID_ANY, wxT("tool"), wxBitmap( wxT("resources/sender_ico.png"), wxBITMAP_TYPE_ANY ), wxNullBitmap, wxITEM_NORMAL, wxT("Enviar el programa al CNC conectado"), wxT("Enviar el programa al CNC conectado"), NULL );
 
 	m_toolBar1->Realize();
 

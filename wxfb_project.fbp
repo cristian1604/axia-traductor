@@ -254,7 +254,7 @@
             <property name="pos"></property>
             <property name="resize">Resizable</property>
             <property name="sashgravity">0.0</property>
-            <property name="sashpos">198</property>
+            <property name="sashpos">242</property>
             <property name="sashsize">-1</property>
             <property name="show">1</property>
             <property name="size"></property>
@@ -449,15 +449,15 @@
                         <event name="OnToolClicked">RenameFtpFile</event>
                       </object>
                       <object class="tool" expanded="false">
-                        <property name="bitmap">Load From File; resources/cloud-upload-sharp-icon-16.png</property>
+                        <property name="bitmap">Load From File; resources/sender_ico.png</property>
                         <property name="context_menu">0</property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">tool</property>
                         <property name="name">ftp_enviar</property>
                         <property name="permission">protected</property>
-                        <property name="statusbar">Enviar el programa al CNC</property>
-                        <property name="tooltip">Enviar el programa al CNC</property>
+                        <property name="statusbar">Enviar el programa al CNC conectado</property>
+                        <property name="tooltip">Enviar el programa al CNC conectado</property>
                         <event name="OnToolClicked">sendProgramOnFly</event>
                       </object>
                     </object>
@@ -524,7 +524,7 @@
                     </object>
                   </object>
                 </object>
-                <object class="wxMenu" expanded="false">
+                <object class="wxMenu" expanded="true">
                   <property name="label">MyMenu</property>
                   <property name="name">ftpOptions</property>
                   <property name="permission">protected</property>
@@ -573,8 +573,8 @@
                 </object>
               </object>
             </object>
-            <object class="splitteritem" expanded="false">
-              <object class="wxPanel" expanded="false">
+            <object class="splitteritem" expanded="true">
+              <object class="wxPanel" expanded="true">
                 <property name="BottomDockable">1</property>
                 <property name="LeftDockable">1</property>
                 <property name="RightDockable">1</property>
@@ -626,7 +626,7 @@
                 <property name="window_extra_style"></property>
                 <property name="window_name"></property>
                 <property name="window_style">wxTAB_TRAVERSAL</property>
-                <object class="wxBoxSizer" expanded="false">
+                <object class="wxBoxSizer" expanded="true">
                   <property name="minimum_size"></property>
                   <property name="name">bSizer7</property>
                   <property name="orient">wxVERTICAL</property>
@@ -852,15 +852,15 @@
           <property name="permission">protected</property>
         </object>
         <object class="tool" expanded="false">
-          <property name="bitmap">Load From File; resources/cloud-upload-sharp-icon.png</property>
+          <property name="bitmap">Load From File; resources/sender_ico.png</property>
           <property name="context_menu">0</property>
           <property name="id">wxID_ANY</property>
           <property name="kind">wxITEM_NORMAL</property>
           <property name="label">tool</property>
           <property name="name">ftp_enviar1</property>
           <property name="permission">protected</property>
-          <property name="statusbar">Enviar el programa al CNC</property>
-          <property name="tooltip">Enviar el programa al CNC</property>
+          <property name="statusbar">Enviar el programa al CNC conectado</property>
+          <property name="tooltip">Enviar el programa al CNC conectado</property>
           <event name="OnToolClicked">sendProgramOnFly</event>
         </object>
       </object>
@@ -919,7 +919,7 @@
             <event name="OnMenuSelection">save_program</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">Editar</property>
           <property name="name">m_menu3</property>
           <property name="permission">protected</property>
