@@ -23,13 +23,27 @@ cmake --build build -j
 ./build/traductor
 ```
 
-Windows (MSYS2, terminal MinGW 64):
+Windows (MSYS2, terminal "MSYS2 MinGW 64-bit"):
 
 ```
-pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-wxwidgets3.2-msw mingw-w64-x86_64-sfml
-cmake -S . -B build -G "MinGW Makefiles"
-cmake --build build -j
+pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-wxwidgets3.2-msw
+cmake -S . -B build -G Ninja
+cmake --build build
 ```
+
+MSYS2 ya distribuye SFML 3, cuya API es distinta; si no encuentra un SFML 2
+instalado, CMake descarga y compila SFML 2.6.2 (solo `network` y `system`)
+durante la configuración, por lo que hace falta conexión a internet la
+primera vez. Para distribuir el ejecutable hay que acompañarlo de las DLL de
+wxWidgets y MinGW que usa (`ldd build/traductor.exe` las lista).
+
+## Compilación automática
+
+Cada push ejecuta el flujo de GitHub Actions (`.github/workflows/build.yml`),
+que compila y corre los tests en Ubuntu y en Windows (MSYS2) y publica dos
+artefactos descargables desde la pestaña *Actions*: `traductor-linux` y
+`traductor-windows`, este último ya con las DLL necesarias y la carpeta
+`resources/`.
 
 El ejecutable busca la carpeta `resources/` en el directorio de trabajo, por
 lo que hay que ejecutarlo desde la raíz del repositorio.

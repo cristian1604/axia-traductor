@@ -1,0 +1,70 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    name: Linux (Ubuntu)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libwxgtk3.2-dev libsfml-dev
+      - name: Configurar
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Compilar
+        run: cmake --build build -j
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Empaquetar
+        run: |
+          mkdir -p dist/traductor
+          cp build/traductor dist/traductor/
+          cp -r resources dist/traductor/
+          cp README.md dist/traductor/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: traductor-linux
+          path: dist
+
+  windows:
+    name: Windows (MSYS2 MinGW 64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-wxwidgets3.2-msw
+      - name: Configurar
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Compilar
+        run: cmake --build build
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Empaquetar con las DLL necesarias
+        run: |
+          mkdir -p dist/traductor
+          cp build/traductor.exe dist/traductor/
+          cp -r resources dist/traductor/
+          cp README.md dist/traductor/
+          # DLLs de MinGW/wxWidgets que usa el ejecutable
+          ldd dist/traductor/traductor.exe | grep -i '/mingw64/' | awk '{print $3}' | sort -u | xargs -I{} cp {} dist/traductor/
+          ls -la dist/traductor
+      - uses: actions/upload-artifact@v4
+        with:
+          name: traductor-windows
+          path: dist

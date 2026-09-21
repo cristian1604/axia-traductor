@@ -1,0 +1,3 @@
+// Recursos de Windows: icono de la aplicación y manifiesto de controles comunes v6
+1 ICON "resources/Webalys.ico"
+1 24 "manifest.xml"

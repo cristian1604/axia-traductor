@@ -7,14 +7,44 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# wxWidgets 3.x (Ubuntu: libwxgtk3.2-dev; Windows/MSYS2: mingw-w64-x86_64-wxwidgets3.2-msw)
-find_package(wxWidgets REQUIRED COMPONENTS xrc html adv core base)
-include(${wxWidgets_USE_FILE})
+# ---- wxWidgets 3.2 -----------------------------------------------------------
+# Primero en modo config (MSYS2, vcpkg: instala wxWidgetsConfig.cmake) y si no,
+# en modo módulo (Ubuntu/Debian: wx-config).
+find_package(wxWidgets CONFIG QUIET)
+if(TARGET wx::core)
+	set(WX_LIBS wx::xrc wx::html wx::core wx::base)
+	set(WX_USE_FILE "")
+else()
+	find_package(wxWidgets REQUIRED COMPONENTS xrc html adv core base)
+	set(WX_LIBS ${wxWidgets_LIBRARIES})
+	set(WX_USE_FILE ${wxWidgets_USE_FILE})
+endif()
 
-# SFML 2.x, solo red y sistema (Ubuntu: libsfml-dev; MSYS2: mingw-w64-x86_64-sfml)
-find_package(SFML 2 REQUIRED COMPONENTS network system)
+# ---- SFML 2 (network, system) ------------------------------------------------
+# Ubuntu 24.04 trae SFML 2.6 (libsfml-dev). MSYS2 ya distribuye SFML 3, cuya API
+# es distinta, así que si no hay un SFML 2 instalado se compila desde el código
+# fuente (solo los módulos network y system, en unos segundos).
+find_package(SFML 2 QUIET COMPONENTS network system)
+if(NOT SFML_FOUND)
+	message(STATUS "SFML 2 no encontrado: se descarga y compila SFML 2.6.2 (network + system)")
+	include(FetchContent)
+	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+	set(SFML_BUILD_AUDIO OFF CACHE BOOL "" FORCE)
+	set(SFML_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
+	set(SFML_BUILD_WINDOW OFF CACHE BOOL "" FORCE)
+	set(SFML_BUILD_NETWORK ON CACHE BOOL "" FORCE)
+	set(SFML_BUILD_DOC OFF CACHE BOOL "" FORCE)
+	set(SFML_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(SFML_INSTALL_PKGCONFIG_FILES OFF CACHE BOOL "" FORCE)
+	FetchContent_Declare(SFML
+		GIT_REPOSITORY https://github.com/SFML/SFML.git
+		GIT_TAG 2.6.2
+		GIT_SHALLOW TRUE)
+	FetchContent_MakeAvailable(SFML)
+endif()
 
-add_executable(traductor WIN32
+# ---- Aplicación --------------------------------------------------------------
+set(APP_SOURCES
 	Application.cpp
 	MainWindow.cpp
 	FileManager.cpp
@@ -33,19 +63,31 @@ add_executable(traductor WIN32
 	AppPaths.cpp
 	wxfb_project.cpp
 )
+if(WIN32)
+	# Icono de la aplicación y manifiesto (controles comunes v6)
+	list(APPEND APP_SOURCES traductor.rc)
+endif()
 
+add_executable(traductor WIN32 ${APP_SOURCES})
+if(WX_USE_FILE)
+	include(${WX_USE_FILE})
+endif()
 target_include_directories(traductor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(traductor PRIVATE ${wxWidgets_LIBRARIES} sfml-network sfml-system)
+target_link_libraries(traductor PRIVATE ${WX_LIBS} sfml-network sfml-system)
 target_compile_options(traductor PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
 
 if(WIN32)
 	target_link_libraries(traductor PRIVATE ws2_32)
+	if(MINGW)
+		# Runtime de GCC enlazado estático: menos DLLs que distribuir
+		target_link_options(traductor PRIVATE -static-libgcc -static-libstdc++)
+	endif()
 endif()
 
-# El ejecutable busca "resources/" y "settings.json" en el directorio de trabajo,
-# por lo que hay que ejecutarlo desde la raiz del repositorio (ver README).
+# El ejecutable busca "resources/" en el directorio de trabajo, por lo que hay
+# que ejecutarlo desde la raíz del repositorio (o de la carpeta distribuida).
 
-# Tests (sin dependencia de wxWidgets): ctest --test-dir build
+# ---- Tests (sin dependencia de wxWidgets): ctest --test-dir build ------------
 enable_testing()
 add_executable(test_renumber tests/test_renumber.cpp Renumber.cpp)
 add_test(NAME renumber COMMAND test_renumber ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
@@ -53,4 +95,7 @@ add_executable(test_translator tests/test_translator.cpp TranslatorCore.cpp Renu
 add_test(NAME translator COMMAND test_translator ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_executable(test_sender tests/test_sender.cpp Sender.cpp Machines.cpp)
 target_link_libraries(test_sender PRIVATE sfml-network sfml-system)
+if(WIN32)
+	target_link_libraries(test_sender PRIVATE ws2_32)
+endif()
 add_test(NAME sender COMMAND test_sender)
