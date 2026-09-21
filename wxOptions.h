@@ -12,9 +12,12 @@ struct s_Settings {
 	
 	bool maximize_on_startup;
 	bool remove_m08;
-	char replace_from[10];
-	char replace_to[10];
+	wxString replace_from;
+	wxString replace_to;
 };
+
+// Valores por defecto de la configuracion
+s_Settings default_settings();
 
 class wxOptions : public wxParameters {
 	s_Settings settings;
@@ -33,6 +36,7 @@ protected:
 	void colour_textCtrl( wxColourPickerEvent& event ) ;
 	void save( wxCommandEvent& event ) ;
 	void evt_key_up( wxKeyEvent& event ) ;
+	void showSettings();
 	
 public:
 	wxOptions(wxWindow *parent=NULL);

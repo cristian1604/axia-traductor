@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.16)
+project(AxiaTraductor LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# wxWidgets 3.x (Ubuntu: libwxgtk3.2-dev; Windows/MSYS2: mingw-w64-x86_64-wxwidgets3.2-msw)
+find_package(wxWidgets REQUIRED COMPONENTS xrc html adv core base)
+include(${wxWidgets_USE_FILE})
+
+# SFML 2.x, solo red y sistema (Ubuntu: libsfml-dev; MSYS2: mingw-w64-x86_64-sfml)
+find_package(SFML 2 REQUIRED COMPONENTS network system)
+
+add_executable(traductor WIN32
+	Application.cpp
+	MainWindow.cpp
+	FileManager.cpp
+	SyntaxColor.cpp
+	Translator.cpp
+	wxOptions.cpp
+	wxSearch.cpp
+	wxSearchReplace.cpp
+	wxAbout.cpp
+	wxActualizaciones.cpp
+	wxSaveFtpWindow.cpp
+	wxfb_project.cpp
+)
+
+target_include_directories(traductor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(traductor PRIVATE ${wxWidgets_LIBRARIES} sfml-network sfml-system)
+target_compile_options(traductor PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
+
+if(WIN32)
+	target_link_libraries(traductor PRIVATE ws2_32)
+endif()
+
+# El ejecutable busca "resources/" y "settings.json" en el directorio de trabajo,
+# por lo que hay que ejecutarlo desde la raiz del repositorio (ver README).

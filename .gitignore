@@ -1,2 +1,4 @@
 /debug.w32
-/debug.w32
+/build*/
+/tmp/
+/settings.json

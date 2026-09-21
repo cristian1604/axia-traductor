@@ -1,9 +1,9 @@
 #include "wxAbout.h"
+#include "Version.h"
 
 wxAbout::wxAbout(wxWindow *parent) : about(parent) {
-	// Tambien se debe cambiar de wxActualizaciones!!!
-	m_staticText_fechaUltimaActualizacion->SetLabel("15-08-2025");
-	m_staticText_version->SetLabel("VersiÛn 20250815");
+	m_staticText_fechaUltimaActualizacion->SetLabel(APP_VERSION_DATE);
+	m_staticText_version->SetLabel(wxString::Format(wxT("Versi√≥n %d"), APP_VERSION));
 }
 
 wxAbout::~wxAbout() {

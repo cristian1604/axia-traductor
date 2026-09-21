@@ -20,8 +20,11 @@ private:
 	wxString path;                	// current path of loaded file
 	s_Settings settings;		  	// Settings object
 	sf::Ftp ftp;				  	// FTP Connection
-	FileManager FM;				 	// FileManager object
+	FileManager FM;				 	// Archivo de destino del guardado (definido tras "Guardar como" o al abrir desde FTP)
 	wxSaveFtpWindow *FtpWindow;		// Save Ftp Window
+	bool ensureTmpDir();
+	bool readClipboardText(wxString &out);
+	bool writeClipboardText(const wxString &text);
 protected:
 	void sendProgramOnFly( wxCommandEvent& event ) ;
 	void FtpConnectWas8037( wxCommandEvent& event ) ;

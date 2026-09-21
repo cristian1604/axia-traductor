@@ -1,5 +1,5 @@
 /* XPM */
-static char *netw_xpm[] = {
+static const char *netw_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 89 1 ",
 "  c #0071AF",
@@ -165,7 +165,7 @@ static const char *xpm_file[] = {
 };
 
 /* XPM */
-static char * folder_xpm[] = {
+static const char * folder_xpm[] = {
 "16 16 121 2",
 "  	c None",
 ". 	c #D9B434",
@@ -307,7 +307,7 @@ static char * folder_xpm[] = {
 
 
 /* XPM */
-static char *program_xpm[] = {
+static const char *program_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "48 48 120 2 ",
 "   c None",
@@ -482,7 +482,7 @@ static char *program_xpm[] = {
 };
 
 /* XPM */
-static char *server_xpm[] = {
+static const char *server_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 143 2 ",
 "   c None",
@@ -648,7 +648,7 @@ static char *server_xpm[] = {
 };
 
 /* XPM */
-static char *pit_extension_xpm[] = {
+static const char *pit_extension_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "128 128 34 1 ",
 "  c None",

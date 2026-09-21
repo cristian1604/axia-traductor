@@ -15,20 +15,24 @@ void wxSaveFtpWindow::saveFtpCommand( wxCommandEvent& event )  {
 	if (directory.isOk()) {
 		ftp->keepAlive();
 		
-		FileManager FM("tmp", "tmp.pit");
+		wxString targetName = save_filename->GetValue() + ".pit";
+		FileManager source("tmp", "tmp.pit");
+		FileManager target("tmp", targetName);
+		wxCopyFile(source.getFullPath(), target.getFullPath(), true);
 		
-		wxString fileToCopy = "tmp\\" + (save_filename->GetValue()).ToStdString() + ".pit";
-		wxCopyFile("tmp\\tmp.pit", fileToCopy, true);
-		
-		sf::Ftp::Response response = ftp->deleteFile(FM.getFilename());
-		response = ftp->upload(fileToCopy.ToStdString(), "", sf::Ftp::Binary);
+		// Se borra el archivo de destino en el control (si existe) para poder
+		// sobreescribirlo. Antes se borraba "tmp.pit", que no es el destino.
+		ftp->deleteFile(target.getFilename());
+		sf::Ftp::Response response = ftp->upload(target.getFullPath(), "", sf::Ftp::Binary);
 		if (response.isOk()) {
-			wxMessageBox( "Programa transferido como " + (save_filename->GetValue()).ToStdString() + ".pit", "OK", wxICON_INFORMATION);
+			wxMessageBox( "Programa transferido como " + targetName, "OK", wxICON_INFORMATION);
+		} else {
+			wxMessageBox( "No se pudo transferir el programa al control", "Error", wxICON_ERROR);
 		}
 	} else {
 		// Show no connection error
 		cout<<"ERROR"<<endl;
-		wxMessageBox( "No está conectado al control numérico", "No conectado", wxICON_ERROR);
+		wxMessageBox( wxT("No estÃ¡ conectado al control numÃ©rico"), "No conectado", wxICON_ERROR);
 	}
 	
 	this->Close();
@@ -39,10 +43,9 @@ bool wxSaveFtpWindow::checkConnection( )  {
 	if (directory.isOk()) {
 		return true;
 	} else {
-		wxMessageBox( "Antes debe conectarse a algún control numérico", "No conectado", wxICON_ERROR);
+		wxMessageBox( wxT("Antes debe conectarse a algÃºn control numÃ©rico"), "No conectado", wxICON_ERROR);
 		return false;
 	}
-	this->Close();
 }
 
 void wxSaveFtpWindow::inheritFtpConnection( sf::Ftp *ftpInh, wxTextCtrl *x )  {

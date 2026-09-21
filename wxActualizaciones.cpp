@@ -2,10 +2,10 @@
 #include <SFML/Network.hpp>
 #include <string>
 #include "json.hpp"
+#include "Version.h"
 
 wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
 	using json = nlohmann::json;
-	json jsonVersion = json::parse(R"({"fecha": "30-07-2025", "version": 20250815})");
 	
 	m_gauge->SetValue(10);
 	// Crear una solicitud HTTP
@@ -13,17 +13,18 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 	sf::Http::Request request("/version.json");
 	
 	// Enviar la solicitud y recibir la respuesta
-	sf::Http::Response response = http.sendRequest(request);
+	// Con timeout: sin el, si el servidor no responde la interfaz queda congelada
+	sf::Http::Response response = http.sendRequest(request, sf::seconds(5));
 	
-	// Verificar el cÛdigo de estado de la respuesta
+	// Verificar el c√≥digo de estado de la respuesta
 	if (response.getStatus() == sf::Http::Response::Ok) {
 		m_gauge->SetValue(50);
 		
 		json data = json::parse(response.getBody());
 		int webVersion  = data["traductor"]["version"].get<int>();
-		int thisVersion = jsonVersion["version"].get<int>();
+		int thisVersion = APP_VERSION;
 		
-		wxString fechaLocal  = wxString::FromUTF8(jsonVersion["fecha"].get<std::string>().c_str());
+		wxString fechaLocal  = APP_VERSION_DATE;
 		wxString fechaRemota = wxString::FromUTF8(data["traductor"]["fecha"].get<std::string>().c_str());
 		
 
@@ -31,9 +32,9 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 			
 			m_staticText21->SetLabel(
 									 wxString::Format(
-													  "Est· usando la ˙ltima versiÛn\n\n"
-													  "Su versiÛn: %d    %s\n\n"
-													  "⁄ltima versiÛn: %d    %s.",
+													  wxT("Est√° usando la √∫ltima versi√≥n\n\n")
+													  wxT("Su versi√≥n: %d    %s\n\n")
+													  wxT("√öltima versi√≥n: %d    %s."),
 													  thisVersion,     // %d
 													  fechaLocal,      // %s
 													  webVersion,      // %d
@@ -42,9 +43,9 @@ wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizacione
 									 );
 		} else {
 			if (data["traductor"]["version"] > thisVersion) {
-				m_staticText21->SetLabel(wxString::Format("HAY UNA NUEVA VERSI”N DISPONIBLE: %d", webVersion));
+				m_staticText21->SetLabel(wxString::Format(wxT("HAY UNA NUEVA VERSI√ìN DISPONIBLE: %d"), webVersion));
 			} else {
-				m_staticText21->SetLabel(wxString::Format("EST¡S ADELANTADO!!!: %d", webVersion));
+				m_staticText21->SetLabel(wxString::Format(wxT("EST√ÅS ADELANTADO!!!: %d"), webVersion));
 			}
 		}
 		

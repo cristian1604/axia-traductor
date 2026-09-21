@@ -17,7 +17,7 @@ public:
 	wxSearch(wxWindow *parent=NULL);
 	~wxSearch();
 	void assignSearchField(wxTextCtrl *x);
-	unsigned int search_next();
+	int search_next();
 };
 
 #endif

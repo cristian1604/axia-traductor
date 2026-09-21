@@ -1,76 +1,115 @@
 #include "FileManager.h"
-#include <iostream>
+#include "json.hpp"
+#include <fstream>
 using namespace std;
+using json = nlohmann::json;
 
-FileManager::FileManager(wxString path, wxString filename) {
-	this->path = path;
-	this->filename = filename;
-	this->defined = false;
+static const char *SETTINGS_FILE = "settings.json";
+
+static string colour_to_string(const wxColour &c) {
+	return c.GetAsString(wxC2S_HTML_SYNTAX).ToStdString();
 }
 
-FileManager::FileManager() {
+static wxColour colour_from_json(const json &j, const char *key, const wxColour &fallback) {
+	if (!j.contains(key) || !j[key].is_string()) return fallback;
+	wxColour c(wxString::FromUTF8(j[key].get<string>().c_str()));
+	return c.IsOk() ? c : fallback;
+}
+
+FileManager::FileManager(const wxString &dir, const wxString &filename)
+	: file(dir, filename), defined(false) {
+}
+
+FileManager::FileManager(const wxString &fullPath)
+	: file(fullPath), defined(false) {
+}
+
+FileManager::FileManager() : defined(false) {
 }
 
 bool FileManager::readFile(wxString &content) {
 	content.Clear();
-	fstream file(this->path, ios::in);
+	ifstream in(file.GetFullPath().ToStdString(), ios::in);
+	if (!in.is_open()) return false;
 	string line;
-	if (file.is_open()) {
-		while (getline(file,line)) {
-			content.Append(line);
-			content.Append('\n');
-		}
-		this->defined = true;
-		file.close();
-		return true;
+	while (getline(in, line)) {
+		// Normaliza finales de línea CRLF (archivos generados en Windows)
+		if (!line.empty() && line.back() == '\r') line.pop_back();
+		content.Append(line);
+		content.Append('\n');
 	}
-	return false;
+	this->defined = true;
+	return true;
 }
 
-
-bool FileManager::writeFile(wxString &content) {
-	fstream file(this->path + "\\" + this->filename, ios::out);
-	if (file.is_open()) {
-		file<<content;
-		file.close();
-		return true;
-	}
-	return false;
-}
-
-bool FileManager::loadSettings(s_Settings &s) {
-	fstream file("settings.dat", ios::binary|ios::in);
-	if (file.is_open()) {
-		while (!file.eof()) {
-			file.read((char *) &s, sizeof(s_Settings));
-		}
-		file.sync();
-		file.close();
-		return true;
-	}
-	return false;
-}
-
-
-bool FileManager::saveSettings(s_Settings &s) {
-	fstream file("settings.dat", ios::binary|ios::out);
-	if (file.is_open()) {
-		file.write((char *) &s, sizeof(s_Settings));
-		file.sync();
-		file.close();
-		return true;
-	}
-	return false;
-}
-
-bool FileManager::isDefined() {
+bool FileManager::writeFile(const wxString &content) {
+	ofstream out(file.GetFullPath().ToStdString(), ios::out);
+	if (!out.is_open()) return false;
+	out << content.ToStdString();
+	this->defined = out.good();
 	return this->defined;
 }
 
-string FileManager::getFilename() {
-	return (string) this->filename.mb_str();
+/**
+	Configuracion en settings.json. Si el archivo no existe o esta danado,
+	s queda con los valores por defecto y se devuelve false.
+	(El formato anterior, settings.dat, volcaba los bytes de objetos wxColour
+	y no era portable entre plataformas ni versiones de wxWidgets.)
+**/
+bool FileManager::loadSettings(s_Settings &s) {
+	s = default_settings();
+	ifstream in(SETTINGS_FILE);
+	if (!in.is_open()) return false;
+	json j;
+	try {
+		in >> j;
+	} catch (const json::exception &) {
+		return false;
+	}
+	if (!j.is_object()) return false;
+	s.colour_textCtrl     = colour_from_json(j, "colour_background", s.colour_textCtrl);
+	s.colour_text         = colour_from_json(j, "colour_text", s.colour_text);
+	s.colour_comments     = colour_from_json(j, "colour_comments", s.colour_comments);
+	s.colour_command_m    = colour_from_json(j, "colour_command_m", s.colour_command_m);
+	s.colour_command_tool = colour_from_json(j, "colour_command_tool", s.colour_command_tool);
+	s.colour_line_number  = colour_from_json(j, "colour_line_number", s.colour_line_number);
+	s.maximize_on_startup = j.value("maximize_on_startup", s.maximize_on_startup);
+	s.remove_m08          = j.value("remove_m08", s.remove_m08);
+	s.replace_from        = wxString::FromUTF8(j.value("replace_from", string()).c_str());
+	s.replace_to          = wxString::FromUTF8(j.value("replace_to", string()).c_str());
+	return true;
 }
 
-string FileManager::getPath() {
-	return (string) this->path.mb_str();
+bool FileManager::saveSettings(s_Settings &s) {
+	json j;
+	j["colour_background"]   = colour_to_string(s.colour_textCtrl);
+	j["colour_text"]         = colour_to_string(s.colour_text);
+	j["colour_comments"]     = colour_to_string(s.colour_comments);
+	j["colour_command_m"]    = colour_to_string(s.colour_command_m);
+	j["colour_command_tool"] = colour_to_string(s.colour_command_tool);
+	j["colour_line_number"]  = colour_to_string(s.colour_line_number);
+	j["maximize_on_startup"] = s.maximize_on_startup;
+	j["remove_m08"]          = s.remove_m08;
+	j["replace_from"]        = string(s.replace_from.ToUTF8());
+	j["replace_to"]          = string(s.replace_to.ToUTF8());
+	ofstream out(SETTINGS_FILE);
+	if (!out.is_open()) return false;
+	out << j.dump(4) << endl;
+	return out.good();
+}
+
+bool FileManager::isDefined() const {
+	return this->defined;
+}
+
+string FileManager::getFilename() const {
+	return file.GetFullName().ToStdString();
+}
+
+string FileManager::getPath() const {
+	return file.GetPath().ToStdString();
+}
+
+string FileManager::getFullPath() const {
+	return file.GetFullPath().ToStdString();
 }

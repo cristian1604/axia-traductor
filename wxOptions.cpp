@@ -1,18 +1,34 @@
 #include "wxOptions.h"
 #include "FileManager.h"
-#include <cstring>
+#include <wx/msgdlg.h>
 using namespace std;
+
+s_Settings default_settings() {
+	s_Settings s;
+	s.colour_textCtrl = wxColour( 0, 30, 60);
+	s.colour_line_number = *wxGREEN;
+	s.colour_command_m = *wxRED;
+	s.colour_command_tool = *wxRED;
+	s.colour_text = *wxYELLOW;
+	s.colour_comments = wxColour(200, 200, 200);
+	s.maximize_on_startup = false;
+	s.remove_m08 = false;
+	s.replace_from = "";
+	s.replace_to = "";
+	return s;
+}
 
 wxOptions::wxOptions(wxWindow *parent) : wxParameters(parent) {
 	FileManager F;
-	if (!F.loadSettings(settings)) {
-		wxCommandEvent x;
-		reset_defaults(x);
-	} else {
-		m_replace_from->SetValue(settings.replace_from);
-		m_replace_to->SetValue(settings.replace_to);
-	}
+	F.loadSettings(settings);   // si no hay archivo, deja los valores por defecto
+	m_replace_from->SetMaxLength(32);
+	m_replace_to->SetMaxLength(32);
+	showSettings();
+}
 
+void wxOptions::showSettings() {
+	m_replace_from->SetValue(settings.replace_from);
+	m_replace_to->SetValue(settings.replace_to);
 	m_colour_textCtrl->SetColour(settings.colour_textCtrl);
 	m_colour_text->SetColour(settings.colour_text);
 	m_colour_m->SetColour(settings.colour_command_m);
@@ -36,10 +52,12 @@ void wxOptions::evt_key_up( wxKeyEvent& event )  {
 }
 
 void wxOptions::save( wxCommandEvent& event )  {
-	strcpy(settings.replace_from, m_replace_from->GetValue());
-	strcpy(settings.replace_to, m_replace_to->GetValue());
+	settings.replace_from = m_replace_from->GetValue();
+	settings.replace_to = m_replace_to->GetValue();
 	FileManager F;
-	F.saveSettings(settings);
+	if (!F.saveSettings(settings)) {
+		wxMessageBox( wxT("No se pudo guardar la configuración"), "Error", wxICON_ERROR);
+	}
 	this->Close();
 }
 
@@ -72,14 +90,8 @@ void wxOptions::maximize( wxCommandEvent& event )  {
 }
 
 void wxOptions::reset_defaults( wxCommandEvent& event )  {
-	settings.colour_textCtrl = wxColour( 0, 30, 60);
-	settings.colour_line_number = *wxGREEN;
-	settings.colour_command_m = *wxRED;
-	settings.colour_command_tool = *wxRED;
-	settings.colour_text = *wxYELLOW;
-	settings.colour_comments = wxColour(200, 200, 200);
-	settings.maximize_on_startup = false;
-	settings.remove_m08 = false;
+	settings = default_settings();
+	showSettings();
 	save(event);
 }
 

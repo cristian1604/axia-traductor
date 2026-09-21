@@ -1,29 +1,26 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 #include <wx/string.h>
-#include <fstream>
-#include "wxOptions.h"
+#include <wx/filename.h>
 #include <string>
-using namespace std;
+#include "wxOptions.h"
 
 class FileManager {
 private:
-	wxString path;
-	wxString filename;
-	wxString content;
+	wxFileName file;
 	bool defined;
 public:
-	FileManager(wxString path, wxString filename);
+	FileManager(const wxString &dir, const wxString &filename);
+	explicit FileManager(const wxString &fullPath);
 	FileManager();
 	bool readFile(wxString &content);
-	bool writeFile(wxString &content);
+	bool writeFile(const wxString &content);
 	bool saveSettings(s_Settings &settings);
 	bool loadSettings(s_Settings &settings);
-	string getFilename();
-	string getPath();
-	bool isDefined();
+	std::string getFilename() const;
+	std::string getPath() const;
+	std::string getFullPath() const;
+	bool isDefined() const;
 };
 
-
 #endif
-

@@ -2,8 +2,10 @@
 #include <wx/textctrl.h>
 #include <iostream>
 #include <algorithm>
+#include <cctype>
 #include "wxOptions.h"
 #include "FileManager.h"
+#include "Translator.h"
 using namespace std;
 
 string block_conversion(string beg, string end, string &code, string &replacement);
@@ -16,7 +18,7 @@ void translate_8025_to_Fanuc(wxTextCtrl* elem){
 string translated;
 
 
-	string aux = std::string(elem->GetValue() + '\n');
+	string aux = elem->GetValue().ToStdString() + '\n';
 	elem->SetValue("");
 	bool program_initiated = false;
 	bool comments_inserted = false;
@@ -28,16 +30,21 @@ string translated;
 	/** Search CONSTANTS blocks, called prologue and epilogue **/
 	// The char ` before the line prevent the conversion of the entire line
 	// This is useful when you have a code blocks to replace
-	// Prologue:
-	int inicio = aux.find('%', 0);
-	int fin = aux.find("P2 = K", inicio);
-	while(aux[inicio] != '\n') {
-		++inicio;
+	// Prologue: se elimina todo lo que hay entre la linea del '%' y la linea
+	// donde comienza el prologo ("P2 = K"). Si falta alguno de los dos, no se toca.
+	size_t inicio = aux.find('%');
+	size_t fin = (inicio == string::npos) ? string::npos : aux.find("P2 = K", inicio);
+	if (inicio != string::npos && fin != string::npos) {
+		while (inicio < aux.length() && aux[inicio] != '\n') {
+			++inicio;
+		}
+		while (fin > inicio && aux[fin] != '\n') {
+			--fin;
+		}
+		if (fin > inicio) {
+			aux.erase(inicio, fin - inicio);
+		}
 	}
-	while(aux[fin] != '\n') {
-		--fin;
-	}
-	aux = aux.erase(inicio,fin-inicio);
 	
 	string beg = "P2 = K";        // start of block
 	string end = "G53\n";         // end of block
@@ -110,8 +117,11 @@ string translated;
 				}
 				break;
 			case 'T':
-				// Convert form Taa.bb to Taa Dbb
+				// Convert form Taa.bb to Taabb
 				x = sentence.find('.');
+				if (x < 0) {
+					break;
+				}
 				sAux2 = sentence.substr(1, x-1);
 				if (sAux2.IsNumber()) {
 					if (atoi(sAux2) < 10) {
@@ -195,7 +205,7 @@ string translated;
 
 void translate_8025_to_8035(wxTextCtrl* elem) {
 	string translated;
-	string aux = std::string(elem->GetValue() + '\n');
+	string aux = elem->GetValue().ToStdString() + '\n';
 	elem->SetValue("");
 	bool program_initiated = false;
 	bool comments_inserted = false;
@@ -284,18 +294,21 @@ void translate_8025_to_8035(wxTextCtrl* elem) {
 				break;
 			case 'T':
 				// Convert form Taa.bb to Taa Dbb
+				// Sin punto (ej. "T02") no hay corrector: la sentencia queda igual.
 				x = sentence.find('.');
+				if (x < 0) {
+					break;
+				}
 				sAux2 = "";
-				for (unsigned int i=0; i < sentence.length()-x; i++) {
-					sAux = sentence[i];
-					if (sAux.IsNumber()) {
+				for (int i = 1; i < x; i++) {
+					if (isdigit((unsigned char) sentence[i])) {
 						sAux2<<sentence[i];
 					}
 				}
 				if (sAux2 != "0" && sAux2 != "00") {
-					sentence = 'T' + sAux2 + " D" + sentence.substr(x+1,sentence.length());
+					sentence = 'T' + sAux2 + " D" + sentence.substr(x+1);
 				} else {
-					sentence = 'D' + sentence.substr(x+1,sentence.length());
+					sentence = 'D' + sentence.substr(x+1);
 				}
 				break;
 			case 'K':
@@ -394,8 +407,8 @@ void apply_settings(string &code) {
 	FileManager F;
 	if (F.loadSettings(s)) {
 		wxString w_code(code);
-		if (s.replace_from && s.replace_to) {
-			//w_code.Replace(s.replace_from, s.replace_to, true);
+		if (!s.replace_from.IsEmpty()) {
+			w_code.Replace(s.replace_from, s.replace_to, true);
 		}
 		if (s.remove_m08) {
 			w_code.Replace(wxT("M08"), wxT(""), true);

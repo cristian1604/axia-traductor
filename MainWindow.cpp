@@ -10,28 +10,24 @@
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
 #include <wx/wx.h>
+#include <wx/log.h>
 #include "resources/icons.xpm"
 #include <wx/textdlg.h>
 #include "wxActualizaciones.h"
-#include <unistd.h>
 #include <wx/filefn.h>
 #include <wx/dir.h>
+#include "CncStandard.h"
 using namespace std;
 
-#define FAGOR_8025 1
-#define WAS_8037 2
-#define WAS_8035 3
-#define TAKI_8037 4
-#define KIA_FANUC 5
-
-MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent) {
+MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
+	syntax_version(FAGOR_8025), is_loading(false), srch(NULL), FtpWindow(NULL) {
 	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
-	this->window_title = "Traductor código CNC 8025 a 8035 / 8037 / FANUC";
+	this->window_title = wxT("Traductor cÃ³digo CNC 8025 a 8035 / 8037 / FANUC");
 	
 	//search window
 	srch = new wxSearch(this);
@@ -50,14 +46,17 @@ MainWindow::~MainWindow() {
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
 void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
-	wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.NC;*.PIT;*.nc;*.pit|Archivo de texto (*.txt, *.TXT)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
-	if (OpenDialog->ShowModal() == wxID_OK) // if the user click "Open" instead of "Cancel"
+	wxFileDialog OpenDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.NC;*.PIT;*.nc;*.pit|Archivo de texto (*.txt, *.TXT)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
+	if (OpenDialog.ShowModal() == wxID_OK) // if the user click "Open" instead of "Cancel"
 	{
-		path = OpenDialog->GetPath();
-		filename = OpenDialog->GetFilename();
+		path = OpenDialog.GetPath();
+		filename = OpenDialog.GetFilename();
 		this->SetTitle(this->window_title + " - " + filename);
-		FileManager FM(path, filename);
-		bool flag = FM.readFile(this->text_program);
+		// El archivo original 8025 no se usa como destino de "Guardar": se
+		// pide un nombre nuevo para no pisar el original con la traduccion.
+		FM = FileManager();
+		FileManager source(path);
+		bool flag = source.readFile(this->text_program);
 		if (flag) {
 			syntax_version = FAGOR_8025;
 			m_syntax_slection->SetSelection(0);
@@ -70,12 +69,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 			is_loading = false;
 			m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
 		}
-		// Sets our current document to the file the user selected
-		//MainEditBox->LoadFile(CurrentDocPath); //Opens that file
-		//SetTitle(wxString("Edit - ") << OpenDialog->GetFilename()); // Set the Title to reflect the file open
 	}
-	OpenDialog->Destroy();
-	
 }
 
 void MainWindow::edit_text( wxKeyEvent& event )  {
@@ -104,7 +98,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 void MainWindow::translate( wxCommandEvent& event )  {
 	is_loading = true;
 	if (syntax_version == WAS_8035) {
-		wxMessageBox("El código ya se encuentra en la versión 8035",
+		wxMessageBox(wxT("El cÃ³digo ya se encuentra en la versiÃ³n 8035"),
 					 "Traducir a 8025",
 					 wxOK);
 		is_loading = false;
@@ -120,13 +114,13 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	m_textCtrl->SetInsertionPoint(ip);
 	is_loading = false;
 	enum_lines(event);
-	m_statusBar->SetStatusText("Programa convertido a versión 8035", 0);
+	m_statusBar->SetStatusText(wxT("Programa convertido a versiÃ³n 8035"), 0);
 }
 
 void MainWindow::translateFanuc( wxCommandEvent& event )  {
 	is_loading = true;
 	if (syntax_version == KIA_FANUC) {
-		wxMessageBox("El código ya se encuentra en la versión FANUC",
+		wxMessageBox(wxT("El cÃ³digo ya se encuentra en la versiÃ³n FANUC"),
 					 "Traducir a FANUC",
 					 wxOK);
 		is_loading = false;
@@ -142,13 +136,12 @@ void MainWindow::translateFanuc( wxCommandEvent& event )  {
 	m_textCtrl->SetInsertionPoint(ip);
 	is_loading = false;
 	enum_lines(event);
-	m_statusBar->SetStatusText("Programa convertido a versión Fanuc", 0);
-	m_statusBar->SetStatusText("Programa convertido a Fanuc", 0);	
+	m_statusBar->SetStatusText(wxT("Programa convertido a versiÃ³n Fanuc"), 0);
 }
 
 void MainWindow::open_options( wxCommandEvent& event )  {
-	wxOptions *opt = new wxOptions(this);
-	opt->ShowModal();
+	wxOptions opt(this);
+	opt.ShowModal();
 	loadSettings();
 }
 
@@ -161,142 +154,169 @@ void MainWindow::search_next( wxCommandEvent& event )  {
 }
 
 void MainWindow::search_replace_window( wxCommandEvent& event )  {
-	wxSearchReplace *snr = new wxSearchReplace(this);
-	snr->assignTextField(m_textCtrl);
-	snr->ShowModal();
+	wxSearchReplace snr(this);
+	snr.assignTextField(m_textCtrl);
+	snr.ShowModal();
 }
 
 /** SAVE PROGRAM GENERATED **/
 void MainWindow::save_program( wxCommandEvent& event )  {
 	if (!FM.isDefined()) {
-		wxString suggested = filename.SubString(0,filename.Find('.') - 1) + "_35";
-		wxFileDialog* OpenDialog = new wxFileDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado PIT (*.PIT)|*.PIT|Programa de mecanizado NC (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE, wxDefaultPosition);
-		if (OpenDialog->ShowModal() == wxID_OK) {
-			this->text_program = m_textCtrl->GetValue();
-			path = OpenDialog->GetPath();
-			FileManager FM(path, OpenDialog->GetFilename());
-			if (FM.writeFile(this->text_program)) {
-				m_statusBar->SetStatusText("Guardado.",0);
-			}
+		wxString base = filename.BeforeLast('.');
+		if (base.IsEmpty()) base = filename;
+		wxString suggested = base + "_35";
+		wxFileDialog SaveDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado PIT (*.PIT)|*.PIT|Programa de mecanizado NC (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT, wxDefaultPosition);
+		if (SaveDialog.ShowModal() != wxID_OK) {
+			return;   // cancelado: no guardar ni enviar nada
 		}
-	} else {
-		this->text_program = m_textCtrl->GetValue();
-		if (FM.writeFile(this->text_program)) {
-			m_statusBar->SetStatusText("Guardado.",0);
-		}
+		path = SaveDialog.GetPath();
+		filename = SaveDialog.GetFilename();
+		// Se asigna al miembro (antes se declaraba un FM local que lo ocultaba,
+		// por lo que cada "Guardar" volvia a pedir el nombre)
+		FM = FileManager(path);
+		this->SetTitle(this->window_title + " - " + filename);
 	}
 	
-	// Now check and send file through FTP
+	this->text_program = m_textCtrl->GetValue();
+	if (!FM.writeFile(this->text_program)) {
+		wxMessageBox( "No se pudo guardar el archivo:\n" + FM.getFullPath(), "Error al guardar", wxICON_ERROR);
+		return;
+	}
+	m_statusBar->SetStatusText("Guardado: " + filename, 0);
+	
+	// Si hay un control conectado, ademas se envia el programa por FTP
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	if (directory.isOk()) {
 		ftp.keepAlive();
+		if (!ensureTmpDir()) return;
+		FileManager tmpFile("tmp", filename);
+		if (!tmpFile.writeFile(this->text_program)) return;
 		
-		FileManager FM("tmp", filename);
-		this->text_program = m_textCtrl->GetValue();
-		FM.writeFile(this->text_program);
-		
-		sf::Ftp::Response response = ftp.deleteFile(FM.getFilename());
-		response = ftp.upload("tmp\\" + filename.ToStdString(), "", sf::Ftp::Binary);
+		ftp.deleteFile(tmpFile.getFilename());
+		sf::Ftp::Response response = ftp.upload(tmpFile.getFullPath(), "", sf::Ftp::Binary);
 		if (response.isOk()) {
-			//wxMessageBox( "Programa transferido como ", "OK", wxICON_INFORMATION);
-			m_statusBar->SetLabel("Programa transferido como " + filename.ToStdString());
+			m_statusBar->SetStatusText("Guardado y transferido al control como " + filename, 0);
+			refreshFtpFileList();
+		} else {
+			wxMessageBox( wxT("Se guardÃ³ localmente pero no se pudo transferir al control"), "Error de transferencia", wxICON_ERROR);
 		}
-	} else {
-		// Show no connection error
-		cout<<"ERROR"<<endl;
-		wxMessageBox( "No está conectado al control numérico", "No conectado", wxICON_ERROR);
 	}
-	
+}
+
+bool MainWindow::ensureTmpDir() {
+	if (wxDir::Exists("tmp")) return true;
+	if (wxMkdir("tmp")) return true;
+	wxMessageBox( "No se pudo crear el directorio temporal \"tmp\"", "Error", wxICON_ERROR);
+	return false;
+}
+
+bool MainWindow::readClipboardText(wxString &out) {
+	bool ok = false;
+	if (wxTheClipboard->Open()) {
+		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
+			wxTextDataObject data;
+			wxTheClipboard->GetData( data );
+			out = data.GetText();
+			ok = true;
+		}
+		wxTheClipboard->Close();
+	}
+	return ok;
+}
+
+bool MainWindow::writeClipboardText(const wxString &text) {
+	if (!wxTheClipboard->Open()) return false;
+	// The data object is owned by the clipboard, do not delete it
+	wxTheClipboard->SetData( new wxTextDataObject(text));
+	wxTheClipboard->Close();
+	return true;
 }
 
 void MainWindow::about( wxCommandEvent& event )  {
-	wxAbout *a = new wxAbout(this);
-	a->ShowModal();
+	wxAbout a(this);
+	a.ShowModal();
 }
 
 /**  Dady's re-enumerator lines library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_textCtrl->GetInsertionPoint();
 	bool partial = false;
-	long x;
+	long x = -1;
 	
 	// If the code is on 8035, we need to convert only the program and dismiss the comments section
-	text_program = m_textCtrl->GetValue();
+	wxString original = m_textCtrl->GetValue();
+	text_program = original;
 	if (syntax_version == WAS_8035) {
+		x = original.Find("N0010");   // search the initial line
+		if (x < 0) {
+			wxMessageBox( wxT("No se detectÃ³ la primera lÃ­nea del programa (N0010).\nNo se puede reenumerar parcialmente."), "Inicio de programa no encontrado", wxICON_ERROR);
+			return;
+		}
 		partial = true;
-		x = text_program.Find("N0010");   // search the initial line
-		text_program = text_program.SubString(x, text_program.Length());
-		
-		text_program = "%tmp\n" + text_program; // temporal line
+		text_program = "%tmp\n" + original.Mid(x); // temporal line
 	}
 	
-	if (x < 1 && text_program.Find("%") < 0) {
-		wxMessageBox( "No se detectó el inicio de programa.\nRecuerde iniciar el programa con el caracter %", "Inicio de programa no encontrado", wxICON_ERROR);
+	if (!partial && text_program.Find("%") < 0) {
+		wxMessageBox( wxT("No se detectÃ³ el inicio de programa.\nRecuerde iniciar el programa con el caracter %"), "Inicio de programa no encontrado", wxICON_ERROR);
 		return;
 	}
 	
-	// Write some text to the clipboard
-	if (wxTheClipboard->Open())	{
-		// This data objects are held by the clipboard,
-		// so do not delete them in the app.
-		wxTheClipboard->SetData( new wxTextDataObject(text_program));
-		wxTheClipboard->Close();
-		
-		wxExecute("Num2.exe",wxEXEC_SYNC);
+	// El reenumerador es una aplicacion externa que trabaja sobre el portapapeles
+	if (!writeClipboardText(text_program)) {
+		wxMessageBox( "No se pudo acceder al portapapeles", "Error", wxICON_ERROR);
+		return;
+	}
+	long rc;
+	{
+		wxLogNull noLog;   // evita el dialogo de error propio de wx si no existe el ejecutable
+		rc = wxExecute("Num2.exe", wxEXEC_SYNC);
+	}
+	if (rc == -1) {
+		wxMessageBox( "No se pudo ejecutar el reenumerador externo (Num2.exe).\nEl programa queda sin reenumerar.", "Reenumerador no disponible", wxICON_ERROR);
+		return;
+	}
+	
+	wxString renumbered;
+	if (!readClipboardText(renumbered) || renumbered.IsEmpty()) {
+		wxMessageBox( wxT("El reenumerador no devolviÃ³ ningÃºn resultado"), "Error", wxICON_ERROR);
+		return;
 	}
 	
 	if (!partial) {
-		paste_program_clipboard(event);
+		text_program = renumbered;
 	} else {
-		// Store on a temp variable the content before the beginning "N0010"
-		wxString tmp = m_textCtrl->GetValue();
-		tmp = tmp.SubString(0, x-1);
-
-		wxTextDataObject data;
-		wxTheClipboard->GetData( data );
-		text_program = data.GetText();
-		text_program = tmp + text_program.SubString(5, text_program.Length());
-		m_textCtrl->SetValue(text_program);
-		m_textCtrl->SetFocus();
+		// Se conserva lo anterior a "N0010" y se descarta la linea temporal "%tmp"
+		text_program = original.Left(x) + renumbered.AfterFirst('\n');
 	}
 	
-	//if (syntax_version == KIA_FANUC) {
-	wxString aux = m_textCtrl->GetValue();
-	aux[aux.Find(wxT('%'))] = 'O';
-	m_textCtrl->SetValue(aux);
-	//}
+	// FANUC identifica el programa con "O" en lugar de "%"
+	if (syntax_version == KIA_FANUC) {
+		int p = text_program.Find(wxT('%'));
+		if (p >= 0) text_program[p] = 'O';
+	}
 	
+	m_textCtrl->SetValue(text_program);
+	m_textCtrl->SetFocus();
 	m_textCtrl->SetInsertionPoint(pos);
 }
 
 void MainWindow::loadSettings() {
 	FileManager F;
-	if (F.loadSettings(settings)) {
-		wxColour col = settings.colour_textCtrl;
-		m_textCtrl->SetBackgroundColour(col);
-		this->Maximize(settings.maximize_on_startup);
+	F.loadSettings(settings);   // sin archivo quedan los valores por defecto
+	m_textCtrl->SetBackgroundColour(settings.colour_textCtrl);
+	if (settings.maximize_on_startup) {
+		this->Maximize(true);
 	}
 }
 
 void MainWindow::copy_program_clipboard( wxCommandEvent& event )  {
-	if (wxTheClipboard->Open())	{
-		// This data objects are held by the clipboard,
-		// so do not delete them in the app.
-		wxTheClipboard->SetData( new wxTextDataObject(m_textCtrl->GetValue()));
-		wxTheClipboard->Close();
-	}
+	writeClipboardText(m_textCtrl->GetValue());
 }
 
 void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
-	if (wxTheClipboard->Open()) {
-		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
-			wxTextDataObject data;
-			wxTheClipboard->GetData( data );
-			text_program = data.GetText();
-			m_textCtrl->SetValue(text_program);
-			m_textCtrl->SetFocus();
-		}
-		wxTheClipboard->Close();
+	if (readClipboardText(text_program)) {
+		m_textCtrl->SetValue(text_program);
+		m_textCtrl->SetFocus();
 	}
 }
 
@@ -327,7 +347,7 @@ void MainWindow::channels( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
 	if (syntax_version != FAGOR_8025) {
-		wxMessageBox( "Solo puede simular programas de 8025.\nEl código G actual es 8035", "Versión G no compatible", wxICON_ERROR);
+		wxMessageBox( wxT("Solo puede simular programas de 8025.\nEl cÃ³digo G actual es 8035"), wxT("VersiÃ³n G no compatible"), wxICON_ERROR);
 		return;
 	}
 	wxExecute("Canalesw.exe");
@@ -337,10 +357,10 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
 	if (syntax_version != FAGOR_8025) {
-		wxMessageBox( "Solo puede simular programas de 8025.\nEl código G actual es 8035", "Versión G no compatible", wxICON_ERROR);
+		wxMessageBox( wxT("Solo puede simular programas de 8025.\nEl cÃ³digo G actual es 8035"), wxT("VersiÃ³n G no compatible"), wxICON_ERROR);
 		return;
 	}
-	FileManager F("tmp.txt", "tmp.txt");
+	FileManager F("tmp.txt");
 	text_program = m_textCtrl->GetValue();
 	if (F.writeFile(text_program)) {
 		wxExecute("ABsim.exe tmp.txt");
@@ -379,32 +399,26 @@ void MainWindow::connectFTP( int idMachine )  {
 /** Double click on FTP file**/
 void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
+	if (!item.IsOk() || item == m_treeCtrl1->GetRootItem()) return;
 	filename = m_treeCtrl1->GetItemText(item);
 	
-	// check if tmp directory exists. If not, it'll create it.
-	if (!wxDir::Exists("tmp")) {
-		wxMkdir("tmp");
+	if (!ensureTmpDir()) return;
+	
+	m_statusBar->SetStatusText("Descargando " + filename, 0);
+	
+	sf::Ftp::Response r = ftp.download(filename.ToStdString(), "tmp", sf::Ftp::Binary);
+	if (!r.isOk()) {
+		wxMessageBox( wxString::Format(wxT("No se pudo descargar el archivo (cÃ³digo %d)"), (int) r.getStatus()), "Error de descarga", wxICON_ERROR);
+		m_statusBar->SetStatusText("Error al descargar " + filename, 0);
+		return;
 	}
-	
-	m_statusBar->SetLabel("Descargando " + m_treeCtrl1->GetItemText(item));
-	
-	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();
-	sf::Ftp::Response r = ftp.download(std::string((m_treeCtrl1->GetItemText(item)).mb_str()), "tmp\\", sf::Ftp::Binary);
-	
-	if (r.isOk()) {
-		m_statusBar->SetLabel("Archivo descargado.");
-	} else {
-		m_statusBar->SetLabel("Error " + r.getStatus());
-	}
-	
-	m_statusBar->SetLabel("Abriendo archivo");
 	
 	this->SetTitle(this->window_title + " - " + filename);
-	FM = FileManager("tmp\\" + filename, filename);
+	FM = FileManager("tmp", filename);
 	bool flag = FM.readFile(this->text_program);
 	if (flag) {
 		syntax_version = WAS_8035;
-		m_syntax_slection->SetSelection(0);
+		m_syntax_slection->SetSelection(1);
 		is_loading = true;
 		m_statusBar->SetStatusText("Leyendo archivo...", 0);
 		m_textCtrl->SetValue("");
@@ -442,8 +456,11 @@ void MainWindow::FtpConnectWas8037( wxCommandEvent& event )  {
 void MainWindow::deleteFtpFile( wxCommandEvent& event )  {
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
-	if (directory.isOk()) {
-		string file(m_treeCtrl1->GetItemText(item));
+	if (directory.isOk() && item.IsOk() && item != m_treeCtrl1->GetRootItem()) {
+		string file = m_treeCtrl1->GetItemText(item).ToStdString();
+		if (wxMessageBox(wxString::Format(wxT("Â¿Eliminar \"%s\" del control?"), wxString(file)), "Confirmar", wxYES_NO | wxICON_QUESTION) != wxYES) {
+			return;
+		}
 		sf::Ftp::Response r = ftp.deleteFile(file);
 		if (r.isOk()) {
 			m_treeCtrl1->Delete(item);
@@ -467,11 +484,14 @@ void MainWindow::RenameFtpFile( wxCommandEvent& event )  {
 					   "Renombrar archivo",
 					   m_treeCtrl1->GetItemText(item));
 	if (!fname.IsEmpty()) {
-		if (fname.Find(wxT(".pit")) == -1) {
+		if (!fname.Lower().EndsWith(".pit")) {
 			fname += ".pit";
 		}
 		fname.Replace(wxT(' '), wxT('_'), true);
-		ftp.renameFile(std::string((m_treeCtrl1->GetItemText(item)).mb_str()), std::string(fname.mb_str()));
+		sf::Ftp::Response r = ftp.renameFile(m_treeCtrl1->GetItemText(item).ToStdString(), fname.ToStdString());
+		if (!r.isOk()) {
+			wxMessageBox( "No se pudo renombrar el archivo", "Error", wxICON_ERROR);
+		}
 		refreshFtpFileList();
 	}
 }
@@ -486,7 +506,6 @@ void MainWindow::FtpRefresh( wxCommandEvent& event )  {
 
 void MainWindow::refreshFtpFileList() {
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
-	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	if (!directory.isOk()) {
 		m_statusBar->SetLabel("FTP no conectado");
 		return;
@@ -526,26 +545,30 @@ void MainWindow::checkUpdates( wxCommandEvent& event )  {
 }
 
 void MainWindow::openFormSendProgram( wxCommandEvent& event ) {
-	FileManager FM("tmp\\", "tmp.pit");
+	if (!ensureTmpDir()) return;
+	FileManager tmpFile("tmp", "tmp.pit");
 	this->text_program = m_textCtrl->GetValue();
-	if (FM.writeFile(this->text_program)) {
+	if (tmpFile.writeFile(this->text_program)) {
 		m_statusBar->SetStatusText("Guardado. Abriendo EnvioCNC...",0);
-		wxExecute("EnvioCNC.exe");
+		if (wxExecute("EnvioCNC.exe") == 0) {
+			wxMessageBox( wxT("No se pudo ejecutar la aplicaciÃ³n externa EnvioCNC.exe"), wxT("AplicaciÃ³n no disponible"), wxICON_ERROR);
+		}
 	}
 }
 
 /** Enviar programa al vuelo (sin nombre de archivo de destino) */
 void MainWindow::sendProgramOnFly( wxCommandEvent& event ) {
-	FileManager FM("tmp", "tmp.pit");
+	if (!ensureTmpDir()) return;
+	FileManager tmpFile("tmp", "tmp.pit");
 	this->text_program = m_textCtrl->GetValue();
-	if (FM.writeFile(this->text_program)) {
+	if (tmpFile.writeFile(this->text_program)) {
 		m_statusBar->SetStatusText("Programa guardado. Por enviar...",0);
 		if (FtpWindow->checkConnection()) {
 			FtpWindow->ShowModal();
 		}
 		this->refreshFtpFileList();
 	} else {
-		wxMessageBox( "Ocurrió un error al guardar el archivo en forma temporal", "¡Ocurrió un error!", wxICON_ERROR);
+		wxMessageBox( wxT("OcurriÃ³ un error al guardar el archivo en forma temporal"), wxT("Â¡OcurriÃ³ un error!"), wxICON_ERROR);
 	}
 }
 
