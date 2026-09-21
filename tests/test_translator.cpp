@@ -121,6 +121,14 @@ int main(int argc, char **argv) {
 		CHECK(out.find("M30\n") != std::string::npos);
 	}
 
+	// 4c. FANUC: redondeo de esquina G36 R -> ,R al final del bloque
+	{
+		std::string out = translate_8025_to_fanuc_text("%1\nN0010  G1 Z0\nN0020  G36 R1 X20 Z-3\nN0030  Z-10\nN0040  G36 R0.5 X30\n", defaults);
+		CHECK(out.find("N0020  X20 Z-3 ,R1\n") != std::string::npos);
+		CHECK(out.find("N0040  X30 ,R0.5\n") != std::string::npos);
+		CHECK(out.find("G36") == std::string::npos);
+	}
+
 	// 5. Programas sin estructura esperada no deben fallar
 	{
 		std::string out = translate_8025_to_fanuc_text("G00 X1\n", defaults);

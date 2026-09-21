@@ -152,6 +152,37 @@ string first_fanuc_tool(const string &code) {
 	return "";
 }
 
+/**
+	Redondeo de esquina: Fagor "G36 R<r> X.. Z.." -> FANUC "X.. Z.. ,R<r>"
+	(programación directa de cotas de plano; la coma es obligatoria).
+	Devuelve la línea sin cambios si no contiene G36.
+**/
+string convert_corner_rounding(const string &line) {
+	size_t g36 = line.find("G36");
+	if (g36 == string::npos) return line;
+	if (g36 + 3 < line.size() && line[g36 + 3] != ' ') return line;   // p. ej. G360
+	string prefix = line.substr(0, g36);
+	string rest = line.substr(g36 + 3);
+	string radius, out;
+	size_t pos = 0;
+	while (pos < rest.size()) {
+		size_t end = rest.find(' ', pos);
+		if (end == string::npos) end = rest.size();
+		string word = rest.substr(pos, end - pos);
+		if (!word.empty()) {
+			if (radius.empty() && word[0] == 'R') {
+				radius = word.substr(1);
+			} else {
+				if (!out.empty()) out += ' ';
+				out += word;
+			}
+		}
+		pos = end + 1;
+	}
+	if (radius.empty()) return line;
+	return prefix + out + " ,R" + radius;
+}
+
 string expand_template(string tpl, const string &restart, const string &restart_label, const string &tool) {
 	replace_all(tpl, "{RESTART_LABEL}", restart_label);
 	replace_all(tpl, "{RESTART}", restart);
@@ -381,6 +412,7 @@ string translate_8025_to_fanuc_text(const string &source, const TranslationSetti
 		program_initiated = true;
 
 		if (line.empty()) translated += "  ";
+		line = convert_corner_rounding(line);
 
 		while (!line.empty()) {
 			if (line[0] == ' ') {
