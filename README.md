@@ -1,65 +1,118 @@
 # Axia-Traductor
 
-![Generic badge](https://img.shields.io/badge/made%20with-C++-blue.svg) ![Generic badge](https://img.shields.io/badge/status-FUNCTIONAL-yellow.svg) ![Maintenance](https://img.shields.io/badge/Maintained%3F-NO-red.svg)
+![Generic badge](https://img.shields.io/badge/made%20with-C++-blue.svg) ![Generic badge](https://img.shields.io/badge/status-ACTIVE-green.svg)
 
-Text editor and conversor from CNC Fagor 8025 code to 8035 / 8037 versions.
+Editor y conversor de programas de mecanizado para tornos CNC. Toma código
+escrito para un control **Fagor 8025** y lo convierte a **Fagor 8035 / 8037**
+o a **FANUC**. Además reenumera líneas, colorea la sintaxis, explora por FTP
+los programas guardados en cada torno y envía el programa al torno elegido.
 
-This software was designed for internal and specific translation requirements. Probably don't work on 100% of the cases. In general, you can convert almost any program from Fagor CNC 8025  into Fagor 8035 NC G-Code. So, if you need to convert from Fagor CNC 8025 to 8035 file, you can use it.
+Este software se desarrolló para necesidades internas y específicas. No cubre
+el 100 % de los casos, pero convierte la gran mayoría de los programas 8025.
 
-This version is no longer maintained, due corporate restrictions. But I'll leave this repository to everyone that could need it.
+## Compilar
 
-_Axia-Traductor_ performs the following conversions and replacements:
+Requiere CMake 3.16, un compilador C++14, wxWidgets 3.2 y SFML 2 (network y system).
 
-##### Replacements and conversions
-| Type | Character on 8025 | Character on 8035 | Example |
+Ubuntu / Debian:
+
+```
+sudo apt install cmake g++ libwxgtk3.2-dev libsfml-dev
+cmake -S . -B build
+cmake --build build -j
+./build/traductor
+```
+
+Windows (MSYS2, terminal MinGW 64):
+
+```
+pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-wxwidgets3.2-msw mingw-w64-x86_64-sfml
+cmake -S . -B build -G "MinGW Makefiles"
+cmake --build build -j
+```
+
+El ejecutable busca la carpeta `resources/` en el directorio de trabajo, por
+lo que hay que ejecutarlo desde la raíz del repositorio.
+
+## Tests
+
+Los módulos sin interfaz (traductor, reenumerador y envío) tienen tests que
+se ejecutan con:
+
+```
+ctest --test-dir build --output-on-failure
+```
+
+`tests/P05A.NC` y `tests/P05A_35.NC` son un programa 8025 real y su
+traducción a 8035 verificada en el torno; el test del traductor comprueba que
+la salida coincide línea por línea.
+
+## Configuración
+
+- **`machines.json`**, junto al ejecutable: lista de tornos con nombre, protocolo
+  (`ftp` para Fagor, `fanuc-udp` para el puente UDP a serie del FANUC), IP y
+  puerto. Se crea con valores por defecto la primera vez. Es compartido por
+  todos los usuarios cuando el programa se ejecuta desde un servidor de archivos.
+- **`settings.json`**, por usuario, en `%APPDATA%\axia-traductor` (Windows) o
+  `~/.config/axia-traductor` (Linux): colores, opciones de conversión, último
+  torno y último nombre de archivo usados.
+
+## Conversiones 8025 → 8035
+
+| Elemento | 8025 | 8035 | Ejemplo |
 | ------ | ------ | ------ | ------ |
-| Comment line | `(`| `;` | `(I'm a comment)` -> `;(I'm a comment)` |
-| Tool selection | `T`| `D` | `T02.03` -> `T02 D03` |
-| Angle | `A`| `Q` | `A315.000` -> `Q315.000` |
-| Delay | Time in seconds | time: 1/100 seconds | `G04 K0.3` -> `G04 K30` |
+| Comentario | `(` | `;` | `(Frente)` → `;(Frente)` |
+| Herramienta y corrector | `T` | `T` + `D` | `T02.03` → `T02 D03` |
+| Ángulo | `A` | `Q` | `A315.000` → `Q315.000` |
+| Temporización | segundos | centésimas | `G04 K0.3` → `G04 K30` |
+| Posición Z en variable | `P1=Z` | `(P100=PPOSZ)` | |
+| Salto | `G29 N0090` | `(GOTO N0100)` | |
 
-##### Code Conversion
- - On 8035 syntax, always starts the program with `%` symbol
- - Prevent any blank line inserting a comment character (`;`)
- - Perform a "prologue" and "epilogue" replacement (blocks of code at the beginning or at the end of the CNC program)
+Además se reemplazan el prólogo (desde `P2 = K` hasta `G53`) y el epílogo
+(desde `P1 = P1 F2 P2` hasta `M30`) por los bloques equivalentes del 8035, y
+las líneas vacías se convierten en `;` para que el control no las rechace.
 
-### Software
-This software was developed on C++ with [wxWidgets], using the following IDEs
- - [Zinjai] - An open source C/C++ IDE (integrated development environment)
- - [wxFormBuilder] -  An open source GUI designer application for wxWidgets toolkit
+Las asignaciones aritméticas (`P1 = P1 F1 P2`, etc.) **no se convierten**,
+porque la numeración de variables difiere entre controles. Revisar siempre el
+programa convertido antes de ejecutarlo.
 
-### Libraries
- - [wxWidgets]
- - [SFML] to FTP connection utility
- 
-### Features
-This software is not just a translator. It's a totally functional text editor with syntax highlight (implemented _ad hoc_).
+## Reenumeración
 
-### Current status
-The software is totally functional.
-Notice: Not all assign sentences `=` are converted.
+Reenumera desde la línea del `%`: todas las líneas posteriores reciben `Nxxxx`
+con un paso que depende de la cantidad de líneas (10, 5, 2 o 1), y los saltos
+`G25` a `G29` se actualizan al nuevo número de su línea destino.
 
-Explaination:
+## Envío a tornos
 
-Since variable enumeration on 8035 and 8025 are both different, the sentence are not converted directly.
+`Enviar programa a torno` (F2) abre un diálogo con la lista de `machines.json`.
+Los Fagor reciben el programa por FTP en `/disk/prg/`. El FANUC lo recibe a
+través de una PC puente que corre un servidor UDP conectado al torno por
+puerto serie: el programa se envía con el protocolo de lectora de cinta
+(`DC2` de inicio, una línea por datagrama, `%` + `DC4` de fin).
 
-| Math expression | 8025 syntax | 8035 syntax |
-| ------ | ------ | ------ |
-| `A = A + B` | `P1 = P1 F1 P2`| `(P101 = P101 + P102)` |
-| `A = A - 15` | `P1 = P1 F2 K15`| `(P101 = P101 - K15)` |
-| Store the Z pos on a variable | `P1 = Z`| `(P101 = PPOSZ)` |
+## Herramientas externas (no incluidas)
 
-### Changelog
- - FTP connection utility
+- `ABsim.exe`: simulador gráfico de programas 8025 (menú Simular, F4).
+- `Canalesw.exe`: calculadora de canales para sellos (menú Canales, F5).
 
+Son herramientas privadas de la empresa y no se publican en este repositorio.
 
-#### Disclaimer
-This software is provided **_as is_**. [Axia] and I won't provide any warranty of use, or support.
-Always make sure that the converted CNC program is correct before execute it. Otherwise it can result on any damage or injuries. Remember: the translation process jumps all the assignations.
-This program on this development status is absolutely experimental. **Please, be careful if you use the converted program on a CNC lathe.**
+## Desarrollo
 
-[Zinjai]: <http://zinjai.sourceforge.net/>
+C++14 con [wxWidgets] para la interfaz, [SFML] para FTP y UDP y
+[nlohmann/json] para la configuración. La interfaz se diseñó con
+[wxFormBuilder] (`wxfb_project.fbp` genera `wxfb_project.cpp/.h`, que no se
+editan a mano). `MiProyecto.zpr` es el proyecto para el IDE [ZinjaI].
+
+## Aviso
+
+Este software se provee **tal cual**. [Axia] y el autor no ofrecen garantía
+ni soporte. Verificar siempre el programa convertido antes de ejecutarlo en
+un torno: un error de conversión puede causar daños o lesiones.
+
+[ZinjaI]: <http://zinjai.sourceforge.net/>
 [wxFormBuilder]: <https://github.com/wxFormBuilder/wxFormBuilder>
 [Axia]: <https://axia.com.ar/>
-[SFML]: <https://www.sfml-dev.org/index.php>
+[SFML]: <https://www.sfml-dev.org/>
 [wxWidgets]: <https://www.wxwidgets.org/>
+[nlohmann/json]: <https://github.com/nlohmann/json>

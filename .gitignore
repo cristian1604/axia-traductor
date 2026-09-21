@@ -2,10 +2,6 @@
 /build*/
 /tmp/
 /settings.json
-# Ejecutables privados de la empresa (no publicar)
+# Ejecutables privados de la empresa, aún en uso (no publicar)
 /ABsim.exe
 /Canalesw.exe
-/EnvioCNC.exe
-/Num2.exe
-/UDPcli.exe
-/UDPserv.exe
