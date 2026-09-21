@@ -33,4 +33,11 @@ struct RenumberResult {
 
 RenumberResult renumber_program(const std::string &input);
 
+/**
+	Reenumera solo a partir de la primera aparición de `marker` (por ejemplo
+	"N0010"), conservando intacto todo lo anterior. Se usa con programas 8035
+	ya traducidos, cuyos comentarios de cabecera no deben numerarse.
+**/
+RenumberResult renumber_program_from(const std::string &input, const std::string &marker);
+
 #endif

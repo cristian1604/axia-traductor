@@ -24,12 +24,6 @@ struct Cursor {
 	}
 };
 
-bool is_jump_code(const std::string &line, size_t pos) {
-	// "G2" seguido de un dígito 5..9
-	return pos + 2 < line.size() && line[pos] == 'G' && line[pos + 1] == '2'
-		&& line[pos + 2] >= '5' && line[pos + 2] <= '9';
-}
-
 struct ParsedLine {
 	std::string head;      // contenido hasta el "N" del salto (inclusive), o toda la línea
 	std::string tail;      // resto de la línea después del/los número(s) de salto
@@ -167,5 +161,20 @@ RenumberResult renumber_program(const std::string &input) {
 
 	result.ok = true;
 	result.text = out;
+	return result;
+}
+
+RenumberResult renumber_program_from(const std::string &input, const std::string &marker) {
+	size_t pos = input.find(marker);
+	if (pos == std::string::npos) {
+		RenumberResult result;
+		result.error = "No se detectó la primera línea del programa (" + marker + ")";
+		return result;
+	}
+	// Se antepone un '%' temporal para que el cuerpo se numere desde el marcador
+	RenumberResult result = renumber_program("%\n" + input.substr(pos));
+	if (result.ok) {
+		result.text = input.substr(0, pos) + result.text.substr(result.text.find('\n') + 1);
+	}
 	return result;
 }

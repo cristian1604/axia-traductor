@@ -241,23 +241,13 @@ void MainWindow::about( wxCommandEvent& event )  {
 /**  Dady's re-enumerator lines library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_textCtrl->GetInsertionPoint();
-	wxString original = m_textCtrl->GetValue();
-	wxString header;                 // parte que no se reenumera (solo en 8035)
-	wxString body = original;
+	std::string original = m_textCtrl->GetValue().ToStdString();
 	
 	// En 8035 la traducción inserta comentarios entre el '%' y N0010 que no
-	// deben numerarse: se reenumera solo desde N0010 con un '%' temporal.
-	if (syntax_version == WAS_8035) {
-		int x = original.Find("N0010");
-		if (x < 0) {
-			wxMessageBox( wxT("No se detectó la primera línea del programa (N0010).\nNo se puede reenumerar parcialmente."), "Inicio de programa no encontrado", wxICON_ERROR);
-			return;
-		}
-		header = original.Left(x);
-		body = "%\n" + original.Mid(x);
-	}
-	
-	RenumberResult r = renumber_program(body.ToStdString());
+	// deben numerarse: se reenumera solo desde N0010.
+	RenumberResult r = (syntax_version == WAS_8035)
+		? renumber_program_from(original, "N0010")
+		: renumber_program(original);
 	if (!r.ok) {
 		wxString msg = wxString::FromUTF8(r.error.c_str());
 		if (!r.undefined.empty()) {
@@ -272,9 +262,6 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 	
 	wxString renumbered = wxString::FromUTF8(r.text.c_str());
 	if (renumbered.IsEmpty()) renumbered = r.text;   // texto no UTF-8 (Latin-1)
-	if (!header.IsEmpty()) {
-		renumbered = header + renumbered.AfterFirst('\n');   // descarta el '%' temporal
-	}
 	
 	// FANUC identifica el programa con "O" en lugar de "%"
 	if (syntax_version == KIA_FANUC) {

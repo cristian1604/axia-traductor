@@ -20,6 +20,7 @@ add_executable(traductor WIN32
 	FileManager.cpp
 	SyntaxColor.cpp
 	Translator.cpp
+	TranslatorCore.cpp
 	Renumber.cpp
 	wxOptions.cpp
 	wxSearch.cpp
@@ -45,3 +46,5 @@ endif()
 enable_testing()
 add_executable(test_renumber tests/test_renumber.cpp Renumber.cpp)
 add_test(NAME renumber COMMAND test_renumber ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
+add_executable(test_translator tests/test_translator.cpp TranslatorCore.cpp Renumber.cpp)
+add_test(NAME translator COMMAND test_translator ${CMAKE_CURRENT_SOURCE_DIR}/tests)
