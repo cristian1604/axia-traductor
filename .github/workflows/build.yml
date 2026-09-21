@@ -9,7 +9,7 @@ jobs:
     name: Linux (Ubuntu)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Dependencias
         run: |
           sudo apt-get update
@@ -26,7 +26,7 @@ jobs:
           cp build/traductor dist/traductor/
           cp -r resources dist/traductor/
           cp README.md dist/traductor/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: traductor-linux
           path: dist
@@ -38,7 +38,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
@@ -64,7 +64,7 @@ jobs:
           # DLLs de MinGW/wxWidgets que usa el ejecutable
           ldd dist/traductor/traductor.exe | grep -i '/mingw64/' | awk '{print $3}' | sort -u | xargs -I{} cp {} dist/traductor/
           ls -la dist/traductor
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: traductor-windows
           path: dist
