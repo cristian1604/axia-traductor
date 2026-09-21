@@ -17,6 +17,7 @@
 #include <wx/filefn.h>
 #include <wx/dir.h>
 #include "CncStandard.h"
+#include "Renumber.h"
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
@@ -240,62 +241,48 @@ void MainWindow::about( wxCommandEvent& event )  {
 /**  Dady's re-enumerator lines library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_textCtrl->GetInsertionPoint();
-	bool partial = false;
-	long x = -1;
-	
-	// If the code is on 8035, we need to convert only the program and dismiss the comments section
 	wxString original = m_textCtrl->GetValue();
-	text_program = original;
+	wxString header;                 // parte que no se reenumera (solo en 8035)
+	wxString body = original;
+	
+	// En 8035 la traducción inserta comentarios entre el '%' y N0010 que no
+	// deben numerarse: se reenumera solo desde N0010 con un '%' temporal.
 	if (syntax_version == WAS_8035) {
-		x = original.Find("N0010");   // search the initial line
+		int x = original.Find("N0010");
 		if (x < 0) {
 			wxMessageBox( wxT("No se detectó la primera línea del programa (N0010).\nNo se puede reenumerar parcialmente."), "Inicio de programa no encontrado", wxICON_ERROR);
 			return;
 		}
-		partial = true;
-		text_program = "%tmp\n" + original.Mid(x); // temporal line
+		header = original.Left(x);
+		body = "%\n" + original.Mid(x);
 	}
 	
-	if (!partial && text_program.Find("%") < 0) {
-		wxMessageBox( wxT("No se detectó el inicio de programa.\nRecuerde iniciar el programa con el caracter %"), "Inicio de programa no encontrado", wxICON_ERROR);
+	RenumberResult r = renumber_program(body.ToStdString());
+	if (!r.ok) {
+		wxString msg = wxString::FromUTF8(r.error.c_str());
+		if (!r.undefined.empty()) {
+			msg += "\n\nDestinos no encontrados:";
+			for (size_t i = 0; i < r.undefined.size(); ++i) {
+				msg += wxString::Format("\n  N%04d", r.undefined[i]);
+			}
+		}
+		wxMessageBox( msg, "No se pudo reenumerar", wxICON_ERROR);
 		return;
 	}
 	
-	// El reenumerador es una aplicacion externa que trabaja sobre el portapapeles
-	if (!writeClipboardText(text_program)) {
-		wxMessageBox( "No se pudo acceder al portapapeles", "Error", wxICON_ERROR);
-		return;
-	}
-	long rc;
-	{
-		wxLogNull noLog;   // evita el dialogo de error propio de wx si no existe el ejecutable
-		rc = wxExecute("Num2.exe", wxEXEC_SYNC);
-	}
-	if (rc == -1) {
-		wxMessageBox( "No se pudo ejecutar el reenumerador externo (Num2.exe).\nEl programa queda sin reenumerar.", "Reenumerador no disponible", wxICON_ERROR);
-		return;
-	}
-	
-	wxString renumbered;
-	if (!readClipboardText(renumbered) || renumbered.IsEmpty()) {
-		wxMessageBox( wxT("El reenumerador no devolvió ningún resultado"), "Error", wxICON_ERROR);
-		return;
-	}
-	
-	if (!partial) {
-		text_program = renumbered;
-	} else {
-		// Se conserva lo anterior a "N0010" y se descarta la linea temporal "%tmp"
-		text_program = original.Left(x) + renumbered.AfterFirst('\n');
+	wxString renumbered = wxString::FromUTF8(r.text.c_str());
+	if (renumbered.IsEmpty()) renumbered = r.text;   // texto no UTF-8 (Latin-1)
+	if (!header.IsEmpty()) {
+		renumbered = header + renumbered.AfterFirst('\n');   // descarta el '%' temporal
 	}
 	
 	// FANUC identifica el programa con "O" en lugar de "%"
 	if (syntax_version == KIA_FANUC) {
-		int p = text_program.Find(wxT('%'));
-		if (p >= 0) text_program[p] = 'O';
+		int p = renumbered.Find(wxT('%'));
+		if (p >= 0) renumbered[p] = 'O';
 	}
 	
-	m_textCtrl->SetValue(text_program);
+	m_textCtrl->SetValue(renumbered);
 	m_textCtrl->SetFocus();
 	m_textCtrl->SetInsertionPoint(pos);
 }

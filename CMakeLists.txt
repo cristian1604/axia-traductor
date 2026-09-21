@@ -20,6 +20,7 @@ add_executable(traductor WIN32
 	FileManager.cpp
 	SyntaxColor.cpp
 	Translator.cpp
+	Renumber.cpp
 	wxOptions.cpp
 	wxSearch.cpp
 	wxSearchReplace.cpp
@@ -39,3 +40,8 @@ endif()
 
 # El ejecutable busca "resources/" y "settings.json" en el directorio de trabajo,
 # por lo que hay que ejecutarlo desde la raiz del repositorio (ver README).
+
+# Tests (sin dependencia de wxWidgets): ctest --test-dir build
+enable_testing()
+add_executable(test_renumber tests/test_renumber.cpp Renumber.cpp)
+add_test(NAME renumber COMMAND test_renumber ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
