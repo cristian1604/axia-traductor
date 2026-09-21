@@ -15,6 +15,9 @@ s_Settings default_settings() {
 	s.remove_m08 = false;
 	s.replace_from = "";
 	s.replace_to = "";
+	s.last_machine = "";
+	s.last_filename = "";
+	s.close_after_transfer = true;
 	return s;
 }
 

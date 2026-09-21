@@ -5,7 +5,8 @@
 #include "wxOptions.h"
 #include "FileManager.h"
 #include <SFML/Network.hpp>
-#include "wxSaveFtpWindow.h"
+#include "Machines.h"
+#include <vector>
 
 
 class MainWindow : public wxMainWindow {
@@ -21,8 +22,10 @@ private:
 	s_Settings settings;		  	// Settings object
 	sf::Ftp ftp;				  	// FTP Connection
 	FileManager FM;				 	// Archivo de destino del guardado (definido tras "Guardar como" o al abrir desde FTP)
-	wxSaveFtpWindow *FtpWindow;		// Save Ftp Window
+	std::vector<Machine> machines;	// Lista compartida de tornos (machines.json)
+	wxString connected_machine;		// Nombre del torno conectado en el explorador FTP (vacío si ninguno)
 	bool ensureTmpDir();
+	void openSendDialog();
 	bool readClipboardText(wxString &out);
 	bool writeClipboardText(const wxString &text);
 protected:

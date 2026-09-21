@@ -14,6 +14,11 @@ struct s_Settings {
 	bool remove_m08;
 	wxString replace_from;
 	wxString replace_to;
+	
+	// Envío a torno (se recuerdan por usuario)
+	wxString last_machine;
+	wxString last_filename;
+	bool close_after_transfer;
 };
 
 // Valores por defecto de la configuracion

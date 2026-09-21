@@ -1,10 +1,9 @@
 #include "FileManager.h"
+#include "AppPaths.h"
 #include "json.hpp"
 #include <fstream>
 using namespace std;
 using json = nlohmann::json;
-
-static const char *SETTINGS_FILE = "settings.json";
 
 static string colour_to_string(const wxColour &c) {
 	return c.GetAsString(wxC2S_HTML_SYNTAX).ToStdString();
@@ -51,14 +50,14 @@ bool FileManager::writeFile(const wxString &content) {
 }
 
 /**
-	Configuracion en settings.json. Si el archivo no existe o esta danado,
-	s queda con los valores por defecto y se devuelve false.
+	Configuracion por usuario en settings.json (ver AppPaths). Si el archivo no
+	existe o esta danado, s queda con los valores por defecto y se devuelve false.
 	(El formato anterior, settings.dat, volcaba los bytes de objetos wxColour
 	y no era portable entre plataformas ni versiones de wxWidgets.)
 **/
 bool FileManager::loadSettings(s_Settings &s) {
 	s = default_settings();
-	ifstream in(SETTINGS_FILE);
+	ifstream in(user_settings_file().ToStdString());
 	if (!in.is_open()) return false;
 	json j;
 	try {
@@ -77,6 +76,9 @@ bool FileManager::loadSettings(s_Settings &s) {
 	s.remove_m08          = j.value("remove_m08", s.remove_m08);
 	s.replace_from        = wxString::FromUTF8(j.value("replace_from", string()).c_str());
 	s.replace_to          = wxString::FromUTF8(j.value("replace_to", string()).c_str());
+	s.last_machine        = wxString::FromUTF8(j.value("last_machine", string()).c_str());
+	s.last_filename       = wxString::FromUTF8(j.value("last_filename", string()).c_str());
+	s.close_after_transfer = j.value("close_after_transfer", s.close_after_transfer);
 	return true;
 }
 
@@ -92,7 +94,10 @@ bool FileManager::saveSettings(s_Settings &s) {
 	j["remove_m08"]          = s.remove_m08;
 	j["replace_from"]        = string(s.replace_from.ToUTF8());
 	j["replace_to"]          = string(s.replace_to.ToUTF8());
-	ofstream out(SETTINGS_FILE);
+	j["last_machine"]        = string(s.last_machine.ToUTF8());
+	j["last_filename"]       = string(s.last_filename.ToUTF8());
+	j["close_after_transfer"] = s.close_after_transfer;
+	ofstream out(user_settings_file().ToStdString());
 	if (!out.is_open()) return false;
 	out << j.dump(4) << endl;
 	return out.good();

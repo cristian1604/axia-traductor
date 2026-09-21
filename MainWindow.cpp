@@ -18,10 +18,12 @@
 #include <wx/dir.h>
 #include "CncStandard.h"
 #include "Renumber.h"
+#include "AppPaths.h"
+#include "wxSendWindow.h"
 using namespace std;
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
-	syntax_version(FAGOR_8025), is_loading(false), srch(NULL), FtpWindow(NULL) {
+	syntax_version(FAGOR_8025), is_loading(false), srch(NULL) {
 	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
 	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
 	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
@@ -32,13 +34,16 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	
 	//search window
 	srch = new wxSearch(this);
-	
-	// saveFtpWindow
-	FtpWindow = new wxSaveFtpWindow(this);
-	FtpWindow->inheritFtpConnection(&ftp, m_textCtrl);
-	
 	srch->assignSearchField(m_textCtrl);
 	loadSettings();
+	
+	// Lista de tornos compartida (se crea con valores por defecto si no existe)
+	std::string error;
+	machines = load_machines(shared_config_file("machines.json").ToStdString(), &error);
+	if (!error.empty()) {
+		wxMessageBox(wxString::FromUTF8(error.c_str()) + wxT("\n\nSe usa la lista de tornos por defecto."),
+		             wxT("Lista de tornos"), wxICON_WARNING);
+	}
 }
 
 MainWindow::~MainWindow() {
@@ -344,28 +349,32 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 ///**  FTP OPTIONS  ** ///
 
 void MainWindow::connectFTP( int idMachine )  {
-	wxString conn;
+	std::string name;
+	switch (idMachine) {
+	case WAS_8035:  name = "WASINO 8035";   break;
+	case TAKI_8037: name = "TAKISAWA 8037"; break;
+	case WAS_8037:  name = "WASINO 8037";   break;
+	}
 	ftp.disconnect();
+	connected_machine.Clear();
 	m_treeCtrl1->DeleteAllItems();
 	
-	switch (idMachine) {
-	case WAS_8035:
-		ftp.connect("192.168.100.81", 21, sf::seconds(5));
-		conn = "WASINO 8035";
-		break;
-	case TAKI_8037:
-		ftp.connect("192.168.100.80", 21, sf::seconds(5));
-		conn = "TAKISAWA 8037";
-		break;
-	case WAS_8037:
-		ftp.connect("192.168.100.82", 21, sf::seconds(5));
-		conn = "WASINO 8037";
-		break;
+	const Machine *m = find_machine(machines, name);
+	if (!m) {
+		wxMessageBox(wxT("El torno \"") + wxString::FromUTF8(name.c_str()) + wxT("\" no está en machines.json"), wxT("Torno desconocido"), wxICON_ERROR);
+		return;
 	}
-	ftp.login();
-	ftp.changeDirectory("/disk/prg/");
-	
-	m_statusBar->SetStatusText("Conectado a " + conn, 1);
+	sf::Ftp::Response r = ftp.connect(sf::IpAddress(m->ip), (unsigned short) m->port, sf::seconds(5));
+	if (r.isOk()) r = ftp.login();
+	if (r.isOk() && !m->directory.empty()) r = ftp.changeDirectory(m->directory);
+	if (!r.isOk()) {
+		m_statusBar->SetStatusText(wxT("No se pudo conectar"), 0);
+		wxMessageBox(wxString::FromUTF8(m->name.c_str()) + wxT(" (") + m->ip + wxT("): ") + wxString::FromUTF8(r.getMessage().c_str()),
+		             wxT("Error de conexión"), wxICON_ERROR);
+		return;
+	}
+	connected_machine = wxString::FromUTF8(m->name.c_str());
+	m_statusBar->SetStatusText("Conectado a " + connected_machine, 1);
 	ftp.keepAlive();
 	refreshFtpFileList();
 }
@@ -406,6 +415,7 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 
 void MainWindow::FtpDisconnect( wxCommandEvent& event )  {
 	ftp.disconnect();
+	connected_machine.Clear();
 	m_treeCtrl1->DeleteAllItems();
 	m_statusBar->SetStatusText("Local. 8025 -> 8035", 1);
 	m_statusBar->SetStatusText("Desconectado", 0);
@@ -488,11 +498,9 @@ void MainWindow::refreshFtpFileList() {
 	m_treeCtrl1->DeleteAllItems();
 	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();
 	wxTreeItemId raiz;
-	wxString aux = m_statusBar->GetStatusText(1);
-	aux = aux.SubString(12,aux.Length());							// Substract string "conectado a"
 	if (response.isOk()) {
 		const std::vector<std::string>& listing = response.getListing();
-		raiz = m_treeCtrl1->AddRoot(aux, 1);
+		raiz = m_treeCtrl1->AddRoot(connected_machine, 1);
 		for (std::vector<std::string>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
 			m_treeCtrl1->AppendItem(raiz, *it, 2);
 		}
@@ -518,32 +526,25 @@ void MainWindow::checkUpdates( wxCommandEvent& event )  {
 	w->Show(true);
 }
 
+/** Enviar programa a torno (F2): diálogo interno, antes EnvioCNC.exe */
 void MainWindow::openFormSendProgram( wxCommandEvent& event ) {
-	if (!ensureTmpDir()) return;
-	FileManager tmpFile("tmp", "tmp.pit");
-	this->text_program = m_textCtrl->GetValue();
-	if (tmpFile.writeFile(this->text_program)) {
-		m_statusBar->SetStatusText("Guardado. Abriendo EnvioCNC...",0);
-		if (wxExecute("EnvioCNC.exe") == 0) {
-			wxMessageBox( wxT("No se pudo ejecutar la aplicación externa EnvioCNC.exe"), wxT("Aplicación no disponible"), wxICON_ERROR);
-		}
+	openSendDialog();
+}
+
+void MainWindow::openSendDialog() {
+	wxString suggested = filename.BeforeLast('.');
+	if (suggested.IsEmpty()) suggested = filename;
+	wxSendWindow dlg(this, machines, settings, m_textCtrl->GetValue(), suggested, connected_machine);
+	dlg.ShowModal();
+	if (dlg.sent) {
+		m_statusBar->SetStatusText(wxT("Programa enviado a ") + settings.last_machine, 0);
+		if (!connected_machine.IsEmpty()) refreshFtpFileList();
 	}
 }
 
-/** Enviar programa al vuelo (sin nombre de archivo de destino) */
+/** Botón "Enviar el programa al CNC conectado": mismo diálogo, con el torno conectado preseleccionado */
 void MainWindow::sendProgramOnFly( wxCommandEvent& event ) {
-	if (!ensureTmpDir()) return;
-	FileManager tmpFile("tmp", "tmp.pit");
-	this->text_program = m_textCtrl->GetValue();
-	if (tmpFile.writeFile(this->text_program)) {
-		m_statusBar->SetStatusText("Programa guardado. Por enviar...",0);
-		if (FtpWindow->checkConnection()) {
-			FtpWindow->ShowModal();
-		}
-		this->refreshFtpFileList();
-	} else {
-		wxMessageBox( wxT("Ocurrió un error al guardar el archivo en forma temporal"), wxT("¡Ocurrió un error!"), wxICON_ERROR);
-	}
+	openSendDialog();
 }
 
 
