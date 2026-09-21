@@ -96,6 +96,69 @@ void apply_settings(string &code, const TranslationSettings &s) {
 	if (s.remove_m08) replace_all(code, "M08", "");
 }
 
+/**
+	Reemplaza el bloque de líneas completas que va desde la línea que contiene
+	`beg` hasta la línea que contiene `end` (inclusive). Las etiquetas N de esas
+	líneas desaparecen con ellas. Si no se encuentran ambos, no cambia nada.
+**/
+string replace_block_lines(const string &beg, const string &end, const string &code, const string &replacement) {
+	size_t l_beg = code.find(beg);
+	if (l_beg == string::npos) return code;
+	size_t l_end = code.find(end, l_beg);
+	if (l_end == string::npos) return code;
+	size_t line_start = code.rfind('\n', l_beg);
+	line_start = (line_start == string::npos) ? 0 : line_start + 1;
+	size_t line_end = code.find('\n', l_end);
+	line_end = (line_end == string::npos) ? code.size() : line_end + 1;
+	string out = code;
+	return out.replace(line_start, line_end - line_start, replacement);
+}
+
+// Etiqueta N (como número, sin ceros) de la línea que contiene `text`; "" si no tiene
+string label_of_line_with(const string &code, const string &text) {
+	size_t pos = code.find(text);
+	if (pos == string::npos) return "";
+	size_t line_start = code.rfind('\n', pos);
+	line_start = (line_start == string::npos) ? 0 : line_start + 1;
+	if (code[line_start] != 'N') return "";
+	size_t i = line_start + 1;
+	string digits;
+	while (i < code.size() && isdigit((unsigned char) code[i])) digits += code[i++];
+	return digits.empty() ? "" : std::to_string(atoi(digits.c_str()));
+}
+
+// "Taa.bb" -> "Taabb" con dos dígitos por parte; "" si la palabra no es una herramienta con corrector
+string fanuc_tool(const string &word) {
+	if (word.empty() || word[0] != 'T') return "";
+	size_t dot = word.find('.');
+	if (dot == string::npos) return "";
+	string tool = word.substr(1, dot - 1), corr = word.substr(dot + 1);
+	if (!is_number(tool) || !is_number(corr)) return "";
+	char buf[32];
+	snprintf(buf, sizeof(buf), "T%02d%02d", atoi(tool.c_str()), atoi(corr.c_str()));
+	return buf;
+}
+
+// Primera herramienta con corrector que aparece en el programa, en formato FANUC
+string first_fanuc_tool(const string &code) {
+	size_t pos = 0;
+	while (pos < code.size()) {
+		size_t end = code.find_first_of(" \n", pos);
+		if (end == string::npos) end = code.size();
+		string t = fanuc_tool(code.substr(pos, end - pos));
+		if (!t.empty()) return t;
+		pos = end + 1;
+	}
+	return "";
+}
+
+string expand_template(string tpl, const string &restart, const string &restart_label, const string &tool) {
+	replace_all(tpl, "{RESTART_LABEL}", restart_label);
+	replace_all(tpl, "{RESTART}", restart);
+	replace_all(tpl, "{TOOL}", tool);
+	return tpl;
+}
+
 // Extrae la primera línea de aux (sin el '\n') y la elimina de aux
 string take_line(string &aux) {
 	size_t pos = aux.find('\n');
@@ -189,8 +252,9 @@ string translate_8025_to_8035_text(const string &source, const TranslationSettin
 			switch (sentence[0]) {
 			case '%':
 				if (!comments_inserted) {
-					translated += sentence + '\n';
-					translated += comments;
+					// Cabecera y comentarios previos; el último '\n' lo agrega el fin de línea
+					translated += sentence;
+					if (!comments.empty()) translated += '\n' + comments.substr(0, comments.size() - 1);
 					comments_inserted = true;
 				}
 				break;
@@ -250,32 +314,63 @@ string translate_8025_to_8035_text(const string &source, const TranslationSettin
 
 //------------------------------------------------------------------------------------------------------------------
 
+string default_fanuc_prologue() {
+	return
+		"#502 = -538 (LIMITE Z)\n"
+		"G58 (SETEO FRENTE)\n"
+		"M40\n"
+		"G40 G97 G99\n"
+		"{TOOL}\n"
+		"M00\n"
+		"#500=#5042\n"
+		"G00 G40 W70\n"
+		"\n"
+		"N{RESTART_LABEL} #501 = {RESTART} (++RESTART++)\n"
+		"G10 L2 P1 X0 Z#500\n"
+		"G54\n"
+		"\n";
+}
+
+string default_fanuc_epilogue() {
+	return
+		"\n"
+		"#500=#5222-#501\n"
+		"#503=#500-#501-3.7\n"
+		"M00\n"
+		"IF[#503 GT #502] GOTO{RESTART_LABEL}\n"
+		"\n"
+		"M5\n"
+		"G28 U0\n"
+		"G28 W0\n"
+		"M30\n";
+}
+
 string translate_8025_to_fanuc_text(const string &source, const TranslationSettings &settings) {
 	string translated;
 	string aux = source;
 	if (aux.empty() || aux.back() != '\n') aux += '\n';
 	bool program_initiated = false;
-	bool comments_inserted = false;
+	bool header_inserted = false;
 	string prevSentence;
 
-	/** Bloques constantes: prólogo y epílogo **/
-	// Se elimina todo lo que hay entre la línea del '%' y la línea donde
-	// comienza el prólogo ("P2 = K"). Si falta alguno de los dos, no se toca.
-	size_t inicio = aux.find('%');
-	size_t fin = (inicio == string::npos) ? string::npos : aux.find("P2 = K", inicio);
-	if (inicio != string::npos && fin != string::npos) {
-		while (inicio < aux.length() && aux[inicio] != '\n') ++inicio;
-		while (fin > inicio && aux[fin] != '\n') --fin;
-		if (fin > inicio) aux.erase(inicio, fin - inicio);
+	/** Datos para las plantillas, tomados del programa original **/
+	string restart = prologue_parameter(aux);                 // "12.500"
+	string restart_label = label_of_line_with(aux, "P2 = K"); // "90"
+	string tool = first_fanuc_tool(aux);                      // "T0202"
+
+	/** Prólogo: todo lo que hay entre la línea del '%' y la línea "G53" que
+	    cierra el bloque de reinicio se reemplaza por la plantilla **/
+	size_t percent = aux.find('%');
+	size_t restart_pos = (percent == string::npos) ? string::npos : aux.find("P2 = K", percent);
+	size_t g53 = (restart_pos == string::npos) ? string::npos : aux.find("G53\n", restart_pos);
+	if (g53 != string::npos) {
+		size_t from = aux.find('\n', percent) + 1;
+		size_t to = g53 + 4;
+		aux.replace(from, to - from, expand_template(settings.fanuc_prologue, restart, restart_label, tool));
 	}
 
-	string p1 = prologue_parameter(aux);
-	string rep = "#501 = " + p1 + "\nG40\nG55\nT2.2\nM00\n#500=#5022\nG10 L2 P1 Z#500\nG54\nG00 W50\n";
-	aux = block_conversion("P2 = K", "G53\n", aux, rep);
-
-	p1 = epilogue_target(aux);
-	rep = "M00\n#500=#5222-#501\nG10 L2 P1 Z#500\nG54\nGOTO" + p1 + "\n";
-	aux = block_conversion("P1 = P1 F2 P2", "M30", aux, rep);
+	/** Epílogo: desde "P1 = P1 F2 P2" hasta "M30" **/
+	aux = replace_block_lines("P1 = P1 F2 P2", "M30", aux, expand_template(settings.fanuc_epilogue, restart, restart_label, tool));
 
 	while (!aux.empty()) {
 		string line = take_line(aux);
@@ -295,28 +390,41 @@ string translate_8025_to_fanuc_text(const string &source, const TranslationSetti
 			}
 			string sentence = take_word(line);
 			switch (sentence[0]) {
-			case '%':
-				if (!comments_inserted) {
-					translated += sentence + '\n';
-					comments_inserted = true;
+			case '%': {
+				// Número de programa de cuatro dígitos (%00001 -> %0001; la 'O' la
+				// pone la reenumeración, que necesita el '%' para ubicar el inicio)
+				string digits = sentence.substr(1);
+				if (is_number(digits) && digits[0] != '-' && digits[0] != '+') {
+					char buf[16];
+					snprintf(buf, sizeof(buf), "%%%04d", atoi(digits.c_str()));
+					sentence = buf;
+				}
+				if (!header_inserted) {
+					translated += sentence;   // el '\n' lo agrega el fin de línea
+					header_inserted = true;
 				}
 				break;
+			}
 			case '(':
+				// Comentario: en mayúsculas, porque el control muestra solo
+				// la primera letra si hay minúsculas
 				sentence = sentence + line;
+				for (size_t i = 0; i < sentence.size(); ++i) sentence[i] = (char) toupper((unsigned char) sentence[i]);
 				line.clear();
 				break;
 			case 'N':
 				if (line.length() <= 2) sentence += "  ";
 				break;
+			case 'G':
+				// Avance por vuelta: en FANUC queda fijado por G99 en el prólogo
+				if (sentence == "G95") sentence = "G40";
+				break;
+			case 'M':
+				if (sentence == "MM5") sentence = "M00";
+				break;
 			case 'T': {
-				// Taa.bb -> Taabb (dos dígitos cada parte)
-				size_t x = sentence.find('.');
-				if (x == string::npos) break;
-				string tool = sentence.substr(1, x - 1);
-				if (is_number(tool) && atoi(tool.c_str()) < 10) tool = "0" + tool;
-				string corr = sentence.substr(x + 1);
-				if (is_number(corr) && atoi(corr.c_str()) < 10 && corr[0] != '0') corr = "0" + corr;
-				sentence = 'T' + tool + corr;
+				string t = fanuc_tool(sentence);
+				if (!t.empty()) sentence = t;
 				break;
 			}
 			case 'K':
@@ -328,9 +436,7 @@ string translate_8025_to_fanuc_text(const string &source, const TranslationSetti
 				break;
 			}
 
-			fixed_conversions(sentence, line);
-
-			if (comments_inserted && sentence[0] != '%') {
+			if (header_inserted && sentence[0] != '%') {
 				translated += sentence;
 				prevSentence = sentence;
 			}

@@ -95,13 +95,30 @@ int main(int argc, char **argv) {
 		CHECK(out.find("M08") == std::string::npos);
 	}
 
-	// 4. FANUC: no debe fallar con el programa real y debe generar el prólogo
+	// 4. FANUC: O0001.NC traducido y reenumerado == O0001_FANUC.NC (transcripción del
+	//    programa deseado, con comentarios en mayúsculas y GOTO a la línea de reinicio)
+	{
+		std::string src = normalize(read_file(dir + "/O0001.NC"));
+		std::string expected = normalize(read_file(dir + "/O0001_FANUC.NC"));
+		CHECK(!src.empty() && !expected.empty());
+		std::string translated = translate_8025_to_fanuc_text(src, defaults);
+		RenumberResult r = renumber_program(translated);
+		CHECK(r.ok);
+		std::string out = r.text;
+		size_t p = out.find('%');
+		if (p != std::string::npos) out[p] = 'O';   // como hace MainWindow::enum_lines para FANUC
+		compare_from(out, expected, "O0001", "O0001 8025->FANUC");
+	}
+
+	// 4b. FANUC con P05A: prólogo con los datos del programa y sin fallos
 	{
 		std::string src = normalize(read_file(dir + "/P05A.NC"));
 		std::string out = translate_8025_to_fanuc_text(src, defaults);
-		CHECK(out.find("#501 = 8.500") != std::string::npos);
-		CHECK(out.find("GOTO0100") != std::string::npos);
-		CHECK(out.find("#500=#5022") != std::string::npos);
+		CHECK(out.find("#501 = 8.500 (++RESTART++)") != std::string::npos);
+		CHECK(out.find("N90 #501") != std::string::npos);
+		CHECK(out.find("GOTO90") != std::string::npos);
+		CHECK(out.find("T0002") != std::string::npos);   // P05A usa T0.02
+		CHECK(out.find("M30\n") != std::string::npos);
 	}
 
 	// 5. Programas sin estructura esperada no deben fallar

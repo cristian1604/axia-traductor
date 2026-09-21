@@ -55,6 +55,13 @@ int main(int argc, char **argv) {
 		CHECK_EQ(r.text, "%\nN0010  G00\nN0020  G01\nN0030  G29 N0010\nN0040  G25 N0010.0020 .3\nN0050  G26 N0020 X1\nN0060  M30\n");
 	}
 
+	// 3b. GOTO de FANUC: se actualiza sin ceros a la izquierda; "GOTO N" (8035) no se toca
+	{
+		RenumberResult r = renumber_program("%\nN5 G00\nN90 #501 = 1\nIF[#1 GT #2] GOTO90\nGOTO 5\n(GOTO N0100)\n");
+		CHECK(r.ok);
+		CHECK_EQ(r.text, "%\nN0010  G00\nN0020  #501 = 1\nN0030  IF[#1 GT #2] GOTO20\nN0040  GOTO 10\nN0050  (GOTO N0100)\n");
+	}
+
 	// 4. Sin '%' no se reenumera
 	{
 		RenumberResult r = renumber_program("N10 G00\nN20 M30\n");

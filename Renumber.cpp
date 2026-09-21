@@ -31,6 +31,7 @@ struct ParsedLine {
 	int target2 = -1;      // segundo destino (b) en la forma "Na.b"
 	int label = -1;        // etiqueta N original de la línea
 	int parts = 0;         // 1: línea simple, 2: con salto, 3: con salto doble
+	bool goto_style = false;   // salto "GOTO<n>" de FANUC (se escribe sin ceros a la izquierda)
 };
 
 // Analiza una línea completa a partir de cur (que queda al comienzo de la siguiente).
@@ -55,11 +56,23 @@ bool parse_line(Cursor &cur, ParsedLine &out) {
 		}
 	}
 
-	// Copia del contenido hasta fin de línea, detectando el primer salto G25..G29
+	// Copia del contenido hasta fin de línea, detectando el primer salto
+	// G25..G29 N<a>[.<b>] (Fagor) o GOTO<n> (FANUC)
 	while (!cur.eof() && cur.peek() != '\n') {
 		char c = cur.get();
 		out.head += c;
-		if (c == 'G' && cur.peek() == '2') {
+		if (c == 'G' && cur.s.compare(cur.i, 3, "OTO") == 0) {
+			out.head += "OTO";
+			cur.i += 3;
+			while (cur.peek() == ' ' || cur.peek() == '\t') out.head += cur.get();
+			if (isdigit((unsigned char) cur.peek())) {
+				out.parts = 2;
+				out.goto_style = true;
+				out.target1 = cur.read_number();
+				while (!cur.eof() && cur.peek() != '\n') out.tail += cur.get();
+				break;
+			}
+		} else if (c == 'G' && cur.peek() == '2') {
 			out.head += cur.get();
 			char d = cur.peek();
 			if (d >= '5' && d <= '9') {
@@ -149,7 +162,8 @@ RenumberResult renumber_program(const std::string &input) {
 	while (parse_line(cur, pl)) {
 		out += format_n(n) + "  " + pl.head;
 		if (pl.parts >= 2) {
-			out += format_n(first + step * label_to_line[pl.target1]).substr(1);
+			int target = first + step * label_to_line[pl.target1];
+			out += pl.goto_style ? std::to_string(target) : format_n(target).substr(1);
 			if (pl.parts >= 3) {
 				out += "." + format_n(first + step * label_to_line[pl.target2]).substr(1);
 			}

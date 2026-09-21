@@ -20,9 +20,10 @@
 	     < 4000 líneas: inicio 2,  paso 2
 	    < 10000 líneas: inicio 0,  paso 1
 	  Con 10000 o más líneas no se reenumera.
-	- Los saltos "G25".."G29" seguidos de "N<a>" o "N<a>.<b>" se actualizan con
-	  el nuevo número de la línea destino. Si algún destino no existe, no se
-	  reenumera y se informa la lista de destinos indefinidos.
+	- Los saltos "G25".."G29" seguidos de "N<a>" o "N<a>.<b>" (Fagor) y los
+	  "GOTO<n>" (FANUC) se actualizan con el nuevo número de la línea destino.
+	  Si algún destino no existe, no se reenumera y se informa la lista de
+	  destinos indefinidos.
 **/
 struct RenumberResult {
 	bool ok = false;
