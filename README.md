@@ -52,7 +52,7 @@ lugar, por ejemplo desde un acceso directo sin "Iniciar en".
 
 ## Tests
 
-Los módulos sin interfaz (traductor, reenumerador y envío) tienen tests que
+Los módulos sin interfaz (traductor, reenumerador, envío y coloreado) tienen tests que
 se ejecutan con:
 
 ```
@@ -115,7 +115,9 @@ Son herramientas privadas de la empresa y no se publican en este repositorio.
 
 ## Desarrollo
 
-C++14 con [wxWidgets] para la interfaz, [SFML] para FTP y UDP y
+C++14 con [wxWidgets] para la interfaz (el editor es un `wxStyledTextCtrl`, Scintilla,
+creado desde el código como *CustomControl* de wxFormBuilder; las reglas de coloreado
+están en `CncSyntax.cpp`, sin dependencias de la interfaz), [SFML] para FTP y UDP y
 [nlohmann/json] para la configuración. La interfaz se diseñó con
 [wxFormBuilder] (`wxfb_project.fbp` genera `wxfb_project.cpp/.h`, que no se
 editan a mano). `MiProyecto.zpr` es el proyecto para el IDE [ZinjaI].

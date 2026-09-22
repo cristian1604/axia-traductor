@@ -1,8 +1,10 @@
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
-#include <wx/textctrl.h>
+#include <wx/stc/stc.h>
 
-void translate_8025_to_8035(wxTextCtrl* elem);
-void translate_8025_to_Fanuc(wxTextCtrl* elem);
+// Envoltorios sobre el núcleo del traductor (TranslatorCore) que operan
+// directamente sobre el editor y aplican la configuración del usuario.
+void translate_8025_to_8035(wxStyledTextCtrl* elem);
+void translate_8025_to_Fanuc(wxStyledTextCtrl* elem);
 
 #endif

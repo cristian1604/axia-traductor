@@ -8,7 +8,7 @@
 #include <wx/button.h>
 #include <vector>
 #include "Machines.h"
-#include "wxOptions.h"
+#include "Settings.h"
 
 /**
 	Diálogo "Enviar programa a torno": elige el torno de la lista compartida,

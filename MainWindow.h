@@ -10,13 +10,12 @@
 
 
 class MainWindow : public wxMainWindow {
-	
+
 private:
 	wxString text_program;        	// Text contained on the input box
 	wxString window_title;        	// Window title
 	wxString filename;            	// Opened file name
-	int syntax_version;           	// 8025, 8035
-	bool is_loading;              	// When this variable is on TRUE, the syntax highlight is turned off
+	int syntax_version;           	// CncStandard activo: 8025, 8035 o FANUC
 	wxSearch *srch;               	// Search Window
 	wxString path;                	// current path of loaded file
 	s_Settings settings;		  	// Settings object
@@ -28,6 +27,8 @@ private:
 	void openSendDialog();
 	bool readClipboardText(wxString &out);
 	bool writeClipboardText(const wxString &text);
+	// Carga un programa en el editor con la sintaxis indicada y descarta el historial de deshacer
+	void showProgram(const wxString &program, int standard);
 protected:
 	void sendProgramOnFly( wxCommandEvent& event ) ;
 	void FtpConnectWas8037( wxCommandEvent& event ) ;
@@ -62,7 +63,6 @@ protected:
 	void translate( wxCommandEvent& event )  override;
 	void translateFanuc( wxCommandEvent& event )  override;
 	void update_syntax_highlight( wxCommandEvent& event )  override;
-	void edit_text( wxKeyEvent& event )  override;
 	void loadProgramFromFile( wxCommandEvent& event )  override;
 public:
 	MainWindow(wxWindow *parent=NULL);
@@ -70,4 +70,3 @@ public:
 };
 
 #endif
-

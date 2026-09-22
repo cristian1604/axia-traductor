@@ -36,6 +36,7 @@
 #include <wx/checkbox.h>
 #include <wx/statbox.h>
 #include <wx/clrpicker.h>
+#include "CncEditor.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +62,7 @@ class wxMainWindow : public wxFrame
 		wxTreeCtrl* m_treeCtrl1;
 		wxMenu* ftpOptions;
 		wxPanel* m_panel2;
-		wxTextCtrl* m_textCtrl;
+		CncEditor* m_editor;
 		wxStatusBar* m_statusBar;
 		wxToolBar* m_toolBar1;
 		wxToolBarToolBase* m_tool1;
@@ -89,7 +90,6 @@ class wxMainWindow : public wxFrame
 		virtual void FtpConnectWas8037( wxCommandEvent& event ) { event.Skip(); }
 		virtual void FtpConnectWas8035( wxCommandEvent& event ) { event.Skip(); }
 		virtual void FtpConnectTaki8037( wxCommandEvent& event ) { event.Skip(); }
-		virtual void edit_text( wxKeyEvent& event ) { event.Skip(); }
 		virtual void loadProgramFromFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void save_program( wxCommandEvent& event ) { event.Skip(); }
 		virtual void translate( wxCommandEvent& event ) { event.Skip(); }

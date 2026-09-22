@@ -1,24 +1,23 @@
 #ifndef WXSEARCH_H
 #define WXSEARCH_H
 #include "wxfb_project.h"
-#include <wx/textctrl.h>
+#include <wx/stc/stc.h>
 
 class wxSearch : public searchDialog {
-	
+
 private:
-	wxWindow *win;
-	wxTextCtrl *textCtrl;
-	int pos;  // position of the last coincidence
+	wxStyledTextCtrl *editor;
+	int pos;  // posición de la última coincidencia (-1 si no hubo)
+	bool find_from(int from);
 protected:
 	void evt_key_up( wxKeyEvent& event ) ;
 	void search( wxCommandEvent& event )  override;
-	
+
 public:
 	wxSearch(wxWindow *parent=NULL);
 	~wxSearch();
-	void assignSearchField(wxTextCtrl *x);
+	void assignSearchField(wxStyledTextCtrl *x);
 	int search_next();
 };
 
 #endif
-

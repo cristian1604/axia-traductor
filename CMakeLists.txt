@@ -12,10 +12,10 @@ endif()
 # en modo módulo (Ubuntu/Debian: wx-config).
 find_package(wxWidgets CONFIG QUIET)
 if(TARGET wx::core)
-	set(WX_LIBS wx::xrc wx::html wx::core wx::base)
+	set(WX_LIBS wx::stc wx::xrc wx::html wx::core wx::base)
 	set(WX_USE_FILE "")
 else()
-	find_package(wxWidgets REQUIRED COMPONENTS xrc html adv core base)
+	find_package(wxWidgets REQUIRED COMPONENTS stc xrc html adv core base)
 	set(WX_LIBS ${wxWidgets_LIBRARIES})
 	set(WX_USE_FILE ${wxWidgets_USE_FILE})
 endif()
@@ -48,7 +48,8 @@ set(APP_SOURCES
 	Application.cpp
 	MainWindow.cpp
 	FileManager.cpp
-	SyntaxColor.cpp
+	CncEditor.cpp
+	CncSyntax.cpp
 	Translator.cpp
 	TranslatorCore.cpp
 	Renumber.cpp
@@ -94,6 +95,8 @@ add_custom_command(TARGET traductor POST_BUILD
 
 # ---- Tests (sin dependencia de wxWidgets): ctest --test-dir build ------------
 enable_testing()
+add_executable(test_syntax tests/test_syntax.cpp CncSyntax.cpp)
+add_test(NAME syntax COMMAND test_syntax)
 add_executable(test_renumber tests/test_renumber.cpp Renumber.cpp)
 add_test(NAME renumber COMMAND test_renumber ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
 add_executable(test_translator tests/test_translator.cpp TranslatorCore.cpp Renumber.cpp)

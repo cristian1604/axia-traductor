@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include <wx/filedlg.h>
-#include "SyntaxColor.h"
 #include "Translator.h"
 #include "wxOptions.h"
 #include "wxSearch.h"
@@ -36,10 +35,7 @@ static wxBitmap tree_icon(const char *const *xpm) {
 }
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
-	syntax_version(FAGOR_8025), is_loading(false), srch(NULL) {
-	m_textCtrl->SetBackgroundColour(wxColour( 0, 30, 60));
-	m_textCtrl->SetFont( wxFont( 12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New") ) );
-	m_textCtrl->SetDefaultStyle(wxTextAttr(*wxYELLOW));
+	syntax_version(FAGOR_8025), srch(NULL) {
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
@@ -49,12 +45,13 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	wxIconBundle icons(wxT("resources/Webalys.ico"), wxBITMAP_TYPE_ICO);
 	if (icons.IsOk()) SetIcons(icons);
 	this->window_title = wxT("Traductor código CNC 8025 a 8035 / 8037 / FANUC");
-	
+
 	//search window
 	srch = new wxSearch(this);
-	srch->assignSearchField(m_textCtrl);
+	srch->assignSearchField(m_editor);
 	loadSettings();
-	
+	m_editor->SetStandard(syntax_version);
+
 	// Lista de tornos compartida (se crea con valores por defecto si no existe)
 	std::string error;
 	machines = load_machines(shared_config_file("machines.json").ToStdString(), &error);
@@ -66,6 +63,13 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 
 MainWindow::~MainWindow() {
 	ftp.disconnect();
+}
+
+void MainWindow::showProgram(const wxString &program, int standard) {
+	syntax_version = standard;
+	m_syntax_slection->SetSelection(standard == FAGOR_8025 ? 0 : 1);
+	m_editor->SetStandard(standard);
+	m_editor->SetProgram(program, true);
 }
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
@@ -82,29 +86,16 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 		FileManager source(path);
 		bool flag = source.readFile(this->text_program);
 		if (flag) {
-			syntax_version = FAGOR_8025;
-			m_syntax_slection->SetSelection(0);
-			is_loading = true;
 			m_statusBar->SetStatusText("Leyendo archivo...", 0);
-			m_textCtrl->SetValue("");
-			m_textCtrl->SetValue(this->text_program);
-			syntax_highlight(m_textCtrl, syntax_version, settings);
-			m_textCtrl->SetInsertionPoint(0);
-			is_loading = false;
+			showProgram(this->text_program, FAGOR_8025);
 			m_statusBar->SetStatusText("Archivo cargado: " + filename, 0);
 		}
 	}
 }
 
-void MainWindow::edit_text( wxKeyEvent& event )  {
-	event.Skip();
-}
-
 void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
-	if (is_loading) return;
-	// Solo el selector cambia la sintaxis. Este manejador también se dispara al
-	// modificarse el texto (wxEVT_TEXT, incluso desde SetValue) y con F11; en
-	// esos casos se conserva la actual, que puede ser FANUC, ausente del selector.
+	// Solo el selector cambia la sintaxis; con F11 (menú o barra) se repinta la
+	// actual, que puede ser FANUC, ausente del selector.
 	if (event.GetEventType() == wxEVT_CHOICE) {
 		switch (m_syntax_slection->GetSelection()) {
 		case 0:
@@ -115,55 +106,43 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 			break;
 		}
 	}
-	is_loading = true;
-	//int ip = m_textCtrl->GetInsertionPoint();
-	syntax_highlight(m_textCtrl, syntax_version, settings);
-	m_textCtrl->SetFocus();
-	// m_textCtrl->SetInsertionPoint(ip);
-	is_loading = false;
+	m_editor->SetStandard(syntax_version);
+	m_editor->SetFocus();
 }
 
 /**  TRANSLATION  **/
 void MainWindow::translate( wxCommandEvent& event )  {
-	is_loading = true;
 	if (syntax_version == WAS_8035) {
 		wxMessageBox(wxT("El código ya se encuentra en la versión 8035"),
 					 "Traducir a 8025",
 					 wxOK);
-		is_loading = false;
 		return;
 	}
 	m_statusBar->SetStatusText("Analizando...", 0);
-	int ip = m_textCtrl->GetInsertionPoint();
+	int ip = m_editor->GetCurrentPos();
 	m_syntax_slection->SetSelection(1);
 	syntax_version = WAS_8035;
-	translate_8025_to_8035(m_textCtrl);
-	syntax_highlight(m_textCtrl, syntax_version, settings);
-	m_textCtrl->SetFocus();
-	m_textCtrl->SetInsertionPoint(ip);
-	is_loading = false;
+	translate_8025_to_8035(m_editor);
+	m_editor->SetStandard(syntax_version);
+	m_editor->GotoPos(ip);
 	enum_lines(event);
 	m_statusBar->SetStatusText(wxT("Programa convertido a versión 8035"), 0);
 }
 
 void MainWindow::translateFanuc( wxCommandEvent& event )  {
-	is_loading = true;
 	if (syntax_version == KIA_FANUC) {
 		wxMessageBox(wxT("El código ya se encuentra en la versión FANUC"),
 					 "Traducir a FANUC",
 					 wxOK);
-		is_loading = false;
 		return;
 	}
 	m_statusBar->SetStatusText("Analizando...", 0);
-	int ip = m_textCtrl->GetInsertionPoint();
+	int ip = m_editor->GetCurrentPos();
 	m_syntax_slection->SetSelection(1);
 	syntax_version = KIA_FANUC;
-	translate_8025_to_Fanuc(m_textCtrl);
-	syntax_highlight(m_textCtrl, syntax_version, settings);
-	m_textCtrl->SetFocus();
-	m_textCtrl->SetInsertionPoint(ip);
-	is_loading = false;
+	translate_8025_to_Fanuc(m_editor);
+	m_editor->SetStandard(syntax_version);
+	m_editor->GotoPos(ip);
 	enum_lines(event);
 	m_statusBar->SetStatusText(wxT("Programa convertido a versión Fanuc"), 0);
 }
@@ -184,7 +163,7 @@ void MainWindow::search_next( wxCommandEvent& event )  {
 
 void MainWindow::search_replace_window( wxCommandEvent& event )  {
 	wxSearchReplace snr(this);
-	snr.assignTextField(m_textCtrl);
+	snr.assignTextField(m_editor);
 	snr.ShowModal();
 }
 
@@ -205,14 +184,14 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 		FM = FileManager(path);
 		this->SetTitle(this->window_title + " - " + filename);
 	}
-	
-	this->text_program = m_textCtrl->GetValue();
+
+	this->text_program = m_editor->GetText();
 	if (!FM.writeFile(this->text_program)) {
 		wxMessageBox( "No se pudo guardar el archivo:\n" + FM.getFullPath(), "Error al guardar", wxICON_ERROR);
 		return;
 	}
 	m_statusBar->SetStatusText("Guardado: " + filename, 0);
-	
+
 	// Si hay un control conectado, ademas se envia el programa por FTP
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	if (directory.isOk()) {
@@ -220,7 +199,7 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 		if (!ensureTmpDir()) return;
 		FileManager tmpFile("tmp", filename);
 		if (!tmpFile.writeFile(this->text_program)) return;
-		
+
 		ftp.deleteFile(tmpFile.getFilename());
 		sf::Ftp::Response response = ftp.upload(tmpFile.getFullPath(), "", sf::Ftp::Binary);
 		if (response.isOk()) {
@@ -269,9 +248,9 @@ void MainWindow::about( wxCommandEvent& event )  {
 
 /**  Dady's re-enumerator lines library call **/
 void MainWindow::enum_lines( wxCommandEvent& event )  {
-	int pos = m_textCtrl->GetInsertionPoint();
-	std::string original = m_textCtrl->GetValue().ToStdString();
-	
+	int pos = m_editor->GetCurrentPos();
+	std::string original = m_editor->GetText().ToStdString();
+
 	// Un programa FANUC ya reenumerado empieza con "Onnnn" en lugar de "%": se
 	// repone el "%" para que el reenumerador encuentre el inicio (y abajo se
 	// vuelve a poner la "O").
@@ -279,7 +258,7 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 		size_t o = original.find_first_not_of(" \t\r\n");
 		if (o != std::string::npos && original[o] == 'O') original[o] = '%';
 	}
-	
+
 	// En 8035 la traducción inserta comentarios entre el '%' y N0010 que no
 	// deben numerarse: se reenumera solo desde N0010.
 	RenumberResult r = (syntax_version == WAS_8035)
@@ -296,62 +275,50 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 		wxMessageBox( msg, "No se pudo reenumerar", wxICON_ERROR);
 		return;
 	}
-	
+
 	wxString renumbered = wxString::FromUTF8(r.text.c_str());
 	if (renumbered.IsEmpty()) renumbered = r.text;   // texto no UTF-8 (Latin-1)
-	
+
 	// FANUC identifica el programa con "O" en lugar de "%"
 	if (syntax_version == KIA_FANUC) {
 		int p = renumbered.Find(wxT('%'));
 		if (p >= 0) renumbered[p] = 'O';
 	}
-	
-	m_textCtrl->SetValue(renumbered);
-	m_textCtrl->SetFocus();
-	m_textCtrl->SetInsertionPoint(pos);
+
+	// SetText queda en el historial: la reenumeración se puede deshacer con Ctrl+Z
+	m_editor->SetText(renumbered);
+	m_editor->GotoPos(pos);
+	m_editor->SetFocus();
 }
 
 void MainWindow::loadSettings() {
 	FileManager F;
 	F.loadSettings(settings);   // sin archivo quedan los valores por defecto
-	m_textCtrl->SetBackgroundColour(settings.colour_textCtrl);
+	m_editor->ApplySettings(settings);
 	if (settings.maximize_on_startup) {
 		this->Maximize(true);
 	}
 }
 
 void MainWindow::copy_program_clipboard( wxCommandEvent& event )  {
-	writeClipboardText(m_textCtrl->GetValue());
+	writeClipboardText(m_editor->GetText());
 }
 
 void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
 	if (readClipboardText(text_program)) {
-		m_textCtrl->SetValue(text_program);
-		m_textCtrl->SetFocus();
+		m_editor->SetText(text_program);
+		m_editor->SetFocus();
 	}
 }
 
+/** Pega el portapapeles en el cursor cambiando la coma decimal por punto */
 void MainWindow::paste_formatting( wxCommandEvent& event )  {
-	text_program = m_textCtrl->GetValue();
-	long aaa = m_textCtrl->GetScrollPos(wxVERTICAL);
-	long x = m_textCtrl->GetInsertionPoint();
-	text_program = text_program.SubString(0, x);
-
-	if (wxTheClipboard->Open()) {
-		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
-			wxTextDataObject data;
-			wxTheClipboard->GetData( data );
-			wxString aux = data.GetText();
-			aux.Replace(wxT(','), wxT('.'));
-			text_program += aux + (m_textCtrl->GetValue()).SubString(x, (m_textCtrl->GetValue()).Length());
-			
-			m_textCtrl->SetValue(text_program);
-			m_textCtrl->SetInsertionPoint(x + aux.Length());
-			m_textCtrl->SetScrollPos(wxVERTICAL, aaa*2);
-			m_textCtrl->SetFocus();
-		}
-		wxTheClipboard->Close();
-	}
+	wxString aux;
+	if (!readClipboardText(aux)) return;
+	aux.Replace(wxT(','), wxT('.'));
+	// Se inserta en la posición del cursor (o reemplaza la selección, si la hay)
+	m_editor->ReplaceSelection(aux);
+	m_editor->SetFocus();
 }
 
 void MainWindow::channels( wxCommandEvent& event )  {
@@ -372,7 +339,7 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 		return;
 	}
 	FileManager F("tmp.txt");
-	text_program = m_textCtrl->GetValue();
+	text_program = m_editor->GetText();
 	if (F.writeFile(text_program)) {
 		wxExecute("ABsim.exe tmp.txt");
 	}
@@ -390,7 +357,7 @@ void MainWindow::connectFTP( int idMachine )  {
 	ftp.disconnect();
 	connected_machine.Clear();
 	m_treeCtrl1->DeleteAllItems();
-	
+
 	const Machine *m = find_machine(machines, name);
 	if (!m) {
 		wxMessageBox(wxT("El torno \"") + wxString::FromUTF8(name.c_str()) + wxT("\" no está en machines.json"), wxT("Torno desconocido"), wxICON_ERROR);
@@ -416,31 +383,24 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	if (!item.IsOk() || item == m_treeCtrl1->GetRootItem()) return;
 	filename = m_treeCtrl1->GetItemText(item);
-	
+
 	if (!ensureTmpDir()) return;
-	
+
 	m_statusBar->SetStatusText("Descargando " + filename, 0);
-	
+
 	sf::Ftp::Response r = ftp.download(filename.ToStdString(), "tmp", sf::Ftp::Binary);
 	if (!r.isOk()) {
 		wxMessageBox( wxString::Format(wxT("No se pudo descargar el archivo (código %d)"), (int) r.getStatus()), "Error de descarga", wxICON_ERROR);
 		m_statusBar->SetStatusText("Error al descargar " + filename, 0);
 		return;
 	}
-	
+
 	this->SetTitle(this->window_title + " - " + filename);
 	FM = FileManager("tmp", filename);
 	bool flag = FM.readFile(this->text_program);
 	if (flag) {
-		syntax_version = WAS_8035;
-		m_syntax_slection->SetSelection(1);
-		is_loading = true;
 		m_statusBar->SetStatusText("Leyendo archivo...", 0);
-		m_textCtrl->SetValue("");
-		m_textCtrl->SetValue(this->text_program);
-		syntax_highlight(m_textCtrl, syntax_version, settings);
-		m_textCtrl->SetInsertionPoint(0);
-		is_loading = false;
+		showProgram(this->text_program, WAS_8035);
 		m_statusBar->SetStatusText("Archivo abierto del torno: " + filename, 0);
 	}
 }
@@ -495,7 +455,7 @@ void MainWindow::RenameFtpFile( wxCommandEvent& event )  {
 		m_statusBar->SetLabel("FTP no conectado");
 		return;
 	}
-	
+
 	wxString fname = wxGetTextFromUser ("Renombrar",
 					   "Renombrar archivo",
 					   m_treeCtrl1->GetItemText(item));
@@ -526,7 +486,7 @@ void MainWindow::refreshFtpFileList() {
 		m_statusBar->SetLabel("FTP no conectado");
 		return;
 	}
-	
+
 	m_treeCtrl1->DeleteAllItems();
 	sf::Ftp::ListingResponse response = ftp.getDirectoryListing();
 	wxTreeItemId raiz;
@@ -536,16 +496,16 @@ void MainWindow::refreshFtpFileList() {
 		for (std::vector<std::string>::const_iterator it = listing.begin(); it != listing.end(); ++it) {
 			m_treeCtrl1->AppendItem(raiz, *it, 2);
 		}
-		
+
 		m_treeCtrl1->SortChildren(raiz);
 		m_treeCtrl1->Expand(raiz);
-		
+
 		wxImageList* imageList = new wxImageList(16, 16);
 		imageList->Add(tree_icon(folder_xpm));							// 0
 		imageList->Add(tree_icon(server_xpm));							// 1
 		imageList->Add(tree_icon(pit_extension_xpm));					// 2
 		m_treeCtrl1->AssignImageList(imageList);
-		
+
 		ftp.keepAlive();
 		//m_statusBar->SetStatusText("Conectado a " + aux, 1);
 		m_statusBar->SetStatusText("Directorio listado correctamente", 0);
@@ -566,7 +526,7 @@ void MainWindow::openFormSendProgram( wxCommandEvent& event ) {
 void MainWindow::openSendDialog() {
 	wxString suggested = filename.BeforeLast('.');
 	if (suggested.IsEmpty()) suggested = filename;
-	wxSendWindow dlg(this, machines, settings, m_textCtrl->GetValue(), suggested, connected_machine);
+	wxSendWindow dlg(this, machines, settings, m_editor->GetText(), suggested, connected_machine);
 	dlg.ShowModal();
 	if (dlg.sent) {
 		m_statusBar->SetStatusText(wxT("Programa enviado a ") + settings.last_machine, 0);
@@ -578,6 +538,3 @@ void MainWindow::openSendDialog() {
 void MainWindow::sendProgramOnFly( wxCommandEvent& event ) {
 	openSendDialog();
 }
-
-
-

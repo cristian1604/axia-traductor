@@ -65,14 +65,14 @@ static TranslationSettings load_translation_settings() {
 	return t;
 }
 
-void translate_8025_to_8035(wxTextCtrl* elem) {
-	std::string out = translate_8025_to_8035_text(elem->GetValue().ToStdString(), load_translation_settings());
-	elem->SetValue(out);
+void translate_8025_to_8035(wxStyledTextCtrl* elem) {
+	std::string out = translate_8025_to_8035_text(elem->GetText().ToStdString(), load_translation_settings());
+	elem->SetText(out);
 	elem->SetFocus();
 }
 
-void translate_8025_to_Fanuc(wxTextCtrl* elem) {
-	std::string out = translate_8025_to_fanuc_text(elem->GetValue().ToStdString(), load_translation_settings());
-	elem->SetValue(out);
+void translate_8025_to_Fanuc(wxStyledTextCtrl* elem) {
+	std::string out = translate_8025_to_fanuc_text(elem->GetText().ToStdString(), load_translation_settings());
+	elem->SetText(out);
 	elem->SetFocus();
 }

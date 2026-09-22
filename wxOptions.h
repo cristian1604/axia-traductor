@@ -1,28 +1,9 @@
 #ifndef WXOPTIONS_H
 #define WXOPTIONS_H
 #include "wxfb_project.h"
+#include "Settings.h"
 
-struct s_Settings {
-	wxColour colour_textCtrl;
-	wxColour colour_text;
-	wxColour colour_comments;
-	wxColour colour_command_m;
-	wxColour colour_command_tool;
-	wxColour colour_line_number;
-	
-	bool maximize_on_startup;
-	bool remove_m08;
-	wxString replace_from;
-	wxString replace_to;
-	
-	// Envío a torno (se recuerdan por usuario)
-	wxString last_machine;
-	wxString last_filename;
-	bool close_after_transfer;
-};
-
-// Valores por defecto de la configuracion
-s_Settings default_settings();
+// s_Settings y default_settings() viven en Settings.h
 
 class wxOptions : public wxParameters {
 	s_Settings settings;

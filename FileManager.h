@@ -3,7 +3,7 @@
 #include <wx/string.h>
 #include <wx/filename.h>
 #include <string>
-#include "wxOptions.h"
+#include "Settings.h"
 
 class FileManager {
 private:

@@ -99,8 +99,8 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxBoxSizer* bSizer7;
 	bSizer7 = new wxBoxSizer( wxVERTICAL );
 
-	m_textCtrl = new wxTextCtrl( m_panel2, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_AUTO_URL|wxTE_MULTILINE|wxTE_RICH2 );
-	bSizer7->Add( m_textCtrl, 1, wxEXPAND|wxALL, 5 );
+	m_editor = new CncEditor( m_panel2, wxID_ANY );
+	bSizer7->Add( m_editor, 1, wxEXPAND|wxALL, 5 );
 
 
 	m_panel2->SetSizer( bSizer7 );
@@ -337,8 +337,6 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectWas8037 ), this, m_menuItem162->GetId());
 	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectWas8035 ), this, m_menuItem16->GetId());
 	ftpOptions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::FtpConnectTaki8037 ), this, m_menuItem161->GetId());
-	m_textCtrl->Connect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
-	m_textCtrl->Connect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Connect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
 	this->Connect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Connect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
@@ -377,8 +375,6 @@ wxMainWindow::~wxMainWindow()
 	this->Disconnect( ftp_enviar->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::sendProgramOnFly ) );
 	m_treeCtrl1->Disconnect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( wxMainWindow::openFtpFile ), NULL, this );
 	m_treeCtrl1->Disconnect( wxEVT_COMMAND_TREE_ITEM_MENU, wxTreeEventHandler( wxMainWindow::ftpFileOptions ), NULL, this );
-	m_textCtrl->Disconnect( wxEVT_KEY_UP, wxKeyEventHandler( wxMainWindow::edit_text ), NULL, this );
-	m_textCtrl->Disconnect( wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), NULL, this );
 	this->Disconnect( m_tool1->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::loadProgramFromFile ) );
 	this->Disconnect( m_tool2->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::save_program ) );
 	this->Disconnect( m_tool3->GetId(), wxEVT_COMMAND_TOOL_CLICKED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ) );
