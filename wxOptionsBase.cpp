@@ -12,9 +12,9 @@
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 
-#include "wxParameters_base.h"
+#include "wxOptionsBase.h"
 
-bool wxParameters::Create(wxWindow* parent, wxWindowID id, const wxString& title,
+bool wxOptionsBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     const wxPoint& pos, const wxSize& size, long style, const wxString &name)
 {
     if (!wxDialog::Create(parent, id, title, pos, size, style, name))
@@ -112,16 +112,16 @@ bool wxParameters::Create(wxWindow* parent, wxWindowID id, const wxString& title
     Centre(wxBOTH);
 
     // Event handlers
-    reset->Bind(wxEVT_BUTTON, &wxParameters::reset_defaults, this);
-    m_button4->Bind(wxEVT_BUTTON, &wxParameters::save, this);
-    m_maximize->Bind(wxEVT_CHECKBOX, &wxParameters::maximize, this);
-    m_remove_m08->Bind(wxEVT_CHECKBOX, &wxParameters::remove_m08, this);
-    m_colour_comments->Bind(wxEVT_COLOURPICKER_CHANGED, &wxParameters::colour_comments, this);
-    m_colour_line->Bind(wxEVT_COLOURPICKER_CHANGED, &wxParameters::colour_line, this);
-    m_colour_m->Bind(wxEVT_COLOURPICKER_CHANGED, &wxParameters::colour_m, this);
-    m_colour_text->Bind(wxEVT_COLOURPICKER_CHANGED, &wxParameters::colour_text, this);
-    m_colour_textCtrl->Bind(wxEVT_COLOURPICKER_CHANGED, &wxParameters::colour_textCtrl, this);
-    m_colour_tool->Bind(wxEVT_COLOURPICKER_CHANGED, &wxParameters::colour_tool, this);
+    reset->Bind(wxEVT_BUTTON, &wxOptionsBase::reset_defaults, this);
+    m_button4->Bind(wxEVT_BUTTON, &wxOptionsBase::save, this);
+    m_maximize->Bind(wxEVT_CHECKBOX, &wxOptionsBase::maximize, this);
+    m_remove_m08->Bind(wxEVT_CHECKBOX, &wxOptionsBase::remove_m08, this);
+    m_colour_comments->Bind(wxEVT_COLOURPICKER_CHANGED, &wxOptionsBase::colour_comments, this);
+    m_colour_line->Bind(wxEVT_COLOURPICKER_CHANGED, &wxOptionsBase::colour_line, this);
+    m_colour_m->Bind(wxEVT_COLOURPICKER_CHANGED, &wxOptionsBase::colour_m, this);
+    m_colour_text->Bind(wxEVT_COLOURPICKER_CHANGED, &wxOptionsBase::colour_text, this);
+    m_colour_textCtrl->Bind(wxEVT_COLOURPICKER_CHANGED, &wxOptionsBase::colour_textCtrl, this);
+    m_colour_tool->Bind(wxEVT_COLOURPICKER_CHANGED, &wxOptionsBase::colour_tool, this);
 
     return true;
 }

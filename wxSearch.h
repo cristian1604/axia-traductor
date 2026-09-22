@@ -1,9 +1,9 @@
 #ifndef WXSEARCH_H
 #define WXSEARCH_H
-#include "searchDialog_base.h"
+#include "wxSearchBase.h"
 #include <wx/stc/stc.h>
 
-class wxSearch : public searchDialog {
+class wxSearch : public wxSearchBase {
 
 private:
 	wxStyledTextCtrl *editor;

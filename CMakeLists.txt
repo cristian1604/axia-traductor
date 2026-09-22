@@ -45,10 +45,10 @@ endif()
 
 # ---- Aplicación --------------------------------------------------------------
 set(APP_SOURCES
-	Application.cpp
-	MainWindow.cpp
+	wxApplication.cpp
+	wxMainWindow.cpp
 	FileManager.cpp
-	CncEditor.cpp
+	wxCncEditor.cpp
 	CncSyntax.cpp
 	Translator.cpp
 	TranslatorCore.cpp

@@ -39,7 +39,7 @@ static UpdateCheck query_latest_version() {
 	return r;
 }
 
-wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
+wxActualizaciones::wxActualizaciones(wxWindow *parent) : wxActualizacionesBase(parent) {
 	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
 	SetSize(FromDIP(GetSize()));
 	Centre(wxBOTH);

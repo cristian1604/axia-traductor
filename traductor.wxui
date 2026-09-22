@@ -12,9 +12,9 @@
     wxWidgets_version="3.2">
     <node
       class="wxFrame"
-      class_name="wxMainWindow"
+      class_name="wxMainWindowBase"
       title="Traductor código CNC 8025 a 8035 / 8037 / FANUC"
-      base_file="wxMainWindow_base"
+      base_file="wxMainWindowBase"
       background_colour="#F0F0F0"
       size="1270,730"
       window_style="wxTAB_TRAVERSAL">
@@ -147,9 +147,9 @@
               var_name="bSizer7">
               <node
                 class="CustomControl"
-                class_name="CncEditor"
-                header="CncEditor.h"
-                construction="m_editor = new CncEditor( m_panel2, wxID_ANY );"
+                class_name="wxCncEditor"
+                header="wxCncEditor.h"
+                construction="m_editor = new wxCncEditor( m_panel2, wxID_ANY );"
                 var_name="m_editor"
                 minimum_size="-1,-1"
                 flags="wxEXPAND"
@@ -394,8 +394,8 @@
     </node>
     <node
       class="wxDialog"
-      class_name="searchDialog"
-      base_file="searchDialog_base"
+      class_name="wxSearchBase"
+      base_file="wxSearchBase"
       style="wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP"
       title="Buscar..."
       size="286,156"
@@ -431,8 +431,8 @@
     </node>
     <node
       class="wxDialog"
-      class_name="search_and_replace"
-      base_file="search_and_replace_base"
+      class_name="wxSearchReplaceBase"
+      base_file="wxSearchReplaceBase"
       style="wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU"
       title="Buscar y reemplazar"
       wxEVT_KEY_UP="evt_key_up">
@@ -491,8 +491,8 @@
     </node>
     <node
       class="wxDialog"
-      class_name="about"
-      base_file="about_base"
+      class_name="wxAboutBase"
+      base_file="wxAboutBase"
       style="wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP"
       title="Acerca de"
       background_colour="#F0F0F0"
@@ -565,8 +565,8 @@
     </node>
     <node
       class="wxDialog"
-      class_name="ComprobarActualizaciones"
-      base_file="ComprobarActualizaciones_base"
+      class_name="wxActualizacionesBase"
+      base_file="wxActualizacionesBase"
       title="Comprobar actualizaciones"
       size="370,225">
       <node
@@ -599,8 +599,8 @@
     </node>
     <node
       class="wxDialog"
-      class_name="wxParameters"
-      base_file="wxParameters_base"
+      class_name="wxOptionsBase"
+      base_file="wxOptionsBase"
       title="Opciones"
       size="485,433">
       <node

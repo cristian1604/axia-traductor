@@ -12,7 +12,7 @@
 #include <wx/bmpbndl.h>
 #include <wx/sizer.h>
 
-#include "ComprobarActualizaciones_base.h"
+#include "wxActualizacionesBase.h"
 
 #include <wx/mstream.h>  // memory stream classes
 
@@ -34,7 +34,7 @@ namespace wxue_img
     extern const unsigned char network_2_icon_png[2368];  // resources/network-2-icon.png
 }
 
-bool ComprobarActualizaciones::Create(wxWindow* parent, wxWindowID id, const wxString& title,
+bool wxActualizacionesBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     const wxPoint& pos, const wxSize& size, long style, const wxString &name)
 {
     if (!wxDialog::Create(parent, id, title, pos, size, style, name))
@@ -61,7 +61,7 @@ bool ComprobarActualizaciones::Create(wxWindow* parent, wxWindowID id, const wxS
     Centre(wxBOTH);
 
     // Event handlers
-    m_button6->Bind(wxEVT_BUTTON, &ComprobarActualizaciones::close, this);
+    m_button6->Bind(wxEVT_BUTTON, &wxActualizacionesBase::close, this);
 
     return true;
 }

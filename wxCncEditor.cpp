@@ -1,4 +1,4 @@
-#include "CncEditor.h"
+#include "wxCncEditor.h"
 #include "CncSyntax.h"
 #include <wx/settings.h>
 #include <string>
@@ -12,7 +12,7 @@ static wxColour caret_line_colour(const wxColour &bg) {
 	return wxColour(clamp(bg.Red() + d), clamp(bg.Green() + d), clamp(bg.Blue() + d));
 }
 
-CncEditor::CncEditor(wxWindow *parent, wxWindowID id)
+wxCncEditor::wxCncEditor(wxWindow *parent, wxWindowID id)
 	: wxStyledTextCtrl(parent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
 	  standard(FAGOR_8025) {
 	// El coloreado lo hace la aplicación (CncSyntax) a pedido de Scintilla
@@ -31,13 +31,13 @@ CncEditor::CncEditor(wxWindow *parent, wxWindowID id)
 	SetMouseDwellTime(wxSTC_TIME_FOREVER);
 	SetViewEOL(false);
 
-	Bind(wxEVT_STC_STYLENEEDED, &CncEditor::OnStyleNeeded, this);
-	Bind(wxEVT_STC_ZOOM, &CncEditor::OnZoom, this);
+	Bind(wxEVT_STC_STYLENEEDED, &wxCncEditor::OnStyleNeeded, this);
+	Bind(wxEVT_STC_ZOOM, &wxCncEditor::OnZoom, this);
 
 	ApplySettings(default_settings());
 }
 
-void CncEditor::ApplySettings(const s_Settings &s) {
+void wxCncEditor::ApplySettings(const s_Settings &s) {
 	// Fuente y fondo en el estilo por defecto, y se propaga a todos con StyleClearAll
 	wxFont font(12, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Courier New"));
 	StyleSetFont(wxSTC_STYLE_DEFAULT, font);
@@ -65,19 +65,19 @@ void CncEditor::ApplySettings(const s_Settings &s) {
 	Refresh();
 }
 
-void CncEditor::SetStandard(int cncStandard) {
+void wxCncEditor::SetStandard(int cncStandard) {
 	standard = cncStandard;
 	Colourise(0, -1);   // con lexer CONTAINER dispara StyleNeeded para todo el texto
 }
 
-void CncEditor::SetProgram(const wxString &text, bool resetUndo) {
+void wxCncEditor::SetProgram(const wxString &text, bool resetUndo) {
 	SetText(text);
 	if (resetUndo) EmptyUndoBuffer();
 	GotoPos(0);
 	UpdateLineNumberWidth();
 }
 
-void CncEditor::OnStyleNeeded(wxStyledTextEvent &event) {
+void wxCncEditor::OnStyleNeeded(wxStyledTextEvent &event) {
 	// Se clasifica el programa completo: Scintilla trabaja con posiciones en
 	// bytes (UTF-8 interno), por eso se toma el texto crudo y no un wxString.
 	wxCharBuffer raw = GetTextRaw();
@@ -96,12 +96,12 @@ void CncEditor::OnStyleNeeded(wxStyledTextEvent &event) {
 	UpdateLineNumberWidth();
 }
 
-void CncEditor::OnZoom(wxStyledTextEvent &event) {
+void wxCncEditor::OnZoom(wxStyledTextEvent &event) {
 	UpdateLineNumberWidth();
 	event.Skip();
 }
 
-void CncEditor::UpdateLineNumberWidth() {
+void wxCncEditor::UpdateLineNumberWidth() {
 	int lines = GetLineCount();
 	wxString widest = wxT("9999");
 	while ((int) widest.Length() < (int) wxString::Format(wxT("%d"), lines).Length()) widest += wxT("9");

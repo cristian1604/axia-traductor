@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "wxMainWindow.h"
 #include <wx/filedlg.h>
 #include "Translator.h"
 #include "wxOptions.h"
@@ -68,7 +68,7 @@ static void scale_menu(wxMenu *menu, double scale) {
 	}
 }
 
-MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
+wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 	syntax_version(FAGOR_8025), srch(NULL) {
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
@@ -97,7 +97,7 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	size.y = std::min(size.y, area.height);
 	SetSize(size);
 	Centre(wxBOTH);
-	m_splitter1->Bind(wxEVT_IDLE, &MainWindow::splitterFirstIdle, this);
+	m_splitter1->Bind(wxEVT_IDLE, &wxMainWindow::splitterFirstIdle, this);
 	// Iconos de barras, menús y logo al DPI del monitor
 	double scale = GetDPIScaleFactor();
 	scale_toolbar(m_toolBar1);
@@ -116,16 +116,16 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	}
 }
 
-MainWindow::~MainWindow() {
+wxMainWindow::~wxMainWindow() {
 	ftp.disconnect();
 }
 
-void MainWindow::splitterFirstIdle(wxIdleEvent &event) {
+void wxMainWindow::splitterFirstIdle(wxIdleEvent &event) {
 	m_splitter1->SetSashPosition(FromDIP(242));
-	m_splitter1->Unbind(wxEVT_IDLE, &MainWindow::splitterFirstIdle, this);
+	m_splitter1->Unbind(wxEVT_IDLE, &wxMainWindow::splitterFirstIdle, this);
 }
 
-void MainWindow::showProgram(const wxString &program, int standard) {
+void wxMainWindow::showProgram(const wxString &program, int standard) {
 	syntax_version = standard;
 	m_syntax_slection->SetSelection(standard == FAGOR_8025 ? 0 : 1);
 	m_editor->SetStandard(standard);
@@ -133,7 +133,7 @@ void MainWindow::showProgram(const wxString &program, int standard) {
 }
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
-void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
+void wxMainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 	wxFileDialog OpenDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.NC;*.PIT;*.nc;*.pit|Archivo de texto (*.txt, *.TXT)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
 	if (OpenDialog.ShowModal() == wxID_OK) // if the user click "Open" instead of "Cancel"
 	{
@@ -153,7 +153,7 @@ void MainWindow::loadProgramFromFile( wxCommandEvent& event )  {
 	}
 }
 
-void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
+void wxMainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	// Solo el selector cambia la sintaxis; con F11 (menú o barra) se repinta la
 	// actual, que puede ser FANUC, ausente del selector.
 	if (event.GetEventType() == wxEVT_CHOICE) {
@@ -171,7 +171,7 @@ void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 }
 
 /**  TRANSLATION  **/
-void MainWindow::translate( wxCommandEvent& event )  {
+void wxMainWindow::translate( wxCommandEvent& event )  {
 	if (syntax_version == WAS_8035) {
 		wxMessageBox(wxT("El código ya se encuentra en la versión 8035"),
 					 "Traducir a 8025",
@@ -189,7 +189,7 @@ void MainWindow::translate( wxCommandEvent& event )  {
 	m_statusBar->SetStatusText(wxT("Programa convertido a versión 8035"), 0);
 }
 
-void MainWindow::translateFanuc( wxCommandEvent& event )  {
+void wxMainWindow::translateFanuc( wxCommandEvent& event )  {
 	if (syntax_version == KIA_FANUC) {
 		wxMessageBox(wxT("El código ya se encuentra en la versión FANUC"),
 					 "Traducir a FANUC",
@@ -207,28 +207,28 @@ void MainWindow::translateFanuc( wxCommandEvent& event )  {
 	m_statusBar->SetStatusText(wxT("Programa convertido a versión Fanuc"), 0);
 }
 
-void MainWindow::open_options( wxCommandEvent& event )  {
+void wxMainWindow::open_options( wxCommandEvent& event )  {
 	wxOptions opt(this);
 	opt.ShowModal();
 	loadSettings();
 }
 
-void MainWindow::search_window( wxCommandEvent& event )  {
+void wxMainWindow::search_window( wxCommandEvent& event )  {
 	srch->ShowModal();
 }
 
-void MainWindow::search_next( wxCommandEvent& event )  {
+void wxMainWindow::search_next( wxCommandEvent& event )  {
 	srch->search_next();
 }
 
-void MainWindow::search_replace_window( wxCommandEvent& event )  {
+void wxMainWindow::search_replace_window( wxCommandEvent& event )  {
 	wxSearchReplace snr(this);
 	snr.assignTextField(m_editor);
 	snr.ShowModal();
 }
 
 /** SAVE PROGRAM GENERATED **/
-void MainWindow::save_program( wxCommandEvent& event )  {
+void wxMainWindow::save_program( wxCommandEvent& event )  {
 	if (!FM.isDefined()) {
 		wxString base = filename.BeforeLast('.');
 		if (base.IsEmpty()) base = filename;
@@ -275,7 +275,7 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 	}
 }
 
-bool MainWindow::readClipboardText(wxString &out) {
+bool wxMainWindow::readClipboardText(wxString &out) {
 	bool ok = false;
 	if (wxTheClipboard->Open()) {
 		if (wxTheClipboard->IsSupported( wxDF_TEXT )) {
@@ -289,7 +289,7 @@ bool MainWindow::readClipboardText(wxString &out) {
 	return ok;
 }
 
-bool MainWindow::writeClipboardText(const wxString &text) {
+bool wxMainWindow::writeClipboardText(const wxString &text) {
 	if (!wxTheClipboard->Open()) return false;
 	// The data object is owned by the clipboard, do not delete it
 	wxTheClipboard->SetData( new wxTextDataObject(text));
@@ -297,13 +297,13 @@ bool MainWindow::writeClipboardText(const wxString &text) {
 	return true;
 }
 
-void MainWindow::about( wxCommandEvent& event )  {
+void wxMainWindow::about( wxCommandEvent& event )  {
 	wxAbout a(this);
 	a.ShowModal();
 }
 
 /**  Dady's re-enumerator lines library call **/
-void MainWindow::enum_lines( wxCommandEvent& event )  {
+void wxMainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_editor->GetCurrentPos();
 	std::string original = m_editor->GetText().ToStdString();
 
@@ -347,7 +347,7 @@ void MainWindow::enum_lines( wxCommandEvent& event )  {
 	m_editor->SetFocus();
 }
 
-void MainWindow::loadSettings() {
+void wxMainWindow::loadSettings() {
 	FileManager F;
 	F.loadSettings(settings);   // sin archivo quedan los valores por defecto
 	m_editor->ApplySettings(settings);
@@ -356,11 +356,11 @@ void MainWindow::loadSettings() {
 	}
 }
 
-void MainWindow::copy_program_clipboard( wxCommandEvent& event )  {
+void wxMainWindow::copy_program_clipboard( wxCommandEvent& event )  {
 	writeClipboardText(m_editor->GetText());
 }
 
-void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
+void wxMainWindow::paste_program_clipboard( wxCommandEvent& event )  {
 	if (readClipboardText(text_program)) {
 		m_editor->SetText(text_program);
 		m_editor->SetFocus();
@@ -368,7 +368,7 @@ void MainWindow::paste_program_clipboard( wxCommandEvent& event )  {
 }
 
 /** Pega el portapapeles en el cursor cambiando la coma decimal por punto */
-void MainWindow::paste_formatting( wxCommandEvent& event )  {
+void wxMainWindow::paste_formatting( wxCommandEvent& event )  {
 	wxString aux;
 	if (!readClipboardText(aux)) return;
 	aux.Replace(wxT(','), wxT('.'));
@@ -377,7 +377,7 @@ void MainWindow::paste_formatting( wxCommandEvent& event )  {
 	m_editor->SetFocus();
 }
 
-void MainWindow::channels( wxCommandEvent& event )  {
+void wxMainWindow::channels( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
 	if (syntax_version != FAGOR_8025) {
@@ -387,7 +387,7 @@ void MainWindow::channels( wxCommandEvent& event )  {
 	wxExecute("Canalesw.exe");
 }
 
-void MainWindow::simulate( wxCommandEvent& event )  {
+void wxMainWindow::simulate( wxCommandEvent& event )  {
 	// Execution of external program
 	// Not included on this repository due copyright restrictions
 	if (syntax_version != FAGOR_8025) {
@@ -404,7 +404,7 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 
 ///**  FTP OPTIONS  ** ///
 
-void MainWindow::connectFTP( const std::string &name )  {
+void wxMainWindow::connectFTP( const std::string &name )  {
 	ftp.disconnect();
 	connected_machine.Clear();
 	m_treeCtrl1->DeleteAllItems();
@@ -430,7 +430,7 @@ void MainWindow::connectFTP( const std::string &name )  {
 }
 
 /** Double click on FTP file**/
-void MainWindow::openFtpFile( wxMouseEvent& event)  {
+void wxMainWindow::openFtpFile( wxMouseEvent& event)  {
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	if (!item.IsOk() || item == m_treeCtrl1->GetRootItem()) return;
 	filename = m_treeCtrl1->GetItemText(item);
@@ -455,7 +455,7 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	}
 }
 
-void MainWindow::FtpDisconnect( wxCommandEvent& event )  {
+void wxMainWindow::FtpDisconnect( wxCommandEvent& event )  {
 	ftp.disconnect();
 	connected_machine.Clear();
 	m_treeCtrl1->DeleteAllItems();
@@ -465,7 +465,7 @@ void MainWindow::FtpDisconnect( wxCommandEvent& event )  {
 
 /** Botón "Conectar a CNC": menú con los tornos FTP de machines.json. Los FANUC
     (UDP) no tienen explorador de archivos. Antes el menú venía fijo del diseño. */
-void MainWindow::connectFtpMenu( wxCommandEvent& event )  {
+void wxMainWindow::connectFtpMenu( wxCommandEvent& event )  {
 	wxMenu menu;
 	wxBitmap icon = tree_icon(server_xpm, FromDIP(16));
 	for (size_t i = 0; i < machines.size(); ++i) {
@@ -483,7 +483,7 @@ void MainWindow::connectFtpMenu( wxCommandEvent& event )  {
 	PopupMenu(&menu);
 }
 
-void MainWindow::deleteFtpFile( wxCommandEvent& event )  {
+void wxMainWindow::deleteFtpFile( wxCommandEvent& event )  {
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	if (directory.isOk() && item.IsOk() && item != m_treeCtrl1->GetRootItem()) {
@@ -502,7 +502,7 @@ void MainWindow::deleteFtpFile( wxCommandEvent& event )  {
 	}
 }
 
-void MainWindow::RenameFtpFile( wxCommandEvent& event )  {
+void wxMainWindow::RenameFtpFile( wxCommandEvent& event )  {
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	if (!directory.isOk()) {
@@ -526,15 +526,15 @@ void MainWindow::RenameFtpFile( wxCommandEvent& event )  {
 	}
 }
 
-void MainWindow::ftpFileOptions( wxTreeEvent& event )  {
+void wxMainWindow::ftpFileOptions( wxTreeEvent& event )  {
 	event.Skip();
 }
 
-void MainWindow::FtpRefresh( wxCommandEvent& event )  {
+void wxMainWindow::FtpRefresh( wxCommandEvent& event )  {
 	refreshFtpFileList();
 }
 
-void MainWindow::refreshFtpFileList() {
+void wxMainWindow::refreshFtpFileList() {
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	if (!directory.isOk()) {
 		m_statusBar->SetLabel("FTP no conectado");
@@ -567,18 +567,18 @@ void MainWindow::refreshFtpFileList() {
 	}
 }
 
-void MainWindow::checkUpdates( wxCommandEvent& event )  {
+void wxMainWindow::checkUpdates( wxCommandEvent& event )  {
 	wxActualizaciones* w = new wxActualizaciones(this);
 	w->CenterOnParent();
 	w->Show(true);
 }
 
 /** Enviar programa a torno (F2): diálogo interno, antes EnvioCNC.exe */
-void MainWindow::openFormSendProgram( wxCommandEvent& event ) {
+void wxMainWindow::openFormSendProgram( wxCommandEvent& event ) {
 	openSendDialog();
 }
 
-void MainWindow::openSendDialog() {
+void wxMainWindow::openSendDialog() {
 	wxString suggested = filename.BeforeLast('.');
 	if (suggested.IsEmpty()) suggested = filename;
 	wxSendWindow dlg(this, machines, settings, m_editor->GetText(), suggested, connected_machine);
@@ -590,6 +590,6 @@ void MainWindow::openSendDialog() {
 }
 
 /** Botón "Enviar el programa al CNC conectado": mismo diálogo, con el torno conectado preseleccionado */
-void MainWindow::sendProgramOnFly( wxCommandEvent& event ) {
+void wxMainWindow::sendProgramOnFly( wxCommandEvent& event ) {
 	openSendDialog();
 }

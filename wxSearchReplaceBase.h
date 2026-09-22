@@ -19,11 +19,11 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 
-class search_and_replace : public wxDialog
+class wxSearchReplaceBase : public wxDialog
 {
 public:
-    search_and_replace() {}
-    search_and_replace(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title =
+    wxSearchReplaceBase() {}
+    wxSearchReplaceBase(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title =
         "Buscar y reemplazar", const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
         long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU, const wxString &name =
         wxDialogNameStr)

@@ -1,5 +1,5 @@
-#ifndef CNCEDITOR_H
-#define CNCEDITOR_H
+#ifndef WXCNCEDITOR_H
+#define WXCNCEDITOR_H
 #include <wx/stc/stc.h>
 #include "Settings.h"
 #include "CncStandard.h"
@@ -11,14 +11,14 @@
 	zoom con Ctrl+rueda. Se instancia desde el código generado por
 	wxFormBuilder como CustomControl, así el diseñador no necesita conocerlo.
 **/
-class CncEditor : public wxStyledTextCtrl {
+class wxCncEditor : public wxStyledTextCtrl {
 private:
 	int standard;                 // CncStandard activo: define las reglas de coloreado
 	void OnStyleNeeded(wxStyledTextEvent &event);
 	void OnZoom(wxStyledTextEvent &event);
 	void UpdateLineNumberWidth();
 public:
-	CncEditor(wxWindow *parent, wxWindowID id = wxID_ANY);
+	wxCncEditor(wxWindow *parent, wxWindowID id = wxID_ANY);
 	// Sintaxis a colorear (FAGOR_8025, WAS_8035, KIA_FANUC...). Repinta.
 	void SetStandard(int cncStandard);
 	int GetStandard() const { return standard; }

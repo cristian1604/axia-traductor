@@ -12,7 +12,7 @@
 #include <wx/bmpbndl.h>
 #include <wx/sizer.h>
 
-#include "about_base.h"
+#include "wxAboutBase.h"
 
 #include <wx/mstream.h>  // memory stream classes
 
@@ -34,7 +34,7 @@ namespace wxue_img
     extern const unsigned char logo_md_png[3467];  // resources/logo_md.png
 }
 
-bool about::Create(wxWindow* parent, wxWindowID id, const wxString& title,
+bool wxAboutBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     const wxPoint& pos, const wxSize& size, long style, const wxString &name)
 {
     if (!wxDialog::Create(parent, id, title, pos, size, style, name))
@@ -99,7 +99,7 @@ bool about::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     Centre(wxBOTH);
 
     // Event handlers
-    Bind(wxEVT_KEY_UP, &about::evt_key_up, this);
+    Bind(wxEVT_KEY_UP, &wxAboutBase::evt_key_up, this);
 
     return true;
 }

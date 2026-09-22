@@ -21,7 +21,7 @@ s_Settings default_settings() {
 	return s;
 }
 
-wxOptions::wxOptions(wxWindow *parent) : wxParameters(parent) {
+wxOptions::wxOptions(wxWindow *parent) : wxOptionsBase(parent) {
 	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
 	SetSize(FromDIP(GetSize()));
 	Centre(wxBOTH);

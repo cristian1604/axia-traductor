@@ -4,7 +4,7 @@
 #include <string>
 using namespace std;
 
-wxSearchReplace::wxSearchReplace(wxWindow *parent) : search_and_replace(parent), editor(NULL) {
+wxSearchReplace::wxSearchReplace(wxWindow *parent) : wxSearchReplaceBase(parent), editor(NULL) {
 
 }
 

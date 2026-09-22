@@ -1,7 +1,7 @@
 #include "wxAbout.h"
 #include "Version.h"
 
-wxAbout::wxAbout(wxWindow *parent) : about(parent) {
+wxAbout::wxAbout(wxWindow *parent) : wxAboutBase(parent) {
 	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
 	SetSize(FromDIP(GetSize()));
 	Centre(wxBOTH);

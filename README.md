@@ -119,7 +119,7 @@ C++14 con [wxWidgets] para la interfaz (el editor es un `wxStyledTextCtrl`, Scin
 declarado como *CustomControl* en el diseñador; las reglas de coloreado están en
 `CncSyntax.cpp`, sin dependencias de la interfaz), [SFML] para FTP y UDP y
 [nlohmann/json] para la configuración. La interfaz se diseña con [wxUiEditor]
-(`traductor.wxui`): al generar el código escribe los `*_base.cpp/.h`, que no se
+(`traductor.wxui`): al generar el código escribe los `wx*Base.cpp/.h`, que no se
 editan a mano, y `wxui_code.cmake` con su lista, que CMake incluye. Las imágenes
 de la interfaz quedan embebidas en ese código. `MiProyecto.zpr` es el proyecto
 para el IDE [ZinjaI].

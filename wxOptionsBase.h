@@ -20,11 +20,11 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 
-class wxParameters : public wxDialog
+class wxOptionsBase : public wxDialog
 {
 public:
-    wxParameters() {}
-    wxParameters(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title = "Opciones",
+    wxOptionsBase() {}
+    wxOptionsBase(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title = "Opciones",
         const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(485, 433),
         long style = wxDEFAULT_DIALOG_STYLE, const wxString &name = wxDialogNameStr)
     {

@@ -20,11 +20,11 @@
 #include <wx/statbmp.h>
 #include <wx/stattext.h>
 
-class ComprobarActualizaciones : public wxDialog
+class wxActualizacionesBase : public wxDialog
 {
 public:
-    ComprobarActualizaciones() {}
-    ComprobarActualizaciones(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title =
+    wxActualizacionesBase() {}
+    wxActualizacionesBase(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title =
         "Comprobar actualizaciones", const wxPoint& pos = wxDefaultPosition, const wxSize& size =
         wxSize(370, 225),
         long style = wxDEFAULT_DIALOG_STYLE, const wxString &name = wxDialogNameStr)

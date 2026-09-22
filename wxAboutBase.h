@@ -9,29 +9,35 @@
 
 #pragma once
 
+// Order dependent includes
+#include <wx/stattext.h>
+#include <wx/generic/stattextg.h>
+
 #include <wx/bitmap.h>
-#include <wx/button.h>
+#include <wx/colour.h>
 #include <wx/dialog.h>
 #include <wx/event.h>
+#include <wx/font.h>
 #include <wx/gdicmn.h>
 #include <wx/icon.h>
 #include <wx/image.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
+#include <wx/settings.h>
+#include <wx/statbmp.h>
+#include <wx/statline.h>
 
-class searchDialog : public wxDialog
+class wxAboutBase : public wxDialog
 {
 public:
-    searchDialog() {}
-    searchDialog(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title = "Buscar...",
-        const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(286, 156),
+    wxAboutBase() {}
+    wxAboutBase(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title = "Acerca de",
+        const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(454, 233),
         long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP, const wxString &name = wxDialogNameStr)
     {
         Create(parent, id, title, pos, size, style, name);
     }
 
-    bool Create(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title = "Buscar...",
-        const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(286, 156),
+    bool Create(wxWindow *parent, wxWindowID id = wxID_ANY, const wxString& title = "Acerca de",
+        const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(454, 233),
         long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP, const wxString &name = wxDialogNameStr);
 
 protected:
@@ -39,14 +45,18 @@ protected:
     // Virtual event handlers -- override them in your derived class
 
     virtual void evt_key_up(wxKeyEvent& event) { event.Skip(); }
-    virtual void search(wxCommandEvent& event) { event.Skip(); }
 
     // Class member variables
 
-    wxButton* m_button2;
-    wxStaticText* hint;
-    wxStaticText* m_staticText5;
-    wxTextCtrl* search_term;
+    wxGenericStaticText* m_staticText18;
+    wxStaticBitmap* m_bitmap5;
+    wxStaticLine* m_staticline2;
+    wxStaticText* m_staticText15;
+    wxStaticText* m_staticText181;
+    wxStaticText* m_staticText19;
+    wxStaticText* m_staticText201;
+    wxStaticText* m_staticText_fechaUltimaActualizacion;
+    wxStaticText* m_staticText_version;
 };
 
 // ************* End of generated code ***********

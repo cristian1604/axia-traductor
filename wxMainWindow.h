@@ -1,7 +1,7 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-#include "wxMainWindow_base.h"
-#include "CncEditor.h"
+#ifndef WXMAINWINDOW_H
+#define WXMAINWINDOW_H
+#include "wxMainWindowBase.h"
+#include "wxCncEditor.h"
 #include "wxSearch.h"
 #include "wxOptions.h"
 #include "FileManager.h"
@@ -10,7 +10,7 @@
 #include <vector>
 
 
-class MainWindow : public wxMainWindow {
+class wxMainWindow : public wxMainWindowBase {
 
 private:
 	wxString text_program;        	// Text contained on the input box
@@ -62,8 +62,8 @@ protected:
 	void update_syntax_highlight( wxCommandEvent& event )  override;
 	void loadProgramFromFile( wxCommandEvent& event )  override;
 public:
-	MainWindow(wxWindow *parent=NULL);
-	~MainWindow();
+	wxMainWindow(wxWindow *parent=NULL);
+	~wxMainWindow();
 };
 
 #endif

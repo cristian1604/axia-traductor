@@ -11,7 +11,7 @@
 
 #include <wx/sizer.h>
 
-#include "searchDialog_base.h"
+#include "wxSearchBase.h"
 
 #include <wx/mstream.h>  // memory stream classes
 
@@ -33,7 +33,7 @@ namespace wxue_img
     extern const unsigned char magnifier_png[578];  // resources/magnifier.png
 }
 
-bool searchDialog::Create(wxWindow* parent, wxWindowID id, const wxString& title,
+bool wxSearchBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     const wxPoint& pos, const wxSize& size, long style, const wxString &name)
 {
     if (!wxDialog::Create(parent, id, title, pos, size, style, name))
@@ -62,10 +62,10 @@ bool searchDialog::Create(wxWindow* parent, wxWindowID id, const wxString& title
     Centre(wxBOTH);
 
     // Event handlers
-    m_button2->Bind(wxEVT_BUTTON, &searchDialog::search, this);
-    Bind(wxEVT_KEY_UP, &searchDialog::evt_key_up, this);
-    search_term->Bind(wxEVT_KEY_UP, &searchDialog::evt_key_up, this);
-    search_term->Bind(wxEVT_TEXT_ENTER, &searchDialog::search, this);
+    m_button2->Bind(wxEVT_BUTTON, &wxSearchBase::search, this);
+    Bind(wxEVT_KEY_UP, &wxSearchBase::evt_key_up, this);
+    search_term->Bind(wxEVT_KEY_UP, &wxSearchBase::evt_key_up, this);
+    search_term->Bind(wxEVT_TEXT_ENTER, &wxSearchBase::search, this);
 
     return true;
 }

@@ -1,8 +1,8 @@
 #ifndef WXABOUT_H
 #define WXABOUT_H
-#include "about_base.h"
+#include "wxAboutBase.h"
 
-class wxAbout : public about {
+class wxAbout : public wxAboutBase {
 	
 private:
 	

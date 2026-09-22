@@ -1,11 +1,11 @@
 #ifndef WXOPTIONS_H
 #define WXOPTIONS_H
-#include "wxParameters_base.h"
+#include "wxOptionsBase.h"
 #include "Settings.h"
 
 // s_Settings y default_settings() viven en Settings.h
 
-class wxOptions : public wxParameters {
+class wxOptions : public wxOptionsBase {
 	s_Settings settings;
 private:
 	

@@ -11,7 +11,7 @@
 
 #include <wx/sizer.h>
 
-#include "search_and_replace_base.h"
+#include "wxSearchReplaceBase.h"
 
 #include <wx/mstream.h>  // memory stream classes
 
@@ -34,7 +34,7 @@ namespace wxue_img
     extern const unsigned char edit_replace_png[438];  // resources/edit-replace.png
 }
 
-bool search_and_replace::Create(wxWindow* parent, wxWindowID id, const wxString& title,
+bool wxSearchReplaceBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     const wxPoint& pos, const wxSize& size, long style, const wxString &name)
 {
     if (!wxDialog::Create(parent, id, title, pos, size, style, name))
@@ -76,13 +76,13 @@ bool search_and_replace::Create(wxWindow* parent, wxWindowID id, const wxString&
     Centre(wxBOTH);
 
     // Event handlers
-    m_button3->Bind(wxEVT_BUTTON, &search_and_replace::close, this);
-    m_button2->Bind(wxEVT_BUTTON, &search_and_replace::start_replace, this);
-    Bind(wxEVT_KEY_UP, &search_and_replace::evt_key_up, this);
-    m_replace->Bind(wxEVT_KEY_UP, &search_and_replace::evt_key_up, this);
-    m_search->Bind(wxEVT_KEY_UP, &search_and_replace::evt_key_up, this);
-    m_replace->Bind(wxEVT_TEXT_ENTER, &search_and_replace::start_replace, this);
-    m_search->Bind(wxEVT_TEXT_ENTER, &search_and_replace::start_replace, this);
+    m_button3->Bind(wxEVT_BUTTON, &wxSearchReplaceBase::close, this);
+    m_button2->Bind(wxEVT_BUTTON, &wxSearchReplaceBase::start_replace, this);
+    Bind(wxEVT_KEY_UP, &wxSearchReplaceBase::evt_key_up, this);
+    m_replace->Bind(wxEVT_KEY_UP, &wxSearchReplaceBase::evt_key_up, this);
+    m_search->Bind(wxEVT_KEY_UP, &wxSearchReplaceBase::evt_key_up, this);
+    m_replace->Bind(wxEVT_TEXT_ENTER, &wxSearchReplaceBase::start_replace, this);
+    m_search->Bind(wxEVT_TEXT_ENTER, &wxSearchReplaceBase::start_replace, this);
 
     return true;
 }

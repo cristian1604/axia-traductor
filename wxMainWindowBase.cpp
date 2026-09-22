@@ -12,9 +12,9 @@
 #include <wx/bmpbndl.h>
 #include <wx/sizer.h>
 
-#include "CncEditor.h"
+#include "wxCncEditor.h"
 
-#include "wxMainWindow_base.h"
+#include "wxMainWindowBase.h"
 
 #include <wx/mstream.h>  // memory stream classes
 
@@ -59,7 +59,7 @@ namespace wxue_img
     extern const unsigned char wand_png[1977];  // resources/wand.png
 }
 
-bool wxMainWindow::Create(wxWindow* parent, wxWindowID id, const wxString& title,
+bool wxMainWindowBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
     const wxPoint& pos, const wxSize& size, long style, const wxString &name)
 {
 
@@ -137,7 +137,7 @@ bool wxMainWindow::Create(wxWindow* parent, wxWindowID id, const wxString& title
 
     auto* bSizer7 = new wxBoxSizer(wxVERTICAL);
 
-    m_editor = new CncEditor( m_panel2, wxID_ANY );
+    m_editor = new wxCncEditor( m_panel2, wxID_ANY );
     bSizer7->Add(m_editor, wxSizerFlags(1).Expand().Border(wxALL));
     m_panel2->SetSizerAndFit(bSizer7);
     m_splitter1->SplitVertically(m_panel1, m_panel2);
@@ -281,39 +281,39 @@ bool wxMainWindow::Create(wxWindow* parent, wxWindowID id, const wxString& title
     Centre(wxBOTH);
 
     // Event handlers
-    m_syntax_slection->Bind(wxEVT_CHOICE, &wxMainWindow::update_syntax_highlight, this);
-    m_treeCtrl1->Bind(wxEVT_LEFT_DCLICK, &wxMainWindow::openFtpFile, this);
-    Bind(wxEVT_MENU, &wxMainWindow::about, this, m_menuItem8->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::channels, this, m_menuItem12->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::checkUpdates, this, m_menuItem19->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::copy_program_clipboard, this, m_menuItem10->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::enum_lines, this, m_menuItem9->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::loadProgramFromFile, this, m_menuItem1->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::openFormSendProgram, this, m_menuItem15->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::open_options, this, m_menuItem18->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::paste_formatting, this, m_menuItem13->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::paste_program_clipboard, this, m_menuItem11->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::save_program, this, m_menuItem2->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::search_next, this, m_search_next->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::search_replace_window, this, m_menuItem7->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::search_window, this, m_menuItem5->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::simulate, this, m_menuItem14->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::translate, this, m_menuItem4->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::translateFanuc, this, m_menuItem41->GetId());
-    Bind(wxEVT_MENU, &wxMainWindow::update_syntax_highlight, this, m_menuItem3->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::FtpDisconnect, this, ftp_desconectar->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::FtpRefresh, this, m_tool10->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::RenameFtpFile, this, ftp_renombrar->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::connectFtpMenu, this, m_tool6->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::deleteFtpFile, this, ftp_eliminar->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::loadProgramFromFile, this, m_tool1->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::save_program, this, m_tool2->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::sendProgramOnFly, this, ftp_enviar->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::sendProgramOnFly, this, ftp_enviar1->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::translate, this, m_tool4->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::translateFanuc, this, m_tool5->GetId());
-    Bind(wxEVT_TOOL, &wxMainWindow::update_syntax_highlight, this, m_tool3->GetId());
-    m_treeCtrl1->Bind(wxEVT_TREE_ITEM_MENU, &wxMainWindow::ftpFileOptions, this);
+    m_syntax_slection->Bind(wxEVT_CHOICE, &wxMainWindowBase::update_syntax_highlight, this);
+    m_treeCtrl1->Bind(wxEVT_LEFT_DCLICK, &wxMainWindowBase::openFtpFile, this);
+    Bind(wxEVT_MENU, &wxMainWindowBase::about, this, m_menuItem8->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::channels, this, m_menuItem12->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::checkUpdates, this, m_menuItem19->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::copy_program_clipboard, this, m_menuItem10->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::enum_lines, this, m_menuItem9->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::loadProgramFromFile, this, m_menuItem1->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::openFormSendProgram, this, m_menuItem15->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::open_options, this, m_menuItem18->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::paste_formatting, this, m_menuItem13->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::paste_program_clipboard, this, m_menuItem11->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::save_program, this, m_menuItem2->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::search_next, this, m_search_next->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::search_replace_window, this, m_menuItem7->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::search_window, this, m_menuItem5->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::simulate, this, m_menuItem14->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::translate, this, m_menuItem4->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::translateFanuc, this, m_menuItem41->GetId());
+    Bind(wxEVT_MENU, &wxMainWindowBase::update_syntax_highlight, this, m_menuItem3->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::FtpDisconnect, this, ftp_desconectar->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::FtpRefresh, this, m_tool10->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::RenameFtpFile, this, ftp_renombrar->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::connectFtpMenu, this, m_tool6->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::deleteFtpFile, this, ftp_eliminar->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::loadProgramFromFile, this, m_tool1->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::save_program, this, m_tool2->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::sendProgramOnFly, this, ftp_enviar->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::sendProgramOnFly, this, ftp_enviar1->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::translate, this, m_tool4->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::translateFanuc, this, m_tool5->GetId());
+    Bind(wxEVT_TOOL, &wxMainWindowBase::update_syntax_highlight, this, m_tool3->GetId());
+    m_treeCtrl1->Bind(wxEVT_TREE_ITEM_MENU, &wxMainWindowBase::ftpFileOptions, this);
 
     return true;
 }

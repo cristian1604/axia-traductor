@@ -26,13 +26,13 @@
 #include <wx/toolbar.h>
 #include <wx/treectrl.h>
 
-class CncEditor;
+class wxCncEditor;
 
-class wxMainWindow : public wxFrame
+class wxMainWindowBase : public wxFrame
 {
 public:
-    wxMainWindow() {}
-    wxMainWindow(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title =
+    wxMainWindowBase() {}
+    wxMainWindowBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title =
         wxString::FromUTF8("Traductor código CNC 8025 a 8035 / 8037 / FANUC"), const wxPoint& pos =
         wxDefaultPosition, const wxSize& size = wxSize(1270, 730),
         long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL, const wxString &name = wxFrameNameStr)
@@ -78,8 +78,8 @@ protected:
 
     // Class member variables
 
-    CncEditor* m_editor;
     wxChoice* m_syntax_slection;
+    wxCncEditor* m_editor;
     wxMenu* m_menu1;
     wxMenu* m_menu2;
     wxMenu* m_menu3;

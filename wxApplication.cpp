@@ -2,12 +2,12 @@
 #include <wx/stdpaths.h>
 #include <wx/filename.h>
 #include <wx/filefn.h>
-#include "Application.h"
-#include "MainWindow.h"
+#include "wxApplication.h"
+#include "wxMainWindow.h"
 
-IMPLEMENT_APP(Application)
+IMPLEMENT_APP(wxApplication)
 
-bool Application::OnInit() {
+bool wxApplication::OnInit() {
 	SetAppName(wxT("axia-traductor"));
 #ifndef __WXMSW__
 	// Configuración en ~/.config en lugar de directamente en el home
@@ -20,7 +20,7 @@ bool Application::OnInit() {
 	wxFileName exe(wxStandardPaths::Get().GetExecutablePath());
 	wxSetWorkingDirectory(exe.GetPath());
 	wxInitAllImageHandlers();
-	MainWindow *win = new MainWindow(NULL);
+	wxMainWindow *win = new wxMainWindow(NULL);
 	win->Show();
 	return true;
 }

@@ -1,9 +1,9 @@
 #ifndef WXSEARCHREPLACE_H
 #define WXSEARCHREPLACE_H
-#include "search_and_replace_base.h"
+#include "wxSearchReplaceBase.h"
 #include <wx/stc/stc.h>
 
-class wxSearchReplace : public search_and_replace {
+class wxSearchReplace : public wxSearchReplaceBase {
 
 private:
 	wxStyledTextCtrl *editor;

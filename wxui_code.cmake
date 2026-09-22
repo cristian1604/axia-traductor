@@ -4,11 +4,11 @@
 
 set (wxue_generated_code
 
-    ${CMAKE_CURRENT_LIST_DIR}/ComprobarActualizaciones_base.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/about_base.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/searchDialog_base.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/search_and_replace_base.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/wxMainWindow_base.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/wxParameters_base.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/wxAboutBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/wxActualizacionesBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/wxMainWindowBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/wxOptionsBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/wxSearchBase.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/wxSearchReplaceBase.cpp
 
 )
