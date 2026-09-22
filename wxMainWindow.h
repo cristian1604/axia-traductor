@@ -31,6 +31,12 @@ private:
 	void showProgram(const wxString &program, int standard);
 	// Posición inicial del divisor, escalada al DPI del monitor (reemplaza al idle de wxFormBuilder)
 	void splitterFirstIdle(wxIdleEvent &event);
+	// Cambios sin guardar: "*" en el título y confirmación antes de cerrar o reemplazar el programa
+	void updateTitle();
+	void onModifiedChanged(wxStyledTextEvent &event);
+	void onClose(wxCloseEvent &event);
+	bool confirmDiscard(const wxString &action);
+	bool saveProgram();
 protected:
 	void sendProgramOnFly( wxCommandEvent& event ) ;
 	void openFormSendProgram( wxCommandEvent& event ) ;

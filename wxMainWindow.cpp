@@ -86,6 +86,11 @@ wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 	loadSettings();
 	m_editor->SetStandard(syntax_version);
 
+	// Cambios sin guardar: Scintilla avisa al salir del punto de guardado y al volver a él
+	m_editor->Bind(wxEVT_STC_SAVEPOINTLEFT, &wxMainWindow::onModifiedChanged, this);
+	m_editor->Bind(wxEVT_STC_SAVEPOINTREACHED, &wxMainWindow::onModifiedChanged, this);
+	Bind(wxEVT_CLOSE_WINDOW, &wxMainWindow::onClose, this);
+
 	// La aplicación es consciente del DPI (manifest.xml) pero wxWidgets en
 	// Windows no escala los tamaños fijos del diseño: se convierten con FromDIP.
 	// El tamaño se acota al área visible del monitor (netbooks, escalado alto)
@@ -134,12 +139,13 @@ void wxMainWindow::showProgram(const wxString &program, int standard) {
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
 void wxMainWindow::loadProgramFromFile( wxCommandEvent& event )  {
+	if (!confirmDiscard(wxT("abrir otro programa"))) return;
 	wxFileDialog OpenDialog(this, wxT("Abrir programa para Fagor 8025"), wxEmptyString, wxEmptyString, wxT("Programa de mecanizado (*.NC, *.PIT)|*.NC;*.PIT;*.nc;*.pit|Archivo de texto (*.txt, *.TXT)|*.txt|Todos los archivos|*.*"), wxFD_OPEN, wxDefaultPosition);
 	if (OpenDialog.ShowModal() == wxID_OK) // if the user click "Open" instead of "Cancel"
 	{
 		path = OpenDialog.GetPath();
 		filename = OpenDialog.GetFilename();
-		this->SetTitle(this->window_title + " - " + filename);
+		updateTitle();
 		// El archivo original 8025 no se usa como destino de "Guardar": se
 		// pide un nombre nuevo para no pisar el original con la traduccion.
 		FM = FileManager();
@@ -229,27 +235,34 @@ void wxMainWindow::search_replace_window( wxCommandEvent& event )  {
 
 /** SAVE PROGRAM GENERATED **/
 void wxMainWindow::save_program( wxCommandEvent& event )  {
+	saveProgram();
+}
+
+// Guarda el programa (pidiendo nombre si hace falta) y lo sube si hay un torno
+// conectado. Devuelve true si el archivo local quedó guardado.
+bool wxMainWindow::saveProgram() {
 	if (!FM.isDefined()) {
 		wxString base = filename.BeforeLast('.');
 		if (base.IsEmpty()) base = filename;
 		wxString suggested = base + "_35";
 		wxFileDialog SaveDialog(this, wxT("Guardar programa"), wxEmptyString, suggested, wxT("Programa de mecanizado PIT (*.PIT)|*.PIT|Programa de mecanizado NC (*.NC)|*.NC|Archivo de texto (*.txt)|*.txt|Todos los archivos|*.*"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT, wxDefaultPosition);
 		if (SaveDialog.ShowModal() != wxID_OK) {
-			return;   // cancelado: no guardar ni enviar nada
+			return false;   // cancelado: no guardar ni enviar nada
 		}
 		path = SaveDialog.GetPath();
 		filename = SaveDialog.GetFilename();
 		// Se asigna al miembro (antes se declaraba un FM local que lo ocultaba,
 		// por lo que cada "Guardar" volvia a pedir el nombre)
 		FM = FileManager(path);
-		this->SetTitle(this->window_title + " - " + filename);
+		updateTitle();
 	}
 
 	this->text_program = m_editor->GetText();
 	if (!FM.writeFile(this->text_program)) {
 		wxMessageBox( "No se pudo guardar el archivo:\n" + FM.getFullPath(), "Error al guardar", wxICON_ERROR);
-		return;
+		return false;
 	}
+	m_editor->SetSavePoint();
 	m_statusBar->SetStatusText("Guardado: " + filename, 0);
 
 	// Si hay un control conectado, ademas se envia el programa por FTP
@@ -260,7 +273,7 @@ void wxMainWindow::save_program( wxCommandEvent& event )  {
 		FileManager tmpFile(temp_dir(), filename);
 		if (!tmpFile.writeFile(this->text_program)) {
 			wxMessageBox( "No se pudo escribir el archivo temporal:\n" + tmpFile.getFullPath(), "Error de transferencia", wxICON_ERROR);
-			return;
+			return true;
 		}
 
 		ftp.deleteFile(tmpFile.getFilename());
@@ -273,6 +286,41 @@ void wxMainWindow::save_program( wxCommandEvent& event )  {
 			wxMessageBox( wxT("Se guardó localmente pero no se pudo transferir al control"), "Error de transferencia", wxICON_ERROR);
 		}
 	}
+	return true;
+}
+
+void wxMainWindow::updateTitle() {
+	wxString title = window_title;
+	if (!filename.IsEmpty()) title += " - " + filename;
+	if (m_editor->GetModify()) title += wxT(" *");
+	SetTitle(title);
+}
+
+void wxMainWindow::onModifiedChanged(wxStyledTextEvent &event) {
+	updateTitle();
+	event.Skip();
+}
+
+// true si se puede seguir: no hay cambios, se guardaron, o el usuario los descarta
+bool wxMainWindow::confirmDiscard(const wxString &action) {
+	if (!m_editor->GetModify()) return true;
+	wxMessageDialog dlg(this,
+		wxT("El programa tiene cambios sin guardar.\n\n¿Querés guardarlos antes de ") + action + wxT("?"),
+		wxT("Cambios sin guardar"), wxYES_NO | wxCANCEL | wxICON_WARNING);
+	dlg.SetYesNoCancelLabels(wxT("Guardar"), wxT("No guardar"), wxT("Cancelar"));
+	switch (dlg.ShowModal()) {
+	case wxID_YES: return saveProgram();
+	case wxID_NO:  return true;
+	default:       return false;
+	}
+}
+
+void wxMainWindow::onClose(wxCloseEvent &event) {
+	if (event.CanVeto() && !confirmDiscard(wxT("cerrar"))) {
+		event.Veto();
+		return;
+	}
+	event.Skip();   // destrucción normal de la ventana
 }
 
 bool wxMainWindow::readClipboardText(wxString &out) {
@@ -361,6 +409,7 @@ void wxMainWindow::copy_program_clipboard( wxCommandEvent& event )  {
 }
 
 void wxMainWindow::paste_program_clipboard( wxCommandEvent& event )  {
+	if (!confirmDiscard(wxT("reemplazar el programa"))) return;
 	if (readClipboardText(text_program)) {
 		m_editor->SetText(text_program);
 		m_editor->SetFocus();
@@ -433,6 +482,7 @@ void wxMainWindow::connectFTP( const std::string &name )  {
 void wxMainWindow::openFtpFile( wxMouseEvent& event)  {
 	wxTreeItemId item = m_treeCtrl1->GetSelection();
 	if (!item.IsOk() || item == m_treeCtrl1->GetRootItem()) return;
+	if (!confirmDiscard(wxT("abrir el programa del torno"))) return;
 	filename = m_treeCtrl1->GetItemText(item);
 
 	m_statusBar->SetStatusText("Descargando " + filename, 0);
@@ -445,7 +495,7 @@ void wxMainWindow::openFtpFile( wxMouseEvent& event)  {
 		return;
 	}
 
-	this->SetTitle(this->window_title + " - " + filename);
+	updateTitle();
 	FM = FileManager(dir, filename);
 	bool flag = FM.readFile(this->text_program);
 	if (flag) {
@@ -584,6 +634,7 @@ void wxMainWindow::openSendDialog() {
 	wxSendWindow dlg(this, machines, settings, m_editor->GetText(), suggested, connected_machine);
 	dlg.ShowModal();
 	if (dlg.sent) {
+		m_editor->SetSavePoint();   // ya está en el torno: no hace falta avisar al cerrar
 		m_statusBar->SetStatusText(wxT("Programa enviado a ") + settings.last_machine, 0);
 		if (!connected_machine.IsEmpty()) refreshFtpFileList();
 	}

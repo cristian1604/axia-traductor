@@ -72,7 +72,10 @@ void wxCncEditor::SetStandard(int cncStandard) {
 
 void wxCncEditor::SetProgram(const wxString &text, bool resetUndo) {
 	SetText(text);
-	if (resetUndo) EmptyUndoBuffer();
+	if (resetUndo) {
+		EmptyUndoBuffer();
+		SetSavePoint();   // el texto recién cargado es el estado "guardado"
+	}
 	GotoPos(0);
 	UpdateLineNumberWidth();
 }
