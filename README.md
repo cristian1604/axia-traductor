@@ -45,8 +45,10 @@ artefactos descargables desde la pestaña *Actions*: `traductor-linux` y
 `traductor-windows`, este último ya con las DLL necesarias y la carpeta
 `resources/`.
 
-El ejecutable busca la carpeta `resources/` en el directorio de trabajo, por
-lo que hay que ejecutarlo desde la raíz del repositorio.
+El ejecutable fija su directorio de trabajo en la carpeta donde está instalado,
+que debe contener `resources/` (la compilación la copia junto al ejecutable y
+el paquete del CI también la incluye), así que se puede lanzar desde cualquier
+lugar, por ejemplo desde un acceso directo sin "Iniciar en".
 
 ## Tests
 

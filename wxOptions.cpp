@@ -26,6 +26,8 @@ wxOptions::wxOptions(wxWindow *parent) : wxParameters(parent) {
 	F.loadSettings(settings);   // si no hay archivo, deja los valores por defecto
 	m_replace_from->SetMaxLength(32);
 	m_replace_to->SetMaxLength(32);
+	// ESC cierra el diálogo (wxFormBuilder no conecta evt_key_up y no hay botón Cancelar)
+	Bind(wxEVT_CHAR_HOOK, &wxOptions::evt_key_up, this);
 	showSettings();
 }
 

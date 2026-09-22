@@ -4,6 +4,10 @@
 wxAbout::wxAbout(wxWindow *parent) : about(parent) {
 	m_staticText_fechaUltimaActualizacion->SetLabel(APP_VERSION_DATE);
 	m_staticText_version->SetLabel(wxString::Format(wxT("Versión %d"), APP_VERSION));
+	// ESC cierra el diálogo. El wxEVT_KEY_UP que conecta wxFormBuilder solo llega
+	// si el propio diálogo tiene el foco, cosa que nunca ocurre (no tiene
+	// controles enfocables), y sin botón Cancelar wxDialog tampoco lo cierra solo.
+	Bind(wxEVT_CHAR_HOOK, &wxAbout::evt_key_up, this);
 }
 
 wxAbout::~wxAbout() {

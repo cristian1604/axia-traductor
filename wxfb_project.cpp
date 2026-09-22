@@ -227,7 +227,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->AppendSeparator();
 
 	wxMenuItem* m_menuItem18;
-	m_menuItem18 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Parámetros") ) + wxT('\t') + wxT("F10"), wxEmptyString, wxITEM_NORMAL );
+	m_menuItem18 = new wxMenuItem( m_menu3, wxID_ANY, wxString( wxT("Parámetros") ) + wxT('\t') + wxT("F7"), wxEmptyString, wxITEM_NORMAL );
 	#ifdef __WXMSW__
 	m_menuItem18->SetBitmaps( wxBitmap( wxT("resources/settings-icon16.png"), wxBITMAP_TYPE_ANY ) );
 	#elif (defined( __WXGTK__ ) || defined( __WXOSX__ ))
@@ -357,7 +357,7 @@ wxMainWindow::wxMainWindow( wxWindow* parent, wxWindowID id, const wxString& tit
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::open_options ), this, m_menuItem18->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::update_syntax_highlight ), this, m_menuItem3->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem4->GetId());
-	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translate ), this, m_menuItem41->GetId());
+	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::translateFanuc ), this, m_menuItem41->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::simulate ), this, m_menuItem14->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::channels ), this, m_menuItem12->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( wxMainWindow::openFormSendProgram ), this, m_menuItem15->GetId());
@@ -605,7 +605,7 @@ about::about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPo
 
 	bSizer4->Add( m_staticText_version, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
 
-	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2025 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText15 = new wxStaticText( this, wxID_ANY, wxT("© 2019 - 2026 AXIA S.A."), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText15->Wrap( -1 );
 	m_staticText15->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNSHADOW ) );
 

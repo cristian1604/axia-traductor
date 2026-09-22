@@ -20,7 +20,20 @@
 #include "Renumber.h"
 #include "AppPaths.h"
 #include "wxSendWindow.h"
+#include <wx/iconbndl.h>
 using namespace std;
+
+// Icono de 16x16 para el árbol del explorador FTP a partir de un XPM. Los XPM
+// de icons.xpm tienen tamaños distintos (pit_extension_xpm es de 128x128) y
+// wxWidgets 3.2 ya no los adapta al tamaño de la wxImageList: sin reescalar,
+// los archivos aparecían como cuadrados negros.
+static wxBitmap tree_icon(const char *const *xpm) {
+	wxImage img(xpm);
+	if (img.GetWidth() != 16 || img.GetHeight() != 16) {
+		img.Rescale(16, 16, wxIMAGE_QUALITY_HIGH);
+	}
+	return wxBitmap(img);
+}
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	syntax_version(FAGOR_8025), is_loading(false), srch(NULL) {
@@ -30,6 +43,11 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
+	// Icono de la ventana (barra de título y Alt+Tab): el mismo archivo que el
+	// icono del ejecutable, con todos sus tamaños. Sin esto wxWidgets muestra
+	// su icono genérico.
+	wxIconBundle icons(wxT("resources/Webalys.ico"), wxBITMAP_TYPE_ICO);
+	if (icons.IsOk()) SetIcons(icons);
 	this->window_title = wxT("Traductor código CNC 8025 a 8035 / 8037 / FANUC");
 	
 	//search window
@@ -84,13 +102,18 @@ void MainWindow::edit_text( wxKeyEvent& event )  {
 
 void MainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	if (is_loading) return;
-	switch (m_syntax_slection->GetSelection()) {
-	case 0:
-		syntax_version = FAGOR_8025;
-		break;
-	case 1:
-		syntax_version = WAS_8035;
-		break;
+	// Solo el selector cambia la sintaxis. Este manejador también se dispara al
+	// modificarse el texto (wxEVT_TEXT, incluso desde SetValue) y con F11; en
+	// esos casos se conserva la actual, que puede ser FANUC, ausente del selector.
+	if (event.GetEventType() == wxEVT_CHOICE) {
+		switch (m_syntax_slection->GetSelection()) {
+		case 0:
+			syntax_version = FAGOR_8025;
+			break;
+		case 1:
+			syntax_version = WAS_8035;
+			break;
+		}
 	}
 	is_loading = true;
 	//int ip = m_textCtrl->GetInsertionPoint();
@@ -201,8 +224,9 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 		ftp.deleteFile(tmpFile.getFilename());
 		sf::Ftp::Response response = ftp.upload(tmpFile.getFullPath(), "", sf::Ftp::Binary);
 		if (response.isOk()) {
-			m_statusBar->SetStatusText("Guardado y transferido al control como " + filename, 0);
+			// Primero el refresco: si no, su propio mensaje de estado pisa este
 			refreshFtpFileList();
+			m_statusBar->SetStatusText("Guardado y transferido al control como " + filename, 0);
 		} else {
 			wxMessageBox( wxT("Se guardó localmente pero no se pudo transferir al control"), "Error de transferencia", wxICON_ERROR);
 		}
@@ -247,6 +271,14 @@ void MainWindow::about( wxCommandEvent& event )  {
 void MainWindow::enum_lines( wxCommandEvent& event )  {
 	int pos = m_textCtrl->GetInsertionPoint();
 	std::string original = m_textCtrl->GetValue().ToStdString();
+	
+	// Un programa FANUC ya reenumerado empieza con "Onnnn" en lugar de "%": se
+	// repone el "%" para que el reenumerador encuentre el inicio (y abajo se
+	// vuelve a poner la "O").
+	if (syntax_version == KIA_FANUC && original.find('%') == std::string::npos) {
+		size_t o = original.find_first_not_of(" \t\r\n");
+		if (o != std::string::npos && original[o] == 'O') original[o] = '%';
+	}
 	
 	// En 8035 la traducción inserta comentarios entre el '%' y N0010 que no
 	// deben numerarse: se reenumera solo desde N0010.
@@ -509,9 +541,9 @@ void MainWindow::refreshFtpFileList() {
 		m_treeCtrl1->Expand(raiz);
 		
 		wxImageList* imageList = new wxImageList(16, 16);
-		imageList->Add(wxIcon(folder_xpm));								// 0
-		imageList->Add(wxIcon(server_xpm));								// 1
-		imageList->Add(wxIcon(pit_extension_xpm));						// 2
+		imageList->Add(tree_icon(folder_xpm));							// 0
+		imageList->Add(tree_icon(server_xpm));							// 1
+		imageList->Add(tree_icon(pit_extension_xpm));					// 2
 		m_treeCtrl1->AssignImageList(imageList);
 		
 		ftp.keepAlive();

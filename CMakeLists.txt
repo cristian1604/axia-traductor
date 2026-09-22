@@ -73,7 +73,8 @@ if(WX_USE_FILE)
 	include(${WX_USE_FILE})
 endif()
 target_include_directories(traductor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(traductor PRIVATE ${WX_LIBS} sfml-network sfml-system)
+find_package(Threads REQUIRED)   # consulta de actualizaciones en un hilo
+target_link_libraries(traductor PRIVATE ${WX_LIBS} sfml-network sfml-system Threads::Threads)
 target_compile_options(traductor PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
 
 if(WIN32)
@@ -84,8 +85,12 @@ if(WIN32)
 	endif()
 endif()
 
-# El ejecutable busca "resources/" en el directorio de trabajo, por lo que hay
-# que ejecutarlo desde la raíz del repositorio (o de la carpeta distribuida).
+# La aplicación fija su directorio de trabajo en la carpeta del ejecutable y
+# carga los iconos de "resources/" desde ahí: se copian junto al ejecutable.
+add_custom_command(TARGET traductor POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_CURRENT_SOURCE_DIR}/resources $<TARGET_FILE_DIR:traductor>/resources
+	COMMENT "Copiando resources/ junto al ejecutable")
 
 # ---- Tests (sin dependencia de wxWidgets): ctest --test-dir build ------------
 enable_testing()

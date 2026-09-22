@@ -1043,7 +1043,7 @@
             <property name="label">Parámetros</property>
             <property name="name">m_menuItem18</property>
             <property name="permission">none</property>
-            <property name="shortcut">F10</property>
+            <property name="shortcut">F7</property>
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">open_options</event>
           </object>
@@ -1092,7 +1092,7 @@
             <property name="permission">none</property>
             <property name="shortcut">F10</property>
             <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">translate</event>
+            <event name="OnMenuSelection">translateFanuc</event>
           </object>
           <object class="separator" expanded="false">
             <property name="name">m_separator3</property>
@@ -2768,7 +2768,7 @@
             <property name="gripper">0</property>
             <property name="hidden">0</property>
             <property name="id">wxID_ANY</property>
-            <property name="label">© 2019 - 2025 AXIA S.A.</property>
+            <property name="label">© 2019 - 2026 AXIA S.A.</property>
             <property name="markup">0</property>
             <property name="max_size"></property>
             <property name="maximize_button">0</property>
