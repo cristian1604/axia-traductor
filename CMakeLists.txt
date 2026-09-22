@@ -62,7 +62,6 @@ set(APP_SOURCES
 	Sender.cpp
 	Machines.cpp
 	AppPaths.cpp
-	wxfb_project.cpp
 )
 if(WIN32)
 	# Icono de la aplicación y manifiesto (controles comunes v6)
@@ -71,7 +70,10 @@ if(WIN32)
 	set_source_files_properties(traductor.rc PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml)
 endif()
 
-add_executable(traductor WIN32 ${APP_SOURCES})
+# Código de la interfaz generado por wxUiEditor (traductor.wxui): la lista la
+# escribe el propio diseñador en wxui_code.cmake al generar el código.
+include(${CMAKE_CURRENT_SOURCE_DIR}/wxui_code.cmake)
+add_executable(traductor WIN32 ${APP_SOURCES} ${wxue_generated_code})
 if(WX_USE_FILE)
 	include(${WX_USE_FILE})
 endif()

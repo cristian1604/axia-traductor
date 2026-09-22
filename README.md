@@ -116,11 +116,13 @@ Son herramientas privadas de la empresa y no se publican en este repositorio.
 ## Desarrollo
 
 C++14 con [wxWidgets] para la interfaz (el editor es un `wxStyledTextCtrl`, Scintilla,
-creado desde el código como *CustomControl* de wxFormBuilder; las reglas de coloreado
-están en `CncSyntax.cpp`, sin dependencias de la interfaz), [SFML] para FTP y UDP y
-[nlohmann/json] para la configuración. La interfaz se diseñó con
-[wxFormBuilder] (`wxfb_project.fbp` genera `wxfb_project.cpp/.h`, que no se
-editan a mano). `MiProyecto.zpr` es el proyecto para el IDE [ZinjaI].
+declarado como *CustomControl* en el diseñador; las reglas de coloreado están en
+`CncSyntax.cpp`, sin dependencias de la interfaz), [SFML] para FTP y UDP y
+[nlohmann/json] para la configuración. La interfaz se diseña con [wxUiEditor]
+(`traductor.wxui`): al generar el código escribe los `*_base.cpp/.h`, que no se
+editan a mano, y `wxui_code.cmake` con su lista, que CMake incluye. Las imágenes
+de la interfaz quedan embebidas en ese código. `MiProyecto.zpr` es el proyecto
+para el IDE [ZinjaI].
 
 ## Aviso
 
@@ -129,7 +131,7 @@ ni soporte. Verificar siempre el programa convertido antes de ejecutarlo en
 un torno: un error de conversión puede causar daños o lesiones.
 
 [ZinjaI]: <http://zinjai.sourceforge.net/>
-[wxFormBuilder]: <https://github.com/wxFormBuilder/wxFormBuilder>
+[wxUiEditor]: <https://github.com/KeyWorksRW/wxUiEditor>
 [Axia]: <https://axia.com.ar/>
 [SFML]: <https://www.sfml-dev.org/>
 [wxWidgets]: <https://www.wxwidgets.org/>

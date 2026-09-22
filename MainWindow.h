@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include "wxfb_project.h"
+#include "wxMainWindow_base.h"
+#include "CncEditor.h"
 #include "wxSearch.h"
 #include "wxOptions.h"
 #include "FileManager.h"
@@ -32,9 +33,6 @@ private:
 	void splitterFirstIdle(wxIdleEvent &event);
 protected:
 	void sendProgramOnFly( wxCommandEvent& event ) ;
-	void FtpConnectWas8037( wxCommandEvent& event ) ;
-	void FtpConnectWas8035( wxCommandEvent& event ) ;
-	void FtpConnectTaki8037( wxCommandEvent& event ) ;
 	void openFormSendProgram( wxCommandEvent& event ) ;
 	void checkUpdates( wxCommandEvent& event ) ;
 	void refreshFtpFileList();
@@ -43,11 +41,9 @@ protected:
 	void RenameFtpFile( wxCommandEvent& event ) ;
 	void ftpFileOptions( wxTreeEvent& event ) ;
 	void connectFtpMenu( wxCommandEvent& event ) ;
-	void FtpConnect8035( wxCommandEvent& event ) ;
-	void FtpConnect8037( wxCommandEvent& event ) ;
 	void FtpDisconnect( wxCommandEvent& event ) ;
 	void openFtpFile( wxMouseEvent& event ) ;
-	void connectFTP( int idMachine ) ;
+	void connectFTP( const std::string &machineName ) ;
 	void simulate( wxCommandEvent& event ) ;
 	void paste_formatting( wxCommandEvent& event ) ;
 	void channels( wxCommandEvent& event ) ;

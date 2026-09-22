@@ -1,0 +1,758 @@
+<?xml version="1.0"?>
+<wxUiEditorData
+  data_version="16">
+  <node
+    class="Project"
+    art_directory="res"
+    base_directory="."
+    generate_cmake="1"
+    cmake_file="wxui_code.cmake"
+    cmake_varname="wxue_generated_code"
+    src_preamble="// Imported from C:\Users\cbottazzi\Desktop\axia-traductor\wxfb_project.wxui"
+    wxWidgets_version="3.2">
+    <node
+      class="wxFrame"
+      class_name="wxMainWindow"
+      title="Traductor código CNC 8025 a 8035 / 8037 / FANUC"
+      base_file="wxMainWindow_base"
+      background_colour="#F0F0F0"
+      size="1270,730"
+      window_style="wxTAB_TRAVERSAL">
+      <node
+        class="wxBoxSizer"
+        orientation="wxVERTICAL"
+        var_name="bSizer1">
+        <node
+          class="wxGridSizer"
+          var_name="gSizer1"
+          borders=""
+          flags="wxEXPAND">
+          <node
+            class="wxChoice"
+            contents="&quot;Sintaxis para 8025&quot; &quot;Sintaxis para 8035&quot;"
+            selection_int="0"
+            var_name="m_syntax_slection"
+            alignment="wxALIGN_CENTER_VERTICAL"
+            borders="wxLEFT|wxRIGHT|wxTOP"
+            wxEVT_CHOICE="update_syntax_highlight" />
+          <node
+            class="wxStaticBitmap"
+            bitmap="Embed;resources/logo_md.png"
+            class_access="protected:"
+            var_name="m_bitmap1"
+            size="-1,40"
+            alignment="wxALIGN_RIGHT" />
+        </node>
+        <node
+          class="wxSplitterWindow"
+          min_pane_size="0"
+          sashpos="242"
+          style="wxSP_3D|wxSP_3DBORDER|wxSP_3DSASH|wxSP_BORDER"
+          var_name="m_splitter1"
+          borders=""
+          flags="wxEXPAND"
+          proportion="1">
+          <node
+            class="wxPanel"
+            class_access="protected:"
+            var_name="m_panel1"
+            size="-1,-1"
+            window_style="wxTAB_TRAVERSAL">
+            <node
+              class="wxBoxSizer"
+              orientation="wxVERTICAL"
+              var_name="bSizer6"
+              minimum_size="-1,-1">
+              <node
+                class="wxToolBar"
+                var_name="m_toolBar2"
+                borders=""
+                flags="wxEXPAND">
+                <node
+                  class="tool"
+                  bitmap="Embed;resources/plug-connect.png"
+                  class_access="protected:"
+                  label="tool"
+                  statusbar="Conectar a CNC"
+                  tooltip="Conectar a CNC"
+                  var_name="m_tool6"
+                  wxEVT_TOOL="connectFtpMenu" />
+                <node
+                  class="tool"
+                  bitmap="Embed;resources/plug-disconnect.png"
+                  class_access="protected:"
+                  label="tool"
+                  statusbar="Desconectar de control CNC"
+                  tooltip="Desconectar de control CNC"
+                  var_name="ftp_desconectar"
+                  wxEVT_TOOL="FtpDisconnect" />
+                <node
+                  class="toolSeparator" />
+                <node
+                  class="tool"
+                  bitmap="Embed;resources/refresh.png"
+                  class_access="protected:"
+                  label="tool"
+                  statusbar="Actualizar"
+                  tooltip="Actualizar"
+                  var_name="m_tool10"
+                  wxEVT_TOOL="FtpRefresh" />
+                <node
+                  class="tool"
+                  bitmap="Embed;resources/cross.png"
+                  class_access="protected:"
+                  label="tool"
+                  statusbar="Eliminar archivo seleccionado"
+                  tooltip="Eliminar archivo seleccionado"
+                  var_name="ftp_eliminar"
+                  wxEVT_TOOL="deleteFtpFile" />
+                <node
+                  class="tool"
+                  bitmap="Embed;resources/document-rename.png"
+                  class_access="protected:"
+                  label="tool"
+                  statusbar="Renombrar archivo seleccionado"
+                  tooltip="Renombrar archivo seleccionado"
+                  var_name="ftp_renombrar"
+                  wxEVT_TOOL="RenameFtpFile" />
+                <node
+                  class="tool"
+                  bitmap="Embed;resources/sender_ico.png"
+                  class_access="protected:"
+                  label="tool"
+                  statusbar="Enviar el programa al CNC conectado"
+                  tooltip="Enviar el programa al CNC conectado"
+                  var_name="ftp_enviar"
+                  wxEVT_TOOL="sendProgramOnFly" />
+              </node>
+              <node
+                class="wxTreeCtrl"
+                var_name="m_treeCtrl1"
+                minimum_size="-1,-1"
+                size="-1,-1"
+                flags="wxEXPAND"
+                proportion="1"
+                wxEVT_TREE_ITEM_MENU="ftpFileOptions"
+                wxEVT_LEFT_DCLICK="openFtpFile" />
+            </node>
+          </node>
+          <node
+            class="wxPanel"
+            class_access="protected:"
+            var_name="m_panel2"
+            window_style="wxTAB_TRAVERSAL">
+            <node
+              class="wxBoxSizer"
+              orientation="wxVERTICAL"
+              var_name="bSizer7">
+              <node
+                class="CustomControl"
+                class_name="CncEditor"
+                header="CncEditor.h"
+                construction="m_editor = new CncEditor( m_panel2, wxID_ANY );"
+                var_name="m_editor"
+                minimum_size="-1,-1"
+                flags="wxEXPAND"
+                proportion="1" />
+            </node>
+          </node>
+        </node>
+      </node>
+      <node
+        class="wxStatusBar"
+        fields="3" />
+      <node
+        class="wxToolBar"
+        var_name="m_toolBar1"
+        background_colour="#D5D5FF">
+        <node
+          class="tool"
+          bitmap="Embed;resources/folder.png"
+          class_access="protected:"
+          label="tool"
+          statusbar="Cargar un archivo generado para 8025"
+          tooltip="Cargar archivo"
+          var_name="m_tool1"
+          wxEVT_TOOL="loadProgramFromFile" />
+        <node
+          class="tool"
+          bitmap="Embed;resources/disk.png"
+          class_access="protected:"
+          label="tool"
+          statusbar="Guardar archivo en el estado actual"
+          tooltip="Guardar archivo"
+          var_name="m_tool2"
+          wxEVT_TOOL="save_program" />
+        <node
+          class="toolSeparator" />
+        <node
+          class="tool"
+          bitmap="Embed;resources/wand.png"
+          class_access="protected:"
+          label="tool"
+          statusbar="Actualizar coloración de sintaxis"
+          tooltip="Actualizar coloración de sintaxis"
+          var_name="m_tool3"
+          wxEVT_TOOL="update_syntax_highlight" />
+        <node
+          class="tool"
+          bitmap="Embed;resources/fagor.jpg"
+          class_access="protected:"
+          label="tool"
+          statusbar="Convertir código a Fagor 8035 / 8037  (F9)"
+          tooltip="Convertir código a Fagor 8035 / 8037 (F9)"
+          var_name="m_tool4"
+          wxEVT_TOOL="translate" />
+        <node
+          class="tool"
+          bitmap="Embed;resources/fanuc.png"
+          class_access="protected:"
+          label="tool"
+          statusbar="Convertir código a Fanuc (F10)"
+          tooltip="Convertir código a Fanuc (F10)"
+          var_name="m_tool5"
+          wxEVT_TOOL="translateFanuc" />
+        <node
+          class="toolSeparator" />
+        <node
+          class="tool"
+          bitmap="Embed;resources/sender_ico.png"
+          class_access="protected:"
+          label="tool"
+          statusbar="Enviar el programa al CNC conectado"
+          tooltip="Enviar el programa al CNC conectado"
+          var_name="ftp_enviar1"
+          wxEVT_TOOL="sendProgramOnFly" />
+      </node>
+      <node
+        class="wxMenuBar"
+        var_name="m_menubar1">
+        <node
+          class="wxMenu"
+          label="&amp;Archivo"
+          var_name="m_menu1">
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/folder.png"
+            label="Cargar archivo"
+            shortcut="CTRL+O"
+            var_name="m_menuItem1"
+            wxEVT_MENU="loadProgramFromFile" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/disk.png"
+            label="Guardar programa"
+            shortcut="CTRL+S"
+            var_name="m_menuItem2"
+            wxEVT_MENU="save_program" />
+        </node>
+        <node
+          class="wxMenu"
+          label="Editar"
+          var_name="m_menu3">
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/page_paste.png"
+            label="Pegar formateando a código NC"
+            shortcut="CTRL+ALT+V"
+            var_name="m_menuItem13"
+            wxEVT_MENU="paste_formatting" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/copy.gif"
+            label="Copiar programa completo"
+            shortcut="CTRL+SHIFT+C"
+            var_name="m_menuItem10"
+            wxEVT_MENU="copy_program_clipboard" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/paste_plain.png"
+            label="Pegar reemplazando todo"
+            shortcut="CTRL+SHIFT+V"
+            var_name="m_menuItem11"
+            wxEVT_MENU="paste_program_clipboard" />
+          <node
+            class="separator"
+            var_name="m_separator2" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/magnifier.png"
+            label="Buscar"
+            shortcut="CTRL+F"
+            var_name="m_menuItem5"
+            wxEVT_MENU="search_window" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/magnifier_zoom_in.png"
+            help="Buscar próximo término"
+            label="Buscar siguiente"
+            shortcut="F3"
+            var_name="m_search_next"
+            wxEVT_MENU="search_next" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/edit-replace.png"
+            label="Buscar y reemplazar"
+            shortcut="CTRL+R"
+            var_name="m_menuItem7"
+            wxEVT_MENU="search_replace_window" />
+          <node
+            class="separator"
+            var_name="m_separator1" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/text_list_numbers.png"
+            label="Enumerar / Re-enumerar líneas"
+            shortcut="F8"
+            var_name="m_menuItem9"
+            wxEVT_MENU="enum_lines" />
+          <node
+            class="separator"
+            var_name="m_separator5" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/settings-icon16.png"
+            label="Parámetros"
+            shortcut="F7"
+            var_name="m_menuItem18"
+            wxEVT_MENU="open_options" />
+        </node>
+        <node
+          class="wxMenu"
+          label="&amp;Herramientas"
+          var_name="m_menu2">
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/refresh.png"
+            label="Actualizar coloración de sintaxis"
+            shortcut="F11"
+            var_name="m_menuItem3"
+            wxEVT_MENU="update_syntax_highlight" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/fagor.jpg"
+            label="Convertir a 8035"
+            shortcut="F9"
+            var_name="m_menuItem4"
+            wxEVT_MENU="translate" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/fanuc.png"
+            label="Convertir a FANUC"
+            shortcut="F10"
+            var_name="m_menuItem41"
+            wxEVT_MENU="translateFanuc" />
+          <node
+            class="separator"
+            var_name="m_separator3" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/chart_line.png"
+            label="Simular"
+            shortcut="F4"
+            var_name="m_menuItem14"
+            wxEVT_MENU="simulate" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/text_letter_omega.png"
+            label="Canales"
+            shortcut="F5"
+            var_name="m_menuItem12"
+            wxEVT_MENU="channels" />
+          <node
+            class="separator"
+            var_name="m_separator4" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/sender_ico.png"
+            label="Enviar programa a torno"
+            shortcut="F2"
+            var_name="m_menuItem15"
+            wxEVT_MENU="openFormSendProgram" />
+        </node>
+        <node
+          class="wxMenu"
+          label="Ayuda"
+          var_name="m_menu5">
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/information.png"
+            help="Información del programa"
+            label="Acerca de..."
+            shortcut="F12"
+            var_name="m_menuItem8"
+            wxEVT_MENU="about" />
+          <node
+            class="wxMenuItem"
+            bitmap="Embed;resources/application-browser-icon.png"
+            help="Comprobar si hay actualizaciones del software"
+            label="Comprobar actualizaciones"
+            var_name="m_menuItem19"
+            wxEVT_MENU="checkUpdates" />
+        </node>
+      </node>
+    </node>
+    <node
+      class="wxDialog"
+      class_name="searchDialog"
+      base_file="searchDialog_base"
+      style="wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP"
+      title="Buscar..."
+      size="286,156"
+      wxEVT_KEY_UP="evt_key_up">
+      <node
+        class="wxBoxSizer"
+        orientation="wxVERTICAL"
+        var_name="bSizer3">
+        <node
+          class="wxStaticText"
+          label="Buscar"
+          var_name="m_staticText5" />
+        <node
+          class="wxTextCtrl"
+          maxlength="0"
+          style="wxTE_PROCESS_ENTER"
+          var_name="search_term"
+          flags="wxEXPAND"
+          wxEVT_TEXT_ENTER="search"
+          wxEVT_KEY_UP="evt_key_up" />
+        <node
+          class="wxStaticText"
+          label="Para buscar una próxima coincidencia, presione F3"
+          var_name="hint" />
+        <node
+          class="wxButton"
+          label="Buscar"
+          var_name="m_button2"
+          bitmap="Embed;resources/magnifier.png"
+          alignment="wxALIGN_RIGHT"
+          wxEVT_BUTTON="search" />
+      </node>
+    </node>
+    <node
+      class="wxDialog"
+      class_name="search_and_replace"
+      base_file="search_and_replace_base"
+      style="wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxSYSTEM_MENU"
+      title="Buscar y reemplazar"
+      wxEVT_KEY_UP="evt_key_up">
+      <node
+        class="wxFlexGridSizer"
+        var_name="fgSizer1">
+        <node
+          class="wxStaticText"
+          label="Buscar todas las ocurrencias de"
+          var_name="m_staticText6" />
+        <node
+          class="wxTextCtrl"
+          maxlength="0"
+          style="wxTE_PROCESS_ENTER"
+          var_name="m_search"
+          flags="wxEXPAND"
+          wxEVT_TEXT_ENTER="start_replace"
+          wxEVT_KEY_UP="evt_key_up" />
+        <node
+          class="wxStaticText"
+          label="Y reemplazarlas por"
+          var_name="m_staticText7" />
+        <node
+          class="wxTextCtrl"
+          maxlength="0"
+          style="wxTE_PROCESS_ENTER"
+          var_name="m_replace"
+          flags="wxEXPAND"
+          wxEVT_TEXT_ENTER="start_replace"
+          wxEVT_KEY_UP="evt_key_up" />
+        <node
+          class="spacer"
+          borders=""
+          flags="wxEXPAND"
+          proportion="1" />
+        <node
+          class="wxGridSizer"
+          var_name="gSizer4"
+          borders=""
+          flags="wxEXPAND"
+          proportion="1">
+          <node
+            class="wxButton"
+            label="Reemplazar"
+            var_name="m_button2"
+            bitmap="Embed;resources/edit-replace.png"
+            wxEVT_BUTTON="start_replace" />
+          <node
+            class="wxButton"
+            label="Cancelar"
+            var_name="m_button3"
+            bitmap="Embed;resources/cross.png"
+            wxEVT_BUTTON="close" />
+        </node>
+      </node>
+    </node>
+    <node
+      class="wxDialog"
+      class_name="about"
+      base_file="about_base"
+      style="wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP"
+      title="Acerca de"
+      background_colour="#F0F0F0"
+      foreground_colour="#000000"
+      size="454,233"
+      wxEVT_KEY_UP="evt_key_up">
+      <node
+        class="wxBoxSizer"
+        orientation="wxVERTICAL"
+        var_name="bSizer4">
+        <node
+          class="wxStaticBitmap"
+          bitmap="Embed;resources/logo_md.png"
+          class_access="protected:"
+          var_name="m_bitmap5"
+          background_colour="#FAFAFA"
+          foreground_colour="#FFFFFF"
+          borders="wxBOTTOM"
+          flags="wxEXPAND"
+          proportion="1" />
+        <node
+          class="wxStaticText"
+          label="Editor y convertidor de sintaxis Fagor 8025 ► 8035 / 8037 / FANUC"
+          markup="1"
+          var_name="m_staticText18"
+          font="Arial,10,,,swiss"
+          foreground_colour="#000000" />
+        <node
+          class="wxStaticLine"
+          class_access="protected:"
+          var_name="m_staticline2"
+          flags="wxEXPAND" />
+        <node
+          class="wxGridSizer"
+          var_name="gSizer6"
+          alignment="wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_HORIZONTAL"
+          borders=""
+          proportion="1">
+          <node
+            class="wxStaticText"
+            label="Puesta en producción"
+            var_name="m_staticText19"
+            foreground_colour="#000000" />
+          <node
+            class="wxStaticText"
+            label="22-03-2019"
+            var_name="m_staticText201" />
+          <node
+            class="wxStaticText"
+            label="Última actualización:"
+            var_name="m_staticText181" />
+          <node
+            class="wxStaticText"
+            label="Cargando..."
+            var_name="m_staticText_fechaUltimaActualizacion" />
+        </node>
+        <node
+          class="wxStaticText"
+          label="Versión 1.6"
+          var_name="m_staticText_version"
+          font="Arial,10,,,swiss"
+          alignment="wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_HORIZONTAL" />
+        <node
+          class="wxStaticText"
+          label="© 2019 - 2026 AXIA S.A."
+          var_name="m_staticText15"
+          foreground_colour="#A0A0A0"
+          alignment="wxALIGN_RIGHT" />
+      </node>
+    </node>
+    <node
+      class="wxDialog"
+      class_name="ComprobarActualizaciones"
+      base_file="ComprobarActualizaciones_base"
+      title="Comprobar actualizaciones"
+      size="370,225">
+      <node
+        class="wxBoxSizer"
+        orientation="wxVERTICAL"
+        var_name="bSizer7">
+        <node
+          class="wxStaticBitmap"
+          bitmap="Embed;resources/network-2-icon.png"
+          class_access="protected:"
+          var_name="m_bitmap3"
+          flags="wxEXPAND" />
+        <node
+          class="wxGauge"
+          alignment="wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_HORIZONTAL"
+          borders="" />
+        <node
+          class="wxStaticText"
+          label="Comprobando actualizaciones"
+          var_name="m_staticText21"
+          alignment="wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_HORIZONTAL"
+          proportion="1" />
+        <node
+          class="wxButton"
+          label="Cerrar"
+          var_name="m_button6"
+          alignment="wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_HORIZONTAL"
+          wxEVT_BUTTON="close" />
+      </node>
+    </node>
+    <node
+      class="wxDialog"
+      class_name="wxParameters"
+      base_file="wxParameters_base"
+      title="Opciones"
+      size="485,433">
+      <node
+        class="wxBoxSizer"
+        orientation="wxVERTICAL"
+        var_name="bSizer2">
+        <node
+          class="wxStaticBoxSizer"
+          label="Opciones de código"
+          var_name="sbSizer1"
+          flags="wxEXPAND">
+          <node
+            class="wxGridSizer"
+            var_name="gSizer2"
+            flags="wxEXPAND"
+            proportion="1">
+            <node
+              class="wxStaticText"
+              label="Reemplazar sentido de giro"
+              var_name="m_staticText1" />
+            <node
+              class="wxGridSizer"
+              cols="3"
+              var_name="gSizer3"
+              borders=""
+              flags="wxEXPAND"
+              proportion="1">
+              <node
+                class="wxTextCtrl"
+                maxlength="0"
+                var_name="m_replace_from"
+                flags="wxEXPAND"
+                proportion="1" />
+              <node
+                class="wxStaticText"
+                label="por"
+                var_name="m_staticText3"
+                alignment="wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL" />
+              <node
+                class="wxTextCtrl"
+                maxlength="0"
+                var_name="m_replace_to"
+                flags="wxEXPAND"
+                proportion="1" />
+            </node>
+            <node
+              class="wxStaticText"
+              label="Opciones "
+              var_name="m_staticText2" />
+            <node
+              class="wxCheckBox"
+              label="Quitar parámetro M08"
+              var_name="m_remove_m08"
+              flags="wxEXPAND"
+              proportion="1"
+              wxEVT_CHECKBOX="remove_m08" />
+          </node>
+        </node>
+        <node
+          class="wxStaticBoxSizer"
+          label="Colores y opciones de editor"
+          var_name="sbSizer2"
+          borders="wxLEFT|wxRIGHT"
+          flags="wxEXPAND"
+          proportion="1">
+          <node
+            class="wxGridSizer"
+            var_name="gSizer6"
+            borders=""
+            flags="wxEXPAND"
+            proportion="1">
+            <node
+              class="wxStaticText"
+              label="Color de fondo de área de texto"
+              var_name="m_staticText9" />
+            <node
+              class="wxColourPickerCtrl"
+              colour="#001E3C"
+              style="wxCLRP_DEFAULT_STYLE"
+              var_name="m_colour_textCtrl"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_COLOURPICKER_CHANGED="colour_textCtrl" />
+            <node
+              class="wxStaticText"
+              label="Color de texto"
+              var_name="m_staticText18" />
+            <node
+              class="wxColourPickerCtrl"
+              style="wxCLRP_DEFAULT_STYLE"
+              var_name="m_colour_text"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_COLOURPICKER_CHANGED="colour_text" />
+            <node
+              class="wxStaticText"
+              label="Color de sentencia M"
+              var_name="m_staticText19" />
+            <node
+              class="wxColourPickerCtrl"
+              style="wxCLRP_DEFAULT_STYLE"
+              var_name="m_colour_m"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_COLOURPICKER_CHANGED="colour_m" />
+            <node
+              class="wxStaticText"
+              label="Color sentencia de herramienta"
+              var_name="m_staticText20" />
+            <node
+              class="wxColourPickerCtrl"
+              style="wxCLRP_DEFAULT_STYLE"
+              var_name="m_colour_tool"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_COLOURPICKER_CHANGED="colour_tool" />
+            <node
+              class="wxStaticText"
+              label="Comentario"
+              var_name="m_staticText21" />
+            <node
+              class="wxColourPickerCtrl"
+              style="wxCLRP_DEFAULT_STYLE"
+              var_name="m_colour_comments"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_COLOURPICKER_CHANGED="colour_comments" />
+            <node
+              class="wxStaticText"
+              label="Color marcador de Número de línea"
+              var_name="m_staticText23" />
+            <node
+              class="wxColourPickerCtrl"
+              style="wxCLRP_DEFAULT_STYLE"
+              var_name="m_colour_line"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_COLOURPICKER_CHANGED="colour_line" />
+            <node
+              class="wxCheckBox"
+              label="Iniciar ventana maximizada"
+              var_name="m_maximize"
+              wxEVT_CHECKBOX="maximize" />
+            <node
+              class="wxButton"
+              label="Reestablecer"
+              var_name="reset"
+              alignment="wxALIGN_RIGHT"
+              wxEVT_BUTTON="reset_defaults" />
+          </node>
+        </node>
+        <node
+          class="wxButton"
+          label="Guardar"
+          var_name="m_button4"
+          alignment="wxALIGN_RIGHT"
+          wxEVT_BUTTON="save" />
+      </node>
+    </node>
+  </node>
+</wxUiEditorData>

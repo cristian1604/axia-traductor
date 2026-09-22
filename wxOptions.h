@@ -1,6 +1,6 @@
 #ifndef WXOPTIONS_H
 #define WXOPTIONS_H
-#include "wxfb_project.h"
+#include "wxParameters_base.h"
 #include "Settings.h"
 
 // s_Settings y default_settings() viven en Settings.h

@@ -1,6 +1,6 @@
 #ifndef WXSEARCH_H
 #define WXSEARCH_H
-#include "wxfb_project.h"
+#include "searchDialog_base.h"
 #include <wx/stc/stc.h>
 
 class wxSearch : public searchDialog {

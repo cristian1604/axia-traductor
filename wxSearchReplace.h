@@ -1,6 +1,6 @@
 #ifndef WXSEARCHREPLACE_H
 #define WXSEARCHREPLACE_H
-#include "wxfb_project.h"
+#include "search_and_replace_base.h"
 #include <wx/stc/stc.h>
 
 class wxSearchReplace : public search_and_replace {

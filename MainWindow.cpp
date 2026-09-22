@@ -97,14 +97,12 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	size.y = std::min(size.y, area.height);
 	SetSize(size);
 	Centre(wxBOTH);
-	m_splitter1->Disconnect( wxEVT_IDLE, wxIdleEventHandler( wxMainWindow::m_splitter1OnIdle ), NULL, this );
 	m_splitter1->Bind(wxEVT_IDLE, &MainWindow::splitterFirstIdle, this);
 	// Iconos de barras, menús y logo al DPI del monitor
 	double scale = GetDPIScaleFactor();
 	scale_toolbar(m_toolBar1);
 	scale_toolbar(m_toolBar2);
 	for (size_t i = 0; i < m_menubar1->GetMenuCount(); ++i) scale_menu(m_menubar1->GetMenu(i), scale);
-	scale_menu(ftpOptions, scale);
 	m_bitmap1->SetBitmap(hidpi_bitmap(m_bitmap1->GetBitmap(), scale));
 	m_bitmap1->SetMinSize(wxSize(-1, FromDIP(42)));
 	Layout();
@@ -406,13 +404,7 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 
 ///**  FTP OPTIONS  ** ///
 
-void MainWindow::connectFTP( int idMachine )  {
-	std::string name;
-	switch (idMachine) {
-	case WAS_8035:  name = "WASINO 8035";   break;
-	case TAKI_8037: name = "TAKISAWA 8037"; break;
-	case WAS_8037:  name = "WASINO 8037";   break;
-	}
+void MainWindow::connectFTP( const std::string &name )  {
 	ftp.disconnect();
 	connected_machine.Clear();
 	m_treeCtrl1->DeleteAllItems();
@@ -471,20 +463,24 @@ void MainWindow::FtpDisconnect( wxCommandEvent& event )  {
 	m_statusBar->SetStatusText("Desconectado", 0);
 }
 
+/** Botón "Conectar a CNC": menú con los tornos FTP de machines.json. Los FANUC
+    (UDP) no tienen explorador de archivos. Antes el menú venía fijo del diseño. */
 void MainWindow::connectFtpMenu( wxCommandEvent& event )  {
-	PopupMenu(ftpOptions);
-}
-
-void MainWindow::FtpConnectWas8035( wxCommandEvent& event )  {
-	connectFTP(WAS_8035);
-}
-
-void MainWindow::FtpConnectTaki8037( wxCommandEvent& event )  {
-	connectFTP(TAKI_8037);
-}
-
-void MainWindow::FtpConnectWas8037( wxCommandEvent& event )  {
-	connectFTP(WAS_8037);
+	wxMenu menu;
+	wxBitmap icon = tree_icon(server_xpm, FromDIP(16));
+	for (size_t i = 0; i < machines.size(); ++i) {
+		if (machines[i].protocol != "ftp") continue;
+		wxMenuItem *item = new wxMenuItem(&menu, wxID_ANY, wxString::FromUTF8(machines[i].name.c_str()));
+		item->SetBitmap(icon);
+		menu.Append(item);
+		std::string name = machines[i].name;
+		menu.Bind(wxEVT_MENU, [this, name](wxCommandEvent &) { connectFTP(name); }, item->GetId());
+	}
+	if (menu.GetMenuItemCount() == 0) {
+		wxMessageBox(wxT("No hay tornos con FTP en machines.json"), wxT("Conectar a CNC"), wxICON_WARNING);
+		return;
+	}
+	PopupMenu(&menu);
 }
 
 void MainWindow::deleteFtpFile( wxCommandEvent& event )  {
