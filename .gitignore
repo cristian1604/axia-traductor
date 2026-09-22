@@ -5,3 +5,6 @@
 # Ejecutables privados de la empresa, aún en uso (no publicar)
 /ABsim.exe
 /Canalesw.exe
+# Programas reales de clientes para el graficador (repo publico): solo se versiona el README
+/tests/programas/*
+!/tests/programas/README.md
