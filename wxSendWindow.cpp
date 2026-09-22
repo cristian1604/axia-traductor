@@ -4,6 +4,7 @@
 #include <wx/sizer.h>
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
+#include <wx/settings.h>   // wxSystemSettings: en wxGTK no llega por otros encabezados
 #include <wx/dir.h>
 #include <wx/filefn.h>
 
