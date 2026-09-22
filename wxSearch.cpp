@@ -1,6 +1,9 @@
 #include "wxSearch.h"
 
 wxSearch::wxSearch(wxWindow *parent) : searchDialog(parent), editor(NULL), pos(-1) {
+	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
+	SetSize(FromDIP(GetSize()));
+	Centre(wxBOTH);
 	search_term->SetFocus();
 }
 

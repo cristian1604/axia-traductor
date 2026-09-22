@@ -1,11 +1,11 @@
 #include "wxSendWindow.h"
 #include "Sender.h"
 #include "FileManager.h"
+#include "AppPaths.h"
 #include <wx/sizer.h>
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
 #include <wx/settings.h>   // wxSystemSettings: en wxGTK no llega por otros encabezados
-#include <wx/dir.h>
 #include <wx/filefn.h>
 
 wxSendWindow::wxSendWindow(wxWindow *parent, const std::vector<Machine> &machines_, s_Settings &settings_,
@@ -32,7 +32,7 @@ wxSendWindow::wxSendWindow(wxWindow *parent, const std::vector<Machine> &machine
 
 	grid->Add(new wxStaticText(this, wxID_ANY, wxT("Nombre en el torno:")), 0, wxALIGN_CENTER_VERTICAL);
 	wxString name = suggestedName.IsEmpty() ? settings.last_filename : suggestedName;
-	m_name = new wxTextCtrl(this, wxID_ANY, name, wxDefaultPosition, wxSize(260, -1), wxTE_PROCESS_ENTER);
+	m_name = new wxTextCtrl(this, wxID_ANY, name, wxDefaultPosition, FromDIP(wxSize(260, -1)), wxTE_PROCESS_ENTER);
 	grid->Add(m_name, 1, wxEXPAND);
 
 	root->Add(grid, 0, wxEXPAND | wxALL, 12);
@@ -93,7 +93,8 @@ void wxSendWindow::OnSend(wxCommandEvent &event) {
 		m_name->SetFocus();
 		return;
 	}
-	if (program.Trim().IsEmpty()) {
+	// Sin Trim() sobre el miembro: recortaba el salto de línea final del programa enviado
+	if (program.find_first_not_of(wxT(" \t\r\n")) == wxString::npos) {
 		SetStatus(wxT("No hay programa para enviar"), true);
 		return;
 	}
@@ -108,16 +109,13 @@ void wxSendWindow::OnSend(wxCommandEvent &event) {
 		if (machine.protocol == "fanuc-udp") {
 			r = send_fanuc_udp(machine, program.ToStdString());
 		} else {
-			// El nombre remoto es el del archivo local, por eso se escribe una copia temporal con ese nombre
-			if (!wxDir::Exists("tmp") && !wxMkdir("tmp")) {
-				r.message = "No se pudo crear el directorio temporal \"tmp\"";
+			// El nombre remoto es el del archivo local, por eso se escribe una copia
+			// temporal con ese nombre en la carpeta temporal local de la PC
+			FileManager tmpFile(temp_dir(), remoteName);
+			if (!tmpFile.writeFile(program)) {
+				r.message = "No se pudo escribir el archivo temporal " + tmpFile.getFullPath();
 			} else {
-				FileManager tmpFile("tmp", remoteName);
-				if (!tmpFile.writeFile(program)) {
-					r.message = "No se pudo escribir el archivo temporal " + tmpFile.getFullPath();
-				} else {
-					r = send_ftp(machine, tmpFile.getFullPath());
-				}
+				r = send_ftp(machine, tmpFile.getFullPath());
 			}
 		}
 		m_send->Enable(true);

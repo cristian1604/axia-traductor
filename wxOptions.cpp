@@ -22,6 +22,9 @@ s_Settings default_settings() {
 }
 
 wxOptions::wxOptions(wxWindow *parent) : wxParameters(parent) {
+	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
+	SetSize(FromDIP(GetSize()));
+	Centre(wxBOTH);
 	FileManager F;
 	F.loadSettings(settings);   // si no hay archivo, deja los valores por defecto
 	m_replace_from->SetMaxLength(32);

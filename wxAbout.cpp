@@ -2,6 +2,9 @@
 #include "Version.h"
 
 wxAbout::wxAbout(wxWindow *parent) : about(parent) {
+	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
+	SetSize(FromDIP(GetSize()));
+	Centre(wxBOTH);
 	m_staticText_fechaUltimaActualizacion->SetLabel(APP_VERSION_DATE);
 	m_staticText_version->SetLabel(wxString::Format(wxT("Versión %d"), APP_VERSION));
 	// ESC cierra el diálogo. El wxEVT_KEY_UP que conecta wxFormBuilder solo llega

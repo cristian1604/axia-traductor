@@ -23,12 +23,13 @@ private:
 	FileManager FM;				 	// Archivo de destino del guardado (definido tras "Guardar como" o al abrir desde FTP)
 	std::vector<Machine> machines;	// Lista compartida de tornos (machines.json)
 	wxString connected_machine;		// Nombre del torno conectado en el explorador FTP (vacío si ninguno)
-	bool ensureTmpDir();
 	void openSendDialog();
 	bool readClipboardText(wxString &out);
 	bool writeClipboardText(const wxString &text);
 	// Carga un programa en el editor con la sintaxis indicada y descarta el historial de deshacer
 	void showProgram(const wxString &program, int standard);
+	// Posición inicial del divisor, escalada al DPI del monitor (reemplaza al idle de wxFormBuilder)
+	void splitterFirstIdle(wxIdleEvent &event);
 protected:
 	void sendProgramOnFly( wxCommandEvent& event ) ;
 	void FtpConnectWas8037( wxCommandEvent& event ) ;

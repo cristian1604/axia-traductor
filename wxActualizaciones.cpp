@@ -40,6 +40,9 @@ static UpdateCheck query_latest_version() {
 }
 
 wxActualizaciones::wxActualizaciones(wxWindow *parent) : ComprobarActualizaciones(parent) {
+	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
+	SetSize(FromDIP(GetSize()));
+	Centre(wxBOTH);
 	m_gauge->SetValue(10);
 	m_staticText21->SetLabel(wxT("Consultando la última versión..."));
 	// La consulta va en un hilo para no congelar la interfaz mientras espera

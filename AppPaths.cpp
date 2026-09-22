@@ -18,3 +18,14 @@ wxString shared_config_file(const wxString &name) {
 	wxFileName exe(wxStandardPaths::Get().GetExecutablePath());
 	return exe.GetPath() + wxFileName::GetPathSeparator() + name;
 }
+
+wxString temp_dir() {
+	wxString dir = wxStandardPaths::Get().GetTempDir()
+		+ wxFileName::GetPathSeparator() + wxT("axia-traductor");
+	if (!wxDirExists(dir)) wxMkdir(dir);
+	return dir;
+}
+
+wxString temp_file(const wxString &name) {
+	return temp_dir() + wxFileName::GetPathSeparator() + name;
+}

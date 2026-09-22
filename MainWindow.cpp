@@ -20,18 +20,52 @@
 #include "AppPaths.h"
 #include "wxSendWindow.h"
 #include <wx/iconbndl.h>
+#include <wx/display.h>
+#include <algorithm>
 using namespace std;
 
 // Icono de 16x16 para el árbol del explorador FTP a partir de un XPM. Los XPM
 // de icons.xpm tienen tamaños distintos (pit_extension_xpm es de 128x128) y
 // wxWidgets 3.2 ya no los adapta al tamaño de la wxImageList: sin reescalar,
 // los archivos aparecían como cuadrados negros.
-static wxBitmap tree_icon(const char *const *xpm) {
+static wxBitmap tree_icon(const char *const *xpm, int size) {
 	wxImage img(xpm);
-	if (img.GetWidth() != 16 || img.GetHeight() != 16) {
-		img.Rescale(16, 16, wxIMAGE_QUALITY_HIGH);
+	if (img.GetWidth() != size || img.GetHeight() != size) {
+		img.Rescale(size, size, wxIMAGE_QUALITY_HIGH);
 	}
 	return wxBitmap(img);
+}
+
+// Con DPI por monitor (manifest.xml), wxWidgets no agranda los mapas de bits
+// de un solo tamaño: al 125 % o 150 % los iconos quedaban chicos. Se reescala
+// cada imagen al factor de DPI de la ventana (1.25, 1.5, 2...). Un
+// wxBitmapBundle con copias 1x y 2x no sirve: en escalas intermedias wx
+// prefiere dibujar la 1x sin escalar.
+static wxBitmap hidpi_bitmap(const wxBitmap &bmp, double scale) {
+	if (!bmp.IsOk() || scale <= 1.01) return bmp;
+	wxImage img = bmp.ConvertToImage();
+	img.Rescale((int) (img.GetWidth() * scale + 0.5), (int) (img.GetHeight() * scale + 0.5), wxIMAGE_QUALITY_HIGH);
+	return wxBitmap(img);
+}
+
+static void scale_toolbar(wxToolBar *tb) {
+	double scale = tb->GetDPIScaleFactor();
+	if (scale <= 1.01) return;
+	for (size_t i = 0; i < tb->GetToolsCount(); ++i) {
+		wxToolBarToolBase *t = tb->GetToolByPos((int) i);
+		if (!t || !t->IsButton()) continue;
+		tb->SetToolNormalBitmap(t->GetId(), hidpi_bitmap(t->GetNormalBitmap(), scale));
+	}
+	tb->Realize();
+}
+
+static void scale_menu(wxMenu *menu, double scale) {
+	wxMenuItemList &items = menu->GetMenuItems();
+	for (wxMenuItemList::iterator it = items.begin(); it != items.end(); ++it) {
+		wxMenuItem *item = *it;
+		if (item->GetSubMenu()) scale_menu(item->GetSubMenu(), scale);
+		if (item->GetBitmap().IsOk()) item->SetBitmap(hidpi_bitmap(item->GetBitmap(), scale));
+	}
 }
 
 MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
@@ -52,6 +86,29 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 	loadSettings();
 	m_editor->SetStandard(syntax_version);
 
+	// La aplicación es consciente del DPI (manifest.xml) pero wxWidgets en
+	// Windows no escala los tamaños fijos del diseño: se convierten con FromDIP.
+	// El tamaño se acota al área visible del monitor (netbooks, escalado alto)
+	// y la ventana se centra: con la posición por defecto la barra de estado
+	// podía quedar debajo de la barra de tareas.
+	wxSize size = FromDIP(wxSize(1270, 730));
+	wxRect area = wxDisplay(this).GetClientArea();
+	size.x = std::min(size.x, area.width);
+	size.y = std::min(size.y, area.height);
+	SetSize(size);
+	Centre(wxBOTH);
+	m_splitter1->Disconnect( wxEVT_IDLE, wxIdleEventHandler( wxMainWindow::m_splitter1OnIdle ), NULL, this );
+	m_splitter1->Bind(wxEVT_IDLE, &MainWindow::splitterFirstIdle, this);
+	// Iconos de barras, menús y logo al DPI del monitor
+	double scale = GetDPIScaleFactor();
+	scale_toolbar(m_toolBar1);
+	scale_toolbar(m_toolBar2);
+	for (size_t i = 0; i < m_menubar1->GetMenuCount(); ++i) scale_menu(m_menubar1->GetMenu(i), scale);
+	scale_menu(ftpOptions, scale);
+	m_bitmap1->SetBitmap(hidpi_bitmap(m_bitmap1->GetBitmap(), scale));
+	m_bitmap1->SetMinSize(wxSize(-1, FromDIP(42)));
+	Layout();
+
 	// Lista de tornos compartida (se crea con valores por defecto si no existe)
 	std::string error;
 	machines = load_machines(shared_config_file("machines.json").ToStdString(), &error);
@@ -63,6 +120,11 @@ MainWindow::MainWindow(wxWindow *parent) : wxMainWindow(parent),
 
 MainWindow::~MainWindow() {
 	ftp.disconnect();
+}
+
+void MainWindow::splitterFirstIdle(wxIdleEvent &event) {
+	m_splitter1->SetSashPosition(FromDIP(242));
+	m_splitter1->Unbind(wxEVT_IDLE, &MainWindow::splitterFirstIdle, this);
 }
 
 void MainWindow::showProgram(const wxString &program, int standard) {
@@ -196,9 +258,12 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 	sf::Ftp::DirectoryResponse directory = ftp.getWorkingDirectory();
 	if (directory.isOk()) {
 		ftp.keepAlive();
-		if (!ensureTmpDir()) return;
-		FileManager tmpFile("tmp", filename);
-		if (!tmpFile.writeFile(this->text_program)) return;
+		// El nombre remoto es el del archivo local: copia temporal con ese nombre
+		FileManager tmpFile(temp_dir(), filename);
+		if (!tmpFile.writeFile(this->text_program)) {
+			wxMessageBox( "No se pudo escribir el archivo temporal:\n" + tmpFile.getFullPath(), "Error de transferencia", wxICON_ERROR);
+			return;
+		}
 
 		ftp.deleteFile(tmpFile.getFilename());
 		sf::Ftp::Response response = ftp.upload(tmpFile.getFullPath(), "", sf::Ftp::Binary);
@@ -210,13 +275,6 @@ void MainWindow::save_program( wxCommandEvent& event )  {
 			wxMessageBox( wxT("Se guardó localmente pero no se pudo transferir al control"), "Error de transferencia", wxICON_ERROR);
 		}
 	}
-}
-
-bool MainWindow::ensureTmpDir() {
-	if (wxDir::Exists("tmp")) return true;
-	if (wxMkdir("tmp")) return true;
-	wxMessageBox( "No se pudo crear el directorio temporal \"tmp\"", "Error", wxICON_ERROR);
-	return false;
 }
 
 bool MainWindow::readClipboardText(wxString &out) {
@@ -338,10 +396,11 @@ void MainWindow::simulate( wxCommandEvent& event )  {
 		wxMessageBox( wxT("Solo puede simular programas de 8025.\nEl código G actual es 8035"), wxT("Versión G no compatible"), wxICON_ERROR);
 		return;
 	}
-	FileManager F("tmp.txt");
+	wxString tmp = temp_file(wxT("tmp.txt"));
+	FileManager F(tmp);
 	text_program = m_editor->GetText();
 	if (F.writeFile(text_program)) {
-		wxExecute("ABsim.exe tmp.txt");
+		wxExecute(wxT("ABsim.exe \"") + tmp + wxT("\""));
 	}
 }
 
@@ -384,11 +443,10 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	if (!item.IsOk() || item == m_treeCtrl1->GetRootItem()) return;
 	filename = m_treeCtrl1->GetItemText(item);
 
-	if (!ensureTmpDir()) return;
-
 	m_statusBar->SetStatusText("Descargando " + filename, 0);
 
-	sf::Ftp::Response r = ftp.download(filename.ToStdString(), "tmp", sf::Ftp::Binary);
+	wxString dir = temp_dir();
+	sf::Ftp::Response r = ftp.download(filename.ToStdString(), dir.ToStdString(), sf::Ftp::Binary);
 	if (!r.isOk()) {
 		wxMessageBox( wxString::Format(wxT("No se pudo descargar el archivo (código %d)"), (int) r.getStatus()), "Error de descarga", wxICON_ERROR);
 		m_statusBar->SetStatusText("Error al descargar " + filename, 0);
@@ -396,7 +454,7 @@ void MainWindow::openFtpFile( wxMouseEvent& event)  {
 	}
 
 	this->SetTitle(this->window_title + " - " + filename);
-	FM = FileManager("tmp", filename);
+	FM = FileManager(dir, filename);
 	bool flag = FM.readFile(this->text_program);
 	if (flag) {
 		m_statusBar->SetStatusText("Leyendo archivo...", 0);
@@ -500,10 +558,11 @@ void MainWindow::refreshFtpFileList() {
 		m_treeCtrl1->SortChildren(raiz);
 		m_treeCtrl1->Expand(raiz);
 
-		wxImageList* imageList = new wxImageList(16, 16);
-		imageList->Add(tree_icon(folder_xpm));							// 0
-		imageList->Add(tree_icon(server_xpm));							// 1
-		imageList->Add(tree_icon(pit_extension_xpm));					// 2
+		int sz = FromDIP(16);
+		wxImageList* imageList = new wxImageList(sz, sz);
+		imageList->Add(tree_icon(folder_xpm, sz));						// 0
+		imageList->Add(tree_icon(server_xpm, sz));						// 1
+		imageList->Add(tree_icon(pit_extension_xpm, sz));				// 2
 		m_treeCtrl1->AssignImageList(imageList);
 
 		ftp.keepAlive();

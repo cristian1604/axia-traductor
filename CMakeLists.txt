@@ -67,6 +67,8 @@ set(APP_SOURCES
 if(WIN32)
 	# Icono de la aplicación y manifiesto (controles comunes v6)
 	list(APPEND APP_SOURCES traductor.rc)
+	# El .rc incluye el manifiesto: si cambia, hay que recompilar el recurso
+	set_source_files_properties(traductor.rc PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/manifest.xml)
 endif()
 
 add_executable(traductor WIN32 ${APP_SOURCES})
