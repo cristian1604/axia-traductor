@@ -23,6 +23,7 @@ s_Settings default_settings() {
 	s.plot_sash_right = 0;
 	s.plot_sash_below = 0;
 	s.plot_rapids = true;
+	s.plot_stock = true;
 	return s;
 }
 

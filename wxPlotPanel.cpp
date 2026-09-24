@@ -37,6 +37,8 @@ wxColour with_alpha(const wxColour &c, int alpha) {
 	return wxColour(c.Red(), c.Green(), c.Blue(), (unsigned char) std::max(0, std::min(255, alpha)));
 }
 
+const wxString DELTA = wxString::FromUTF8("\xCE\x94");   // Δ
+
 } // namespace
 
 PlotColours default_plot_colours() {
@@ -50,15 +52,18 @@ PlotColours default_plot_colours() {
 	c.axes       = wxColour(110, 126, 162);
 	c.text       = wxColour(214, 220, 232);
 	c.ref        = wxColour(192, 192, 192);
-	c.stock      = wxColour(150, 118, 70, 55);
-	c.stock_edge = wxColour(190, 155, 100);
+	c.stock      = wxColour(150, 118, 70, 40);
+	c.stock_edge = wxColour(150, 118, 70, 120);
+	c.section    = wxColour(176, 140, 88, 170);
+	c.section_edge = wxColour(230, 196, 140);
+	c.measure    = wxColour(140, 255, 170);
 	c.future_alpha = 90;
 	return c;
 }
 
 wxPlotPanel::wxPlotPanel(wxWindow *parent, wxWindowID id)
 	: wxPanel(parent, id, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxWANTS_CHARS | wxFULL_REPAINT_ON_RESIZE),
-	  m_colours(default_plot_colours()) {
+	  m_colours(default_plot_colours()), m_tools(default_tool_table()) {
 	SetBackgroundStyle(wxBG_STYLE_PAINT);
 	SetBackgroundColour(m_colours.background);
 	m_font = wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT);
@@ -83,6 +88,10 @@ wxPlotPanel::wxPlotPanel(wxWindow *parent, wxWindowID id)
 void wxPlotPanel::SetPath(const CncPath &path) {
 	bool had = !m_path.segments.empty();
 	m_path = path;
+	m_stock_def = stock_from_path(m_path, m_tools);
+	m_full_stock = (m_show_stock && m_stock_def.valid()) ? simulate_stock(m_path, m_stock_def, m_tools, -1) : TurnStock();
+	m_stock_line = -2;
+	RecomputeStock();
 	if (!had) FitToPath();
 	Refresh();
 }
@@ -90,6 +99,36 @@ void wxPlotPanel::SetPath(const CncPath &path) {
 void wxPlotPanel::SetCurrentLine(int line) {
 	if (line == m_current) return;
 	m_current = line;
+	RecomputeStock();
+	Refresh();
+}
+
+void wxPlotPanel::SetShowStock(bool show) {
+	if (show == m_show_stock) return;
+	m_show_stock = show;
+	SetPath(m_path);   // recalcula la simulación completa y la parcial
+}
+
+void wxPlotPanel::SetToolTable(const ToolTable &tools) {
+	m_tools = tools;
+	SetPath(m_path);
+}
+
+// Sección hasta la línea actual (o completa). La completa ya está calculada.
+void wxPlotPanel::RecomputeStock() {
+	if (!m_show_stock || !m_stock_def.valid()) {
+		m_stock = TurnStock();
+		m_stock_line = -2;
+	} else if (m_stock_line != m_current) {
+		m_stock = (m_current < 0) ? m_full_stock : simulate_stock(m_path, m_stock_def, m_tools, m_current);
+		m_stock_line = m_current;
+	}
+	UpdateSnapPoints();
+}
+
+void wxPlotPanel::ClearDimensions() {
+	m_dims.clear();
+	m_have_first = false;
 	Refresh();
 }
 
@@ -123,28 +162,13 @@ CncPoint wxPlotPanel::ToWorld(const wxPoint &p) const {
 	return w;
 }
 
-bool wxPlotPanel::StockRange(double &z_face, double &z_end) const {
-	if (!m_path.stock.valid()) return false;
-	CncBounds b = m_path.feed_bounds();
-	if (!b.valid) {
-		z_face = 2;
-		z_end = -50;
-		return true;
-	}
-	double length = std::max(b.zmax - b.zmin, 5.0);
-	z_face = std::max(b.zmax, 0.0);
-	z_end = b.zmin - 0.3 * length;   // el tubo sigue más allá de la pieza
-	return true;
-}
-
 void wxPlotPanel::FitToPath() {
 	wxSize sz = GetClientSize();
 	if (sz.x <= 0 || sz.y <= 0) return;
 	CncBounds b = m_path.feed_bounds();
-	double z_face, z_end;
-	if (StockRange(z_face, z_end)) {
-		b.add(z_face, m_path.stock.outer_diameter / 2);
-		b.add(z_end, m_path.stock.inner_diameter / 2);
+	if (m_stock_def.valid()) {
+		b.add(m_stock_def.z_face, m_stock_def.outer_diameter / 2);
+		b.add(m_stock_def.z_end, m_stock_def.inner_diameter / 2);
 	}
 	if (!b.valid) {
 		// Sin nada que encuadrar: origen al centro y escala moderada
@@ -171,12 +195,66 @@ void wxPlotPanel::ZoomAt(const wxPoint &p, double factor) {
 	m_oy = p.y - (p.y - m_oy) * factor;
 	m_scale = ns;
 	m_user_view = true;
+	UpdateSnap();
 	Refresh();
 }
 
 void wxPlotPanel::ZoomCentre(double factor) {
 	wxSize sz = GetClientSize();
 	ZoomAt(wxPoint(sz.x / 2, sz.y / 2), factor);
+}
+
+// ---- Medición ------------------------------------------------------------------
+
+// Vértices a los que se engancha el puntero: los del perfil de la pieza o, sin
+// pieza, los extremos de los avances
+void wxPlotPanel::UpdateSnapPoints() {
+	m_snap_points.clear();
+	if (m_show_stock && m_stock_def.valid()) {
+		m_snap_points = m_stock.vertices();
+	} else {
+		for (size_t k = 0; k < m_path.segments.size(); ++k) {
+			const CncSegment &s = m_path.segments[k];
+			if (s.kind == SEG_RAPID || s.unresolved) continue;
+			if (m_current >= 0 && s.line > m_current) break;
+			m_snap_points.push_back(s.from);
+			m_snap_points.push_back(s.to);
+		}
+	}
+	UpdateSnap();
+}
+
+void wxPlotPanel::UpdateSnap() {
+	m_snapped = false;
+	if (!m_have_mouse) return;
+	double best = LineWidth(10);
+	best *= best;
+	for (size_t k = 0; k < m_snap_points.size(); ++k) {
+		double u, v;
+		ToScreen(m_snap_points[k].z, m_snap_points[k].r, u, v);
+		double d = (u - m_mouse.x) * (u - m_mouse.x) + (v - m_mouse.y) * (v - m_mouse.y);
+		if (d < best) {
+			best = d;
+			m_snapped = true;
+			m_snap = m_snap_points[k];
+		}
+	}
+}
+
+// Clic sin arrastre: primer punto o cota completa
+void wxPlotPanel::ClickAt(const wxPoint &p) {
+	CncPoint w = m_snapped ? m_snap : ToWorld(p);
+	if (!m_have_first) {
+		m_first = w;
+		m_have_first = true;
+	} else {
+		PlotDimension d;
+		d.a = m_first;
+		d.b = w;
+		m_dims.push_back(d);
+		m_have_first = false;
+	}
+	Refresh();
 }
 
 // ---- Eventos -------------------------------------------------------------------
@@ -197,9 +275,10 @@ void wxPlotPanel::OnWheel(wxMouseEvent &event) {
 void wxPlotPanel::OnMouseDown(wxMouseEvent &event) {
 	SetFocus();
 	m_dragging = true;
-	m_drag_last = event.GetPosition();
+	m_moved = false;
+	m_press = event.GetPosition();
+	m_drag_last = m_press;
 	CaptureMouse();
-	SetCursor(wxCursor(wxCURSOR_SIZING));
 }
 
 void wxPlotPanel::OnMouseUp(wxMouseEvent &event) {
@@ -207,6 +286,7 @@ void wxPlotPanel::OnMouseUp(wxMouseEvent &event) {
 		m_dragging = false;
 		if (HasCapture()) ReleaseMouse();
 		SetCursor(wxCursor(wxCURSOR_CROSS));
+		if (!m_moved && event.GetButton() == wxMOUSE_BTN_LEFT) ClickAt(event.GetPosition());
 	}
 	event.Skip();
 }
@@ -221,21 +301,33 @@ void wxPlotPanel::OnMouseMove(wxMouseEvent &event) {
 	m_mouse = event.GetPosition();
 	if (m_dragging && (event.LeftIsDown() || event.MiddleIsDown())) {
 		wxPoint d = m_mouse - m_drag_last;
-		m_ox += d.x;
-		m_oy += d.y;
+		if (!m_moved) {
+			wxPoint total = m_mouse - m_press;
+			if (std::abs(total.x) + std::abs(total.y) >= FromDIP(3)) {
+				m_moved = true;
+				SetCursor(wxCursor(wxCURSOR_SIZING));
+			}
+		}
+		if (m_moved) {
+			m_ox += d.x;
+			m_oy += d.y;
+			m_user_view = true;
+		}
 		m_drag_last = m_mouse;
-		m_user_view = true;
 	}
-	Refresh();   // coordenadas del puntero
+	UpdateSnap();
+	Refresh();   // coordenadas del puntero y enganche
 }
 
 void wxPlotPanel::OnMouseLeave(wxMouseEvent &event) {
 	m_have_mouse = false;
+	m_snapped = false;
 	Refresh();
 	event.Skip();
 }
 
 void wxPlotPanel::OnDoubleClick(wxMouseEvent &event) {
+	m_have_first = false;   // el primer clic del doble clic no empieza una cota
 	FitToPath();
 }
 
@@ -249,6 +341,14 @@ void wxPlotPanel::OnKey(wxKeyEvent &event) {
 		break;
 	case '-': case WXK_NUMPAD_SUBTRACT: case WXK_SUBTRACT:
 		ZoomCentre(1 / ZOOM_STEP);
+		break;
+	case WXK_ESCAPE:
+		ClearDimensions();
+		break;
+	case WXK_BACK:
+		if (m_have_first) m_have_first = false;
+		else if (!m_dims.empty()) m_dims.pop_back();
+		Refresh();
 		break;
 	default:
 		event.Skip();
@@ -275,19 +375,52 @@ void wxPlotPanel::OnPaint(wxPaintEvent &event) {
 	DrawRefs(gc);
 	DrawPath(gc);
 	DrawToolMarker(gc);
+	DrawMeasurements(gc);
 	DrawOverlay(gc);
 	delete gc;
 }
 
+// Bruto (tenue) y, sobre él, el material que queda hasta la línea actual
 void wxPlotPanel::DrawStock(wxGraphicsContext *gc) {
-	double z_face, z_end;
-	if (!StockRange(z_face, z_end)) return;
+	if (!m_stock_def.valid()) return;
 	double u0, v0, u1, v1;
-	ToScreen(z_end, m_path.stock.outer_diameter / 2, u0, v0);
-	ToScreen(z_face, m_path.stock.inner_diameter / 2, u1, v1);
+	ToScreen(m_stock_def.z_end, m_stock_def.outer_diameter / 2, u0, v0);
+	ToScreen(m_stock_def.z_face, m_stock_def.inner_diameter / 2, u1, v1);
 	gc->SetBrush(wxBrush(m_colours.stock));
-	gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(m_colours.stock_edge).Width(LineWidth(1))));
+	gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(m_colours.stock_edge).Width(LineWidth(1)).Style(wxPENSTYLE_SHORT_DASH)));
 	gc->DrawRectangle(u0, v0, u1 - u0, v1 - v0);
+
+	if (!m_show_stock || m_stock.rings.empty()) return;
+	wxGraphicsPath section = gc->CreatePath();
+	for (size_t k = 0; k < m_stock.rings.size(); ++k) {
+		const Ring &ring = m_stock.rings[k];
+		if (ring.size() < 3) continue;
+		double u, v;
+		ToScreen(ring[0].z, ring[0].r, u, v);
+		section.MoveToPoint(u, v);
+		for (size_t i = 1; i < ring.size(); ++i) {
+			ToScreen(ring[i].z, ring[i].r, u, v);
+			section.AddLineToPoint(u, v);
+		}
+		section.CloseSubpath();
+	}
+	gc->SetBrush(wxBrush(m_colours.section));
+	gc->FillPath(section, wxODDEVEN_RULE);
+	gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(m_colours.section_edge).Width(LineWidth(1.2))));
+	gc->StrokePath(section);
+
+	// Ranuras hechas con una cuchilla de ancho supuesto: se marcan
+	for (size_t k = 0; k < m_stock.assumed.size(); ++k) {
+		const AssumedGroove &g = m_stock.assumed[k];
+		double a, b, c, d;
+		ToScreen(g.z_from, g.r_to, a, b);
+		ToScreen(g.z_to, g.r_from, c, d);
+		gc->SetBrush(*wxTRANSPARENT_BRUSH);
+		gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(m_colours.unresolved).Width(LineWidth(1)).Style(wxPENSTYLE_SHORT_DASH)));
+		gc->DrawRectangle(a, b, c - a, d - b);
+		gc->SetFont(m_font, m_colours.unresolved);
+		gc->DrawText(wxT("ancho supuesto"), a, b - LineWidth(16));
+	}
 }
 
 void wxPlotPanel::DrawGrid(wxGraphicsContext *gc) {
@@ -447,12 +580,76 @@ void wxPlotPanel::DrawToolMarker(wxGraphicsContext *gc) {
 	gc->StrokeLine(u, v - L, u, v + L);
 }
 
+// Texto con un fondo semitransparente para que se lea sobre el dibujo
+void wxPlotPanel::DrawLabel(wxGraphicsContext *gc, const wxString &text, double x, double y, const wxColour &colour) {
+	gc->SetFont(m_font, colour);
+	double tw, th;
+	gc->GetTextExtent(text, &tw, &th);
+	double pad = LineWidth(3);
+	gc->SetBrush(wxBrush(with_alpha(m_colours.background, 200)));
+	gc->SetPen(*wxTRANSPARENT_PEN);
+	gc->DrawRoundedRectangle(x - pad, y - pad, tw + 2 * pad, th + 2 * pad, LineWidth(2));
+	gc->DrawText(text, x, y);
+}
+
+void wxPlotPanel::DrawMeasurements(wxGraphicsContext *gc) {
+	const wxColour &c = m_colours.measure;
+	const double m = LineWidth(4);
+
+	// Cotas ya fijadas
+	for (size_t k = 0; k < m_dims.size(); ++k) {
+		const PlotDimension &d = m_dims[k];
+		double ua, va, ub, vb;
+		ToScreen(d.a.z, d.a.r, ua, va);
+		ToScreen(d.b.z, d.b.r, ub, vb);
+		gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(c).Width(LineWidth(1.5))));
+		gc->StrokeLine(ua, va, ub, vb);
+		gc->SetBrush(wxBrush(c));
+		gc->DrawRectangle(ua - m / 2, va - m / 2, m, m);
+		gc->DrawRectangle(ub - m / 2, vb - m / 2, m, m);
+		double dr = std::fabs(d.b.r - d.a.r), dz = std::fabs(d.b.z - d.a.z);
+		wxString text = DELTA + wxT("X ") + fmt_mm(2 * dr, 3) + wxT(" (r ") + fmt_mm(dr, 3) + wxT(")   ")
+		              + DELTA + wxT("Z ") + fmt_mm(dz, 3) + wxT("   d ") + fmt_mm(std::sqrt(dr * dr + dz * dz), 3);
+		DrawLabel(gc, text, (ua + ub) / 2 + LineWidth(6), (va + vb) / 2 - LineWidth(18), c);
+	}
+
+	// Primer punto de una cota en curso: línea elástica hasta el puntero (o el enganche)
+	if (m_have_first) {
+		double ua, va;
+		ToScreen(m_first.z, m_first.r, ua, va);
+		gc->SetBrush(wxBrush(c));
+		gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(c).Width(LineWidth(1))));
+		gc->DrawRectangle(ua - m / 2, va - m / 2, m, m);
+		if (m_have_mouse) {
+			CncPoint w = m_snapped ? m_snap : ToWorld(m_mouse);
+			double ub, vb;
+			ToScreen(w.z, w.r, ub, vb);
+			gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(c).Width(LineWidth(1)).Style(wxPENSTYLE_SHORT_DASH)));
+			gc->StrokeLine(ua, va, ub, vb);
+			double dr = std::fabs(w.r - m_first.r), dz = std::fabs(w.z - m_first.z);
+			wxString text = DELTA + wxT("X ") + fmt_mm(2 * dr, 3) + wxT("   ") + DELTA + wxT("Z ") + fmt_mm(dz, 3);
+			DrawLabel(gc, text, (ua + ub) / 2 + LineWidth(6), (va + vb) / 2 - LineWidth(18), c);
+		}
+	}
+
+	// Enganche: marca y coordenadas del vértice
+	if (m_snapped) {
+		double u, v;
+		ToScreen(m_snap.z, m_snap.r, u, v);
+		double s = LineWidth(5);
+		gc->SetBrush(*wxTRANSPARENT_BRUSH);
+		gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(c).Width(LineWidth(1.5))));
+		gc->DrawRectangle(u - s, v - s, 2 * s, 2 * s);
+		DrawLabel(gc, wxT("X ") + fmt_mm(m_snap.x(), 3) + wxT("  Z ") + fmt_mm(m_snap.z, 3), u + LineWidth(10), v + LineWidth(6), c);
+	}
+}
+
 void wxPlotPanel::DrawOverlay(wxGraphicsContext *gc) {
 	wxSize sz = GetClientSize();
 	gc->SetFont(m_font, m_colours.text);
 	wxString text;
 	if (m_have_mouse) {
-		CncPoint w = ToWorld(m_mouse);
+		CncPoint w = m_snapped ? m_snap : ToWorld(m_mouse);
 		text = wxString::Format(wxT("X %s   Z %s"), fmt_mm(w.x(), 3), fmt_mm(w.z, 3));
 	} else if (m_path.segments.empty()) {
 		text = wxT("Sin trayectoria");

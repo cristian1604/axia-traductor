@@ -29,6 +29,7 @@ struct s_Settings {
 	int  plot_sash_right;    // posición del divisor en píxeles lógicos (0 = automática)
 	int  plot_sash_below;
 	bool plot_rapids;        // dibujar los rápidos
+	bool plot_stock;         // simular y dibujar la pieza (sección con material)
 };
 
 // Valores por defecto de la configuracion

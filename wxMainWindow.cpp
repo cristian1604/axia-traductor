@@ -682,13 +682,31 @@ void wxMainWindow::buildPlotMenu() {
 	m_menuPlotBelow = menu->AppendRadioItem(wxID_ANY, wxT("Debajo del editor"));
 	menu->AppendSeparator();
 	m_menuPlotRapids = menu->AppendCheckItem(wxID_ANY, wxString::FromUTF8("Dibujar los rápidos"));
+	m_menuPlotStock = menu->AppendCheckItem(wxID_ANY, wxT("Mostrar la pieza"));
 	wxMenuItem *fit = menu->Append(wxID_ANY, wxT("Encuadrar la pieza\tCTRL+E"));
+	menu->AppendSeparator();
+	wxMenuItem *clear = menu->Append(wxID_ANY, wxT("Borrar las cotas medidas"));
 	m_menubar1->Insert(m_menubar1->GetMenuCount() - 1, menu, wxT("&Graficador"));   // antes de Ayuda
 	Bind(wxEVT_MENU, &wxMainWindow::togglePlot, this, m_menuPlotShow->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotRight->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotBelow->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotRapids, this, m_menuPlotRapids->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotStock, this, m_menuPlotStock->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotFit, this, fit->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotClearDims, this, clear->GetId());
+}
+
+void wxMainWindow::plotStock(wxCommandEvent &event) {
+	settings.plot_stock = m_menuPlotStock->IsChecked();
+	savePlotSettings();
+	if (plotVisible()) {
+		m_plot->SetShowStock(settings.plot_stock);
+		updatePlot();
+	}
+}
+
+void wxMainWindow::plotClearDims(wxCommandEvent &event) {
+	m_plot->ClearDimensions();
 }
 
 bool wxMainWindow::plotVisible() const {
@@ -701,7 +719,9 @@ void wxMainWindow::applyPlotLayout() {
 	m_menuPlotRight->Check(!settings.plot_below);
 	m_menuPlotBelow->Check(settings.plot_below);
 	m_menuPlotRapids->Check(settings.plot_rapids);
+	m_menuPlotStock->Check(settings.plot_stock);
 	m_plot->SetShowRapids(settings.plot_rapids);
+	m_plot->SetShowStock(settings.plot_stock);
 	if (m_plotSplitter->IsSplit()) m_plotSplitter->Unsplit(m_plotPanel);
 	if (!settings.plot_visible) return;
 	wxSize sz = m_plotSplitter->GetClientSize();
@@ -724,12 +744,17 @@ void wxMainWindow::updatePlot() {
 	m_plot->SetPath(plot_path);
 	m_plot->SetCurrentLine(m_editor->GetCurrentLine());
 
+	// Mensajes del intérprete y de la simulación de la pieza (rápidos dentro del material)
+	plot_messages = plot_path.messages;
+	const TurnStock &stock = m_plot->GetFullStock();
+	plot_messages.insert(plot_messages.end(), stock.messages.begin(), stock.messages.end());
 	std::vector<int> errors, warnings;
-	for (size_t k = 0; k < plot_path.messages.size(); ++k) {
-		(plot_path.messages[k].error ? errors : warnings).push_back(plot_path.messages[k].line);
+	for (size_t k = 0; k < plot_messages.size(); ++k) {
+		(plot_messages[k].error ? errors : warnings).push_back(plot_messages[k].line);
 	}
 	m_editor->SetMessageMarks(errors, warnings);
 	wxString summary = wxString::Format(wxT("Graficador: %d tramos"), (int) plot_path.segments.size());
+	if (m_plot->HasStock()) summary += stock.cut_off ? wxT(", pieza tronzada") : wxT(", pieza sin tronzar");
 	if (!errors.empty()) summary += wxString::Format(wxT(", %d errores"), (int) errors.size());
 	if (!warnings.empty()) summary += wxString::Format(wxT(", %d avisos"), (int) warnings.size());
 	m_statusBar->SetStatusText(summary, 1);
@@ -802,8 +827,8 @@ void wxMainWindow::onEditorUpdateUI(wxStyledTextEvent &event) {
 	int line = m_editor->GetCurrentLine();
 	m_plot->SetCurrentLine(line);
 	const CncMessage *msg = NULL;
-	for (size_t k = 0; k < plot_path.messages.size(); ++k) {
-		if (plot_path.messages[k].line == line) { msg = &plot_path.messages[k]; break; }
+	for (size_t k = 0; k < plot_messages.size(); ++k) {
+		if (plot_messages[k].line == line) { msg = &plot_messages[k]; break; }
 	}
 	if (msg) {
 		m_statusBar->SetStatusText(wxString::Format(wxT("Línea %d: %s"), line + 1, wxString::FromUTF8(msg->text.c_str())), 0);

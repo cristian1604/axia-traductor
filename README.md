@@ -124,6 +124,19 @@ encuadrar. Se actualiza solo al editar. Interpreta 8025, 8035/8037 y FANUC
 (`CncPath.cpp`); los ciclos fijos y las cotas paramétricas se marcan como no
 soportados. La disposición y el estado se recuerdan en `settings.json`.
 
+Con "Mostrar la pieza" dibuja además la sección de la pieza que va quedando
+hasta la línea actual (`TurnStock.cpp`, booleanas de polígonos exactas con
+Clipper2): el bruto sale del encabezado del generador (`#ODR`/`#IDR` o la
+línea `T4 70 110`) o se estima; las herramientas se modelan por su función
+según la convención del taller (T1, T4 y T5 corte; T2 exterior; T3 y T7
+interior; T6 frenteo), sin cargar catálogos; las ranuras hechas con cuchilla
+se dibujan con un ancho supuesto de 3 mm y se marcan. Tras el tronzado queda
+solo la pieza. Un rápido que atraviesa material se marca como error en el
+editor. Para medir: el puntero se engancha a los vértices del perfil y
+muestra sus X y Z; un clic fija un punto y el segundo deja una cota con ΔX
+en diámetro y en radio, ΔZ y distancia. Retroceso borra la última cota y
+Escape todas.
+
 ## Envío a tornos
 
 `Enviar programa a torno` (F2) abre un diálogo con la lista de `machines.json`.

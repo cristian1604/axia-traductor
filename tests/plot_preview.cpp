@@ -2,7 +2,8 @@
 // Uso: plot_preview <programa> [8025|8035|fanuc]
 // Flechas arriba/abajo (y RePág/AvPág) recorren las líneas del programa como
 // lo hará el cursor del editor; Fin quita el seguimiento; R muestra u oculta
-// los rápidos; P muestra u oculta lo posterior a la línea actual.
+// los rápidos; P muestra u oculta lo posterior a la línea actual; S muestra u
+// oculta la pieza simulada. Clic: puntos de medición; Escape los borra.
 #include <wx/wx.h>
 #include <wx/ffile.h>
 #include "../wxPlotPanel.h"
@@ -32,6 +33,7 @@ class PreviewFrame : public wxFrame {
 		case WXK_END:      m_line = 0; step(-1); break;
 		case 'R': m_plot->SetShowRapids(!m_plot->GetShowRapids()); break;
 		case 'P': m_plot->SetShowFuture(!m_plot->GetShowFuture()); break;
+		case 'S': m_plot->SetShowStock(!m_plot->GetShowStock()); break;
 		default: e.Skip();
 		}
 	}
@@ -64,14 +66,18 @@ public:
 		CreateStatusBar(2);
 		int widths[] = { 260, -1 };
 		GetStatusBar()->SetStatusWidths(2, widths);
+		std::vector<CncMessage> messages = path.messages;
+		const TurnStock &stock = m_plot->GetFullStock();
+		messages.insert(messages.end(), stock.messages.begin(), stock.messages.end());
 		wxString first;
-		for (size_t k = 0; k < path.messages.size(); ++k) {
-			if (first.empty() || (path.messages[k].error && !first.StartsWith(wxT("ERROR")))) {
-				first = wxString::Format(wxT("%s línea %d: %s"), path.messages[k].error ? wxT("ERROR") : wxT("aviso"),
-				                         path.messages[k].line + 1, wxString::FromUTF8(path.messages[k].text.c_str()));
+		for (size_t k = 0; k < messages.size(); ++k) {
+			if (first.empty() || (messages[k].error && !first.StartsWith(wxT("ERROR")))) {
+				first = wxString::Format(wxT("%s línea %d: %s"), messages[k].error ? wxT("ERROR") : wxT("aviso"),
+				                         messages[k].line + 1, wxString::FromUTF8(messages[k].text.c_str()));
 			}
 		}
-		SetStatusText(wxString::Format(wxT("%d tramos, %d avisos"), (int) path.segments.size(), (int) path.messages.size()), 0);
+		SetStatusText(wxString::Format(wxT("%d tramos, %d avisos%s"), (int) path.segments.size(), (int) messages.size(),
+		                               stock.cut_off ? wxT(", tronzada") : wxT("")), 0);
 		SetStatusText(first.empty() ? wxT("Programa completo (flechas para recorrerlo)") : first, 1);
 
 		Bind(wxEVT_CHAR_HOOK, &PreviewFrame::OnKey, this);

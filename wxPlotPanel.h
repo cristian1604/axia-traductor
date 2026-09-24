@@ -3,43 +3,58 @@
 #include <wx/panel.h>
 #include <wx/colour.h>
 #include <wx/font.h>
+#include <vector>
 #include "CncPath.h"
+#include "TurnStock.h"
 
 class wxGraphicsContext;
 class wxGraphicsPath;
 
 /**
-	Colores del graficador. Por ahora fijos (default_plot_colours); en la
-	fase 3 pasan a las Opciones del usuario.
+	Colores del graficador. Por ahora fijos (default_plot_colours); más
+	adelante pasan a las Opciones del usuario.
 **/
 struct PlotColours {
 	wxColour background;
 	wxColour feed;         // G01, G02, G03: trazo continuo
 	wxColour rapid;        // G00: punteado
 	wxColour current;      // tramos de la línea actual del editor
-	wxColour unresolved;   // cotas paramétricas
+	wxColour unresolved;   // cotas paramétricas y ranuras de ancho supuesto
 	wxColour grid;
 	wxColour axes;
 	wxColour text;
 	wxColour ref;          // líneas de referencia #DN/#DA/#HN/#HA
-	wxColour stock;        // relleno del tubo en bruto (con alfa)
+	wxColour stock;        // tubo en bruto (con alfa)
 	wxColour stock_edge;
+	wxColour section;      // material que queda (sección de la pieza)
+	wxColour section_edge;
+	wxColour measure;      // enganche y cotas medidas
 	int future_alpha;      // opacidad (0-255) de lo posterior a la línea actual
 };
 PlotColours default_plot_colours();
 
+// Cota medida entre dos puntos del plano Z/R
+struct PlotDimension {
+	CncPoint a, b;
+};
+
 /**
-	Graficador de trayectorias: dibuja la salida de interpret_cnc (CncPath) en
-	el plano Z/X con wxGraphicsContext (Direct2D/GDI+ en Windows, Cairo en
-	Linux). Z hacia la derecha, X hacia arriba; la vista es la media sección
-	superior de la pieza, con X en diámetro en los rótulos y en las
-	coordenadas del puntero.
+	Graficador de trayectorias y de la pieza: dibuja la salida de
+	interpret_cnc (CncPath) en el plano Z/X con wxGraphicsContext (Direct2D o
+	GDI+ en Windows, Cairo en Linux) y, si se pide, la sección de la pieza que
+	va quedando según simulate_stock (TurnStock). Z hacia la derecha, X hacia
+	arriba; la vista es la media sección superior, con X en diámetro en los
+	rótulos, las coordenadas del puntero y las cotas.
 
 	- Rueda: zoom conservando el punto bajo el cursor. Arrastre con botón
 	  izquierdo o central: desplazamiento. Doble clic o Inicio: encuadrar.
 	  + y -: zoom sobre el centro.
-	- SetCurrentLine resalta los tramos de esa línea y atenúa lo posterior,
-	  para seguir el programa desde el editor.
+	- SetCurrentLine resalta los tramos de esa línea, atenúa lo posterior y
+	  recalcula la pieza hasta esa línea, para seguir el programa desde el editor.
+	- Medición: el puntero se engancha al vértice más cercano del perfil (o
+	  del recorrido, si la pieza está oculta) y muestra sus X y Z. Un clic sin
+	  arrastrar fija un punto; el segundo clic deja una cota con ΔX en
+	  diámetro y en radio, ΔZ y distancia. Retroceso borra la última, Escape todas.
 	Se instancia desde el código generado por wxUiEditor como CustomControl.
 **/
 class wxPlotPanel : public wxPanel {
@@ -50,9 +65,21 @@ public:
 	void SetPath(const CncPath &path);
 	const CncPath &GetPath() const { return m_path; }
 
-	// Línea del programa (desde 0) que se resalta; lo posterior se atenúa. -1: todo normal.
+	// Línea del programa (desde 0) que se resalta; lo posterior se atenúa. -1: todo.
 	void SetCurrentLine(int line);
 	int GetCurrentLine() const { return m_current; }
+
+	// Simulación de la pieza (sección con material). La completa sirve para
+	// los avisos y la que corresponde a la línea actual es la que se dibuja.
+	void SetShowStock(bool show);
+	bool GetShowStock() const { return m_show_stock; }
+	void SetToolTable(const ToolTable &tools);
+	const TurnStock &GetFullStock() const { return m_full_stock; }
+	bool HasStock() const { return m_show_stock && m_stock_def.valid(); }
+
+	// Cotas medidas
+	const std::vector<PlotDimension> &GetDimensions() const { return m_dims; }
+	void ClearDimensions();
 
 	void SetColours(const PlotColours &c);
 	const PlotColours &GetColours() const { return m_colours; }
@@ -75,11 +102,29 @@ private:
 	bool m_show_future = true;
 	bool m_show_rapids = true;
 
+	// Pieza
+	bool m_show_stock = true;
+	ToolTable m_tools;
+	StockDefinition m_stock_def;
+	TurnStock m_full_stock;     // programa completo
+	TurnStock m_stock;          // hasta la línea actual
+	int m_stock_line = -2;      // línea con la que se calculó m_stock
+
+	// Medición
+	std::vector<CncPoint> m_snap_points;
+	bool m_snapped = false;
+	CncPoint m_snap;
+	bool m_have_first = false;
+	CncPoint m_first;
+	std::vector<PlotDimension> m_dims;
+
 	double m_scale = 2;            // píxeles por milímetro
 	double m_ox = 0, m_oy = 0;     // posición en pantalla del origen (Z0, X0)
 	bool m_user_view = false;      // el usuario movió o acercó: no reencuadrar al cambiar el tamaño
 
 	bool m_dragging = false;
+	bool m_moved = false;          // hubo arrastre desde el último botón apretado
+	wxPoint m_press;
 	wxPoint m_drag_last;
 	bool m_have_mouse = false;
 	wxPoint m_mouse;
@@ -96,16 +141,21 @@ private:
 	void OnCaptureLost(wxMouseCaptureLostEvent &event);
 	void OnKey(wxKeyEvent &event);
 
+	void RecomputeStock();
+	void UpdateSnapPoints();
+	void UpdateSnap();
+	void ClickAt(const wxPoint &p);
+
 	void DrawStock(wxGraphicsContext *gc);
 	void DrawGrid(wxGraphicsContext *gc);
 	void DrawRefs(wxGraphicsContext *gc);
 	void DrawPath(wxGraphicsContext *gc);
 	void DrawToolMarker(wxGraphicsContext *gc);
+	void DrawMeasurements(wxGraphicsContext *gc);
 	void DrawOverlay(wxGraphicsContext *gc);
+	void DrawLabel(wxGraphicsContext *gc, const wxString &text, double x, double y, const wxColour &colour);
 	void AddSegment(wxGraphicsPath &path, const CncSegment &s) const;
 	double LineWidth(double dip) const;
-	// Extremos del tubo en bruto en Z (la longitud real no se conoce: se estima de los avances)
-	bool StockRange(double &z_face, double &z_end) const;
 };
 
 #endif

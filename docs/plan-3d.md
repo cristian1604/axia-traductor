@@ -70,7 +70,7 @@ ganancia más inmediata y vale por sí sola.
 | Fase | Contenido | Esfuerzo |
 | --- | --- | --- |
 | A | **Hecha (24-09-2026).** `TurnStock.cpp` con Clipper2 (C++17): sección exacta por booleanas de polígonos; herramienta por función (cuña abierta hacia +Z con filo principal radial y secundario a 52° para exterior e interior, cuadrante para frenteo, franja de ancho supuesto hacia el plato para corte y ranurado); tronzado detectado y resto del tubo descartado; aviso de rápido dentro del material; simulación hasta una línea dada. Tests en `tests/test_stock.cpp`: con P05A la sección final da exactamente las cotas de terminación. `CncPath` lee la herramienta por tramo (T o corrector) y el encabezado del generador en sus tres formas; la traducción a FANUC conserva el encabezado como comentarios | 1 sesión |
-| B | Sección con material en el 2D y aviso de rápidos dentro del material | 0,5 sesión |
+| B | **Hecha (24-09-2026).** `wxPlotPanel` simula la pieza (completa para los avisos, hasta la línea actual para dibujar) y pinta la sección sobre el bruto tenue; ranuras de ancho supuesto marcadas; menú "Mostrar la pieza" (`plot_stock` en settings.json) y "Borrar las cotas medidas"; rápidos dentro del material como error en el editor. Medición sin modo: enganche a los vértices del perfil (o de los avances si la pieza está oculta), clic fija un punto, segundo clic deja la cota ΔX (diám. y radio), ΔZ y distancia; Retroceso y Escape borran | 0,5 sesión |
 | C | `wxTurnView3D`: malla, cámara, corte, luz, herramienta | 1 a 1,5 sesiones |
 | D | `tools.json`, edición desde Opciones, colores del graficador en Opciones | 0,5 sesión |
 
