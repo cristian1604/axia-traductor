@@ -4,6 +4,16 @@
 #include <string>
 #include <vector>
 
+// Marcadores de Scintilla para las líneas con mensajes del intérprete de trayectorias
+enum { MARK_ERROR = 1, MARK_WARNING = 2 };
+
+// Mezcla de dos colores: t = 0 da `a`, t = 1 da `b`
+static wxColour blend(const wxColour &a, const wxColour &b, double t) {
+	return wxColour((unsigned char) (a.Red() + (b.Red() - a.Red()) * t),
+	                (unsigned char) (a.Green() + (b.Green() - a.Green()) * t),
+	                (unsigned char) (a.Blue() + (b.Blue() - a.Blue()) * t));
+}
+
 // Color de la línea del cursor: el fondo un poco más claro (o más oscuro si el fondo es claro)
 static wxColour caret_line_colour(const wxColour &bg) {
 	int lum = (bg.Red() * 299 + bg.Green() * 587 + bg.Blue() * 114) / 1000;
@@ -31,10 +41,25 @@ wxCncEditor::wxCncEditor(wxWindow *parent, wxWindowID id)
 	SetMouseDwellTime(wxSTC_TIME_FOREVER);
 	SetViewEOL(false);
 
+	// Errores y avisos del graficador: fondo de línea (sin margen de símbolos)
+	MarkerDefine(MARK_ERROR, wxSTC_MARK_BACKGROUND);
+	MarkerDefine(MARK_WARNING, wxSTC_MARK_BACKGROUND);
+
 	Bind(wxEVT_STC_STYLENEEDED, &wxCncEditor::OnStyleNeeded, this);
 	Bind(wxEVT_STC_ZOOM, &wxCncEditor::OnZoom, this);
 
 	ApplySettings(default_settings());
+}
+
+void wxCncEditor::SetMessageMarks(const std::vector<int> &error_lines, const std::vector<int> &warning_lines) {
+	ClearMessageMarks();
+	for (size_t k = 0; k < warning_lines.size(); ++k) MarkerAdd(warning_lines[k], MARK_WARNING);
+	for (size_t k = 0; k < error_lines.size(); ++k) MarkerAdd(error_lines[k], MARK_ERROR);
+}
+
+void wxCncEditor::ClearMessageMarks() {
+	MarkerDeleteAll(MARK_ERROR);
+	MarkerDeleteAll(MARK_WARNING);
 }
 
 void wxCncEditor::ApplySettings(const s_Settings &s) {
@@ -58,6 +83,8 @@ void wxCncEditor::ApplySettings(const s_Settings &s) {
 
 	SetCaretForeground(s.colour_text);
 	SetCaretLineBackground(caret_line_colour(s.colour_textCtrl));
+	MarkerSetBackground(MARK_ERROR, blend(s.colour_textCtrl, wxColour(255, 0, 0), 0.35));
+	MarkerSetBackground(MARK_WARNING, blend(s.colour_textCtrl, wxColour(255, 160, 0), 0.25));
 	SetSelBackground(true, wxColour(60, 110, 170));
 	SetSelForeground(false, wxNullColour);   // la selección conserva los colores del texto
 

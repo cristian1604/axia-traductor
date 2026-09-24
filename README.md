@@ -4,8 +4,9 @@
 
 Editor y conversor de programas de mecanizado para tornos CNC. Toma código
 escrito para un control **Fagor 8025** y lo convierte a **Fagor 8035 / 8037**
-o a **FANUC**. Además reenumera líneas, colorea la sintaxis, explora por FTP
-los programas guardados en cada torno y envía el programa al torno elegido.
+o a **FANUC**. Además reenumera líneas, colorea la sintaxis, grafica la
+trayectoria de la herramienta, explora por FTP los programas guardados en
+cada torno y envía el programa al torno elegido.
 
 Este software se desarrolló para necesidades internas y específicas. No cubre
 el 100 % de los casos, pero convierte la gran mayoría de los programas 8025.
@@ -105,6 +106,21 @@ programa convertido antes de ejecutarlo.
 Reenumera desde la línea del `%`: todas las líneas posteriores reciben `Nxxxx`
 con un paso que depende de la cantidad de líneas (10, 5, 2 o 1), y los saltos
 `G25` a `G29` se actualizan al nuevo número de su línea destino.
+
+## Graficador
+
+`Graficador → Mostrar graficador` (F6) abre junto al editor, a la derecha o
+debajo según se elija en el mismo menú, el dibujo de la trayectoria del
+programa: rápidos punteados, avances continuos, arcos, líneas de referencia
+del encabezado (`#DN`, `#DA`, `#HN`, `#HA`) y la sección del tubo en bruto
+(`#ODR`, `#IDR`). X se muestra en diámetro. El dibujo sigue al cursor del
+editor: el tramo de la línea actual se resalta y lo posterior se atenúa. Las
+líneas con errores o avisos del intérprete quedan marcadas en el editor y su
+mensaje aparece en la barra de estado al pasar por ellas. Rueda: zoom sobre
+el punto bajo el cursor; arrastrar: desplazar; doble clic o Ctrl+E:
+encuadrar. Se actualiza solo al editar. Interpreta 8025, 8035/8037 y FANUC
+(`CncPath.cpp`); los ciclos fijos y las cotas paramétricas se marcan como no
+soportados. La disposición y el estado se recuerdan en `settings.json`.
 
 ## Envío a tornos
 

@@ -13,6 +13,7 @@
 #include <wx/sizer.h>
 
 #include "wxCncEditor.h"
+#include "wxPlotPanel.h"
 
 #include "wxMainWindowBase.h"
 
@@ -137,8 +138,29 @@ bool wxMainWindowBase::Create(wxWindow* parent, wxWindowID id, const wxString& t
 
     auto* bSizer7 = new wxBoxSizer(wxVERTICAL);
 
-    m_editor = new wxCncEditor( m_panel2, wxID_ANY );
-    bSizer7->Add(m_editor, wxSizerFlags(1).Expand().Border(wxALL));
+    m_plotSplitter = new wxSplitterWindow(m_panel2, wxID_ANY, wxDefaultPosition, wxDefaultSize,
+        wxSP_3D|wxSP_LIVE_UPDATE);
+    m_plotSplitter->SetSashGravity(0.0);
+    m_plotSplitter->SetMinimumPaneSize(80);
+    bSizer7->Add(m_plotSplitter, wxSizerFlags(1).Expand().Border(wxALL));
+
+    m_editorPanel = new wxPanel(m_plotSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
+
+    auto* bSizer8 = new wxBoxSizer(wxVERTICAL);
+
+    m_editor = new wxCncEditor( m_editorPanel, wxID_ANY );
+    bSizer8->Add(m_editor, wxSizerFlags(1).Expand());
+    m_editorPanel->SetSizerAndFit(bSizer8);
+
+    m_plotPanel = new wxPanel(m_plotSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL);
+
+    auto* bSizer9 = new wxBoxSizer(wxVERTICAL);
+
+    m_plot = new wxPlotPanel( m_plotPanel, wxID_ANY );
+    bSizer9->Add(m_plot, wxSizerFlags(1).Expand());
+    m_plotPanel->SetSizerAndFit(bSizer9);
+    m_plotSplitter->SplitVertically(m_editorPanel, m_plotPanel);
+    m_plotSplitter->SetSashPosition(700);
     m_panel2->SetSizerAndFit(bSizer7);
     m_splitter1->SplitVertically(m_panel1, m_panel2);
     m_splitter1->SetSashPosition(242);

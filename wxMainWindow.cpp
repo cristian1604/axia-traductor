@@ -69,7 +69,7 @@ static void scale_menu(wxMenu *menu, double scale) {
 }
 
 wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
-	syntax_version(FAGOR_8025), srch(NULL) {
+	syntax_version(FAGOR_8025), srch(NULL), status_has_plot_message(false) {
 	m_statusBar->SetLabel("Programa iniciado");
 	m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
 	m_statusBar->SetStatusText("AXIA", 2);
@@ -90,6 +90,18 @@ wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 	m_editor->Bind(wxEVT_STC_SAVEPOINTLEFT, &wxMainWindow::onModifiedChanged, this);
 	m_editor->Bind(wxEVT_STC_SAVEPOINTREACHED, &wxMainWindow::onModifiedChanged, this);
 	Bind(wxEVT_CLOSE_WINDOW, &wxMainWindow::onClose, this);
+
+	// Graficador: menú propio (como el menú de tornos, se arma en código), oculto
+	// hasta que el usuario lo muestre; la disposición se aplica en splitterFirstIdle,
+	// cuando la ventana ya tiene su tamaño definitivo.
+	buildPlotMenu();
+	plot_timer.SetOwner(this);
+	Bind(wxEVT_TIMER, &wxMainWindow::onPlotTimer, this);
+	m_editor->Bind(wxEVT_STC_CHANGE, &wxMainWindow::onEditorChanged, this);
+	m_editor->Bind(wxEVT_STC_UPDATEUI, &wxMainWindow::onEditorUpdateUI, this);
+	m_plotSplitter->Bind(wxEVT_SPLITTER_SASH_POS_CHANGED, &wxMainWindow::onPlotSash, this);
+	m_plotSplitter->SetSashGravity(0.5);
+	m_plotSplitter->Unsplit(m_plotPanel);
 
 	// La aplicación es consciente del DPI (manifest.xml) pero wxWidgets en
 	// Windows no escala los tamaños fijos del diseño: se convierten con FromDIP.
@@ -128,6 +140,11 @@ wxMainWindow::~wxMainWindow() {
 void wxMainWindow::splitterFirstIdle(wxIdleEvent &event) {
 	m_splitter1->SetSashPosition(FromDIP(242));
 	m_splitter1->Unbind(wxEVT_IDLE, &wxMainWindow::splitterFirstIdle, this);
+	applyPlotLayout();
+	if (settings.plot_visible) {
+		updatePlot();
+		m_plot->FitToPath();
+	}
 }
 
 void wxMainWindow::showProgram(const wxString &program, int standard) {
@@ -135,6 +152,10 @@ void wxMainWindow::showProgram(const wxString &program, int standard) {
 	m_syntax_slection->SetSelection(standard == FAGOR_8025 ? 0 : 1);
 	m_editor->SetStandard(standard);
 	m_editor->SetProgram(program, true);
+	if (plotVisible()) {
+		updatePlot();
+		m_plot->FitToPath();   // programa nuevo: se encuadra aunque la vista fuera del usuario
+	}
 }
 
 /** LOAD PROGRAM FOR 8025 FROM FILE **/
@@ -174,6 +195,7 @@ void wxMainWindow::update_syntax_highlight( wxCommandEvent& event )  {
 	}
 	m_editor->SetStandard(syntax_version);
 	m_editor->SetFocus();
+	updatePlot();   // el dialecto cambia la interpretación (A/Q, U/W, ciclos)
 }
 
 /**  TRANSLATION  **/
@@ -643,4 +665,146 @@ void wxMainWindow::openSendDialog() {
 /** Botón "Enviar el programa al CNC conectado": mismo diálogo, con el torno conectado preseleccionado */
 void wxMainWindow::sendProgramOnFly( wxCommandEvent& event ) {
 	openSendDialog();
+}
+
+///**  GRAFICADOR  ** ///
+
+void wxMainWindow::buildPlotMenu() {
+	wxMenu *menu = new wxMenu();
+	m_menuPlotShow = menu->AppendCheckItem(wxID_ANY, wxT("Mostrar graficador\tF6"));
+	menu->AppendSeparator();
+	m_menuPlotRight = menu->AppendRadioItem(wxID_ANY, wxT("A la derecha del editor"));
+	m_menuPlotBelow = menu->AppendRadioItem(wxID_ANY, wxT("Debajo del editor"));
+	menu->AppendSeparator();
+	m_menuPlotRapids = menu->AppendCheckItem(wxID_ANY, wxString::FromUTF8("Dibujar los rápidos"));
+	wxMenuItem *fit = menu->Append(wxID_ANY, wxT("Encuadrar la pieza\tCTRL+E"));
+	m_menubar1->Insert(m_menubar1->GetMenuCount() - 1, menu, wxT("&Graficador"));   // antes de Ayuda
+	Bind(wxEVT_MENU, &wxMainWindow::togglePlot, this, m_menuPlotShow->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotRight->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotBelow->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotRapids, this, m_menuPlotRapids->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotFit, this, fit->GetId());
+}
+
+bool wxMainWindow::plotVisible() const {
+	return m_plotSplitter->IsSplit();
+}
+
+// Muestra u oculta el graficador según settings y lo ubica a la derecha o debajo
+void wxMainWindow::applyPlotLayout() {
+	m_menuPlotShow->Check(settings.plot_visible);
+	m_menuPlotRight->Check(!settings.plot_below);
+	m_menuPlotBelow->Check(settings.plot_below);
+	m_menuPlotRapids->Check(settings.plot_rapids);
+	m_plot->SetShowRapids(settings.plot_rapids);
+	if (m_plotSplitter->IsSplit()) m_plotSplitter->Unsplit(m_plotPanel);
+	if (!settings.plot_visible) return;
+	wxSize sz = m_plotSplitter->GetClientSize();
+	if (settings.plot_below) {
+		int sash = settings.plot_sash_below > 0 ? FromDIP(settings.plot_sash_below) : sz.y / 2;
+		m_plotSplitter->SplitHorizontally(m_editorPanel, m_plotPanel, sash);
+	} else {
+		int sash = settings.plot_sash_right > 0 ? FromDIP(settings.plot_sash_right) : sz.x * 55 / 100;
+		m_plotSplitter->SplitVertically(m_editorPanel, m_plotPanel, sash);
+	}
+}
+
+// Reinterpreta el programa del editor y actualiza el dibujo, las marcas de
+// error en el editor y el resumen de la barra de estado
+void wxMainWindow::updatePlot() {
+	plot_timer.Stop();
+	if (!plotVisible()) return;
+	wxCharBuffer raw = m_editor->GetTextRaw();
+	plot_path = interpret_cnc(std::string(raw.data(), raw.length()), syntax_version);
+	m_plot->SetPath(plot_path);
+	m_plot->SetCurrentLine(m_editor->GetCurrentLine());
+
+	std::vector<int> errors, warnings;
+	for (size_t k = 0; k < plot_path.messages.size(); ++k) {
+		(plot_path.messages[k].error ? errors : warnings).push_back(plot_path.messages[k].line);
+	}
+	m_editor->SetMessageMarks(errors, warnings);
+	wxString summary = wxString::Format(wxT("Graficador: %d tramos"), (int) plot_path.segments.size());
+	if (!errors.empty()) summary += wxString::Format(wxT(", %d errores"), (int) errors.size());
+	if (!warnings.empty()) summary += wxString::Format(wxT(", %d avisos"), (int) warnings.size());
+	m_statusBar->SetStatusText(summary, 1);
+}
+
+void wxMainWindow::savePlotSettings() {
+	FileManager F;
+	F.saveSettings(settings);
+}
+
+void wxMainWindow::togglePlot(wxCommandEvent &event) {
+	settings.plot_visible = !plotVisible();
+	applyPlotLayout();
+	savePlotSettings();
+	if (settings.plot_visible) {
+		updatePlot();
+		m_plot->FitToPath();
+	} else {
+		m_editor->ClearMessageMarks();
+		m_statusBar->SetStatusText("8025 -> 8035 / 8037 / FANUC", 1);
+		if (status_has_plot_message) {
+			m_statusBar->SetStatusText(wxEmptyString, 0);
+			status_has_plot_message = false;
+		}
+	}
+	m_editor->SetFocus();
+}
+
+void wxMainWindow::plotLayoutChanged(wxCommandEvent &event) {
+	settings.plot_below = (event.GetId() == m_menuPlotBelow->GetId());
+	applyPlotLayout();
+	savePlotSettings();
+}
+
+void wxMainWindow::plotRapids(wxCommandEvent &event) {
+	settings.plot_rapids = m_menuPlotRapids->IsChecked();
+	m_plot->SetShowRapids(settings.plot_rapids);
+	savePlotSettings();
+}
+
+void wxMainWindow::plotFit(wxCommandEvent &event) {
+	if (plotVisible()) m_plot->FitToPath();
+}
+
+// También llega al redistribuir el divisor por un cambio de tamaño de la ventana:
+// solo se guarda si la posición cambió de verdad
+void wxMainWindow::onPlotSash(wxSplitterEvent &event) {
+	event.Skip();
+	int sash = ToDIP(event.GetSashPosition());
+	int &stored = settings.plot_below ? settings.plot_sash_below : settings.plot_sash_right;
+	if (sash == stored) return;
+	stored = sash;
+	savePlotSettings();
+}
+
+// El texto cambió: se reinterpreta con un pequeño retardo para no hacerlo en cada tecla
+void wxMainWindow::onEditorChanged(wxStyledTextEvent &event) {
+	if (plotVisible()) plot_timer.StartOnce(300);
+	event.Skip();
+}
+
+void wxMainWindow::onPlotTimer(wxTimerEvent &event) {
+	updatePlot();
+}
+
+// El cursor se movió: se resalta la línea en el dibujo y se muestra su mensaje, si tiene
+void wxMainWindow::onEditorUpdateUI(wxStyledTextEvent &event) {
+	event.Skip();
+	if (!plotVisible()) return;
+	int line = m_editor->GetCurrentLine();
+	m_plot->SetCurrentLine(line);
+	const CncMessage *msg = NULL;
+	for (size_t k = 0; k < plot_path.messages.size(); ++k) {
+		if (plot_path.messages[k].line == line) { msg = &plot_path.messages[k]; break; }
+	}
+	if (msg) {
+		m_statusBar->SetStatusText(wxString::Format(wxT("Línea %d: %s"), line + 1, wxString::FromUTF8(msg->text.c_str())), 0);
+		status_has_plot_message = true;
+	} else if (status_has_plot_message) {
+		m_statusBar->SetStatusText(wxEmptyString, 0);
+		status_has_plot_message = false;
+	}
 }

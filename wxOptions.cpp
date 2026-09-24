@@ -18,6 +18,11 @@ s_Settings default_settings() {
 	s.last_machine = "";
 	s.last_filename = "";
 	s.close_after_transfer = true;
+	s.plot_visible = false;
+	s.plot_below = false;
+	s.plot_sash_right = 0;
+	s.plot_sash_below = 0;
+	s.plot_rapids = true;
 	return s;
 }
 

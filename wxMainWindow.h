@@ -2,11 +2,15 @@
 #define WXMAINWINDOW_H
 #include "wxMainWindowBase.h"
 #include "wxCncEditor.h"
+#include "wxPlotPanel.h"
+#include "CncPath.h"
 #include "wxSearch.h"
 #include "wxOptions.h"
 #include "FileManager.h"
 #include <SFML/Network.hpp>
 #include "Machines.h"
+#include <wx/timer.h>
+#include <wx/splitter.h>
 #include <vector>
 
 
@@ -37,6 +41,26 @@ private:
 	void onClose(wxCloseEvent &event);
 	bool confirmDiscard(const wxString &action);
 	bool saveProgram();
+
+	// Graficador: panel junto al editor (a la derecha o debajo), sincronizado
+	// con el texto (con un pequeño retardo) y con la línea del cursor
+	wxTimer plot_timer;
+	CncPath plot_path;
+	bool status_has_plot_message;
+	wxMenuItem *m_menuPlotShow, *m_menuPlotRight, *m_menuPlotBelow, *m_menuPlotRapids;
+	void buildPlotMenu();
+	bool plotVisible() const;
+	void applyPlotLayout();
+	void updatePlot();
+	void savePlotSettings();
+	void togglePlot(wxCommandEvent &event);
+	void plotLayoutChanged(wxCommandEvent &event);
+	void plotRapids(wxCommandEvent &event);
+	void plotFit(wxCommandEvent &event);
+	void onPlotSash(wxSplitterEvent &event);
+	void onPlotTimer(wxTimerEvent &event);
+	void onEditorChanged(wxStyledTextEvent &event);
+	void onEditorUpdateUI(wxStyledTextEvent &event);
 protected:
 	void sendProgramOnFly( wxCommandEvent& event ) ;
 	void openFormSendProgram( wxCommandEvent& event ) ;

@@ -27,6 +27,7 @@
 #include <wx/treectrl.h>
 
 class wxCncEditor;
+class wxPlotPanel;
 
 class wxMainWindowBase : public wxFrame
 {
@@ -85,8 +86,12 @@ protected:
     wxMenu* m_menu3;
     wxMenu* m_menu5;
     wxMenuBar* m_menubar1;
+    wxPanel* m_editorPanel;
     wxPanel* m_panel1;
     wxPanel* m_panel2;
+    wxPanel* m_plotPanel;
+    wxPlotPanel* m_plot;
+    wxSplitterWindow* m_plotSplitter;
     wxSplitterWindow* m_splitter1;
     wxStaticBitmap* m_bitmap1;
     wxStatusBar* m_statusBar;

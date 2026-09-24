@@ -1,6 +1,7 @@
 #ifndef WXCNCEDITOR_H
 #define WXCNCEDITOR_H
 #include <wx/stc/stc.h>
+#include <vector>
 #include "Settings.h"
 #include "CncStandard.h"
 
@@ -26,6 +27,9 @@ public:
 	void ApplySettings(const s_Settings &s);
 	// Reemplaza todo el texto; con resetUndo se descarta el historial (archivo recién abierto)
 	void SetProgram(const wxString &text, bool resetUndo);
+	// Fondo de las líneas con errores o avisos del intérprete de trayectorias (líneas desde 0)
+	void SetMessageMarks(const std::vector<int> &error_lines, const std::vector<int> &warning_lines);
+	void ClearMessageMarks();
 };
 
 #endif

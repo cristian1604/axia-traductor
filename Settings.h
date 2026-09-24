@@ -22,6 +22,13 @@ struct s_Settings {
 	wxString last_machine;
 	wxString last_filename;
 	bool close_after_transfer;
+
+	// Graficador (se cambia desde su menú, no desde el diálogo de opciones)
+	bool plot_visible;       // mostrar el graficador junto al editor
+	bool plot_below;         // debajo del editor (si no, a la derecha)
+	int  plot_sash_right;    // posición del divisor en píxeles lógicos (0 = automática)
+	int  plot_sash_below;
+	bool plot_rapids;        // dibujar los rápidos
 };
 
 // Valores por defecto de la configuracion

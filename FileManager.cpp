@@ -79,6 +79,11 @@ bool FileManager::loadSettings(s_Settings &s) {
 	s.last_machine        = wxString::FromUTF8(j.value("last_machine", string()).c_str());
 	s.last_filename       = wxString::FromUTF8(j.value("last_filename", string()).c_str());
 	s.close_after_transfer = j.value("close_after_transfer", s.close_after_transfer);
+	s.plot_visible        = j.value("plot_visible", s.plot_visible);
+	s.plot_below          = j.value("plot_below", s.plot_below);
+	s.plot_sash_right     = j.value("plot_sash_right", s.plot_sash_right);
+	s.plot_sash_below     = j.value("plot_sash_below", s.plot_sash_below);
+	s.plot_rapids         = j.value("plot_rapids", s.plot_rapids);
 	return true;
 }
 
@@ -97,6 +102,11 @@ bool FileManager::saveSettings(s_Settings &s) {
 	j["last_machine"]        = string(s.last_machine.ToUTF8());
 	j["last_filename"]       = string(s.last_filename.ToUTF8());
 	j["close_after_transfer"] = s.close_after_transfer;
+	j["plot_visible"]        = s.plot_visible;
+	j["plot_below"]          = s.plot_below;
+	j["plot_sash_right"]     = s.plot_sash_right;
+	j["plot_sash_below"]     = s.plot_sash_below;
+	j["plot_rapids"]         = s.plot_rapids;
 	ofstream out(user_settings_file().ToStdString());
 	if (!out.is_open()) return false;
 	out << j.dump(4) << endl;

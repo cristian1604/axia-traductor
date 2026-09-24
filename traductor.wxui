@@ -146,14 +146,57 @@
               orientation="wxVERTICAL"
               var_name="bSizer7">
               <node
-                class="CustomControl"
-                class_name="wxCncEditor"
-                header="wxCncEditor.h"
-                construction="m_editor = new wxCncEditor( m_panel2, wxID_ANY );"
-                var_name="m_editor"
-                minimum_size="-1,-1"
+                class="wxSplitterWindow"
+                class_access="protected:"
+                min_pane_size="80"
+                sashpos="700"
+                style="wxSP_3D|wxSP_LIVE_UPDATE"
+                var_name="m_plotSplitter"
                 flags="wxEXPAND"
-                proportion="1" />
+                proportion="1">
+                <node
+                  class="wxPanel"
+                  class_access="protected:"
+                  var_name="m_editorPanel"
+                  window_style="wxTAB_TRAVERSAL">
+                  <node
+                    class="wxBoxSizer"
+                    orientation="wxVERTICAL"
+                    var_name="bSizer8">
+                    <node
+                      class="CustomControl"
+                      class_name="wxCncEditor"
+                      header="wxCncEditor.h"
+                      construction="m_editor = new wxCncEditor( m_editorPanel, wxID_ANY );"
+                      var_name="m_editor"
+                      minimum_size="-1,-1"
+                      borders=""
+                      flags="wxEXPAND"
+                      proportion="1" />
+                  </node>
+                </node>
+                <node
+                  class="wxPanel"
+                  class_access="protected:"
+                  var_name="m_plotPanel"
+                  window_style="wxTAB_TRAVERSAL">
+                  <node
+                    class="wxBoxSizer"
+                    orientation="wxVERTICAL"
+                    var_name="bSizer9">
+                    <node
+                      class="CustomControl"
+                      class_name="wxPlotPanel"
+                      header="wxPlotPanel.h"
+                      construction="m_plot = new wxPlotPanel( m_plotPanel, wxID_ANY );"
+                      var_name="m_plot"
+                      minimum_size="-1,-1"
+                      borders=""
+                      flags="wxEXPAND"
+                      proportion="1" />
+                  </node>
+                </node>
+              </node>
             </node>
           </node>
         </node>
