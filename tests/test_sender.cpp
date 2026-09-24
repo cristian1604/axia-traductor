@@ -50,6 +50,16 @@ int main() {
 	CHECK(normalize_remote_name("P05A.PIT") == "P05A.PIT");
 	CHECK(normalize_remote_name("P05A.pit") == "P05A.pit");
 
+	// Nombre propuesto en el diálogo: sin la extensión que se agrega al enviar
+	CHECK(strip_program_extension("000030.pit") == "000030");
+	CHECK(strip_program_extension("P05A.PIT") == "P05A");
+	CHECK(strip_program_extension("P05A.NC") == "P05A");
+	CHECK(strip_program_extension("P05A.txt") == "P05A");
+	CHECK(strip_program_extension("P05A") == "P05A");
+	CHECK(strip_program_extension("P05A.RIG") == "P05A.RIG");   // no es extensión de programa
+	CHECK(strip_program_extension("P05A.RIG.pit") == "P05A.RIG");
+	CHECK(normalize_remote_name(strip_program_extension("000030.pit")) == "000030.pit");
+
 	if (failures == 0) printf("OK: todos los tests de envío pasaron\n");
 	return failures == 0 ? 0 : 1;
 }

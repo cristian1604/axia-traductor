@@ -18,6 +18,7 @@
 #include "CncStandard.h"
 #include "Renumber.h"
 #include "AppPaths.h"
+#include "Sender.h"
 #include "wxSendWindow.h"
 #include <wx/iconbndl.h>
 #include <wx/display.h>
@@ -582,9 +583,11 @@ void wxMainWindow::RenameFtpFile( wxCommandEvent& event )  {
 		return;
 	}
 
+	// Se propone el nombre sin ".pit" (se vuelve a agregar abajo), como en el envío
+	wxString current = wxString::FromUTF8(strip_program_extension(std::string(m_treeCtrl1->GetItemText(item).ToUTF8())).c_str());
 	wxString fname = wxGetTextFromUser ("Renombrar",
 					   "Renombrar archivo",
-					   m_treeCtrl1->GetItemText(item));
+					   current);
 	if (!fname.IsEmpty()) {
 		if (!fname.Lower().EndsWith(".pit")) {
 			fname += ".pit";

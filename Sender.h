@@ -23,4 +23,9 @@ SendResult send_fanuc_udp(const Machine &machine, const std::string &program);
 // Nombre de archivo normalizado para el torno: sin espacios y con extensión .pit
 std::string normalize_remote_name(const std::string &name);
 
+// Nombre para mostrar y editar: sin la extensión de programa (.pit, .nc, .txt,
+// en cualquier combinación de mayúsculas), que normalize_remote_name vuelve a
+// poner al enviar. Los operarios la borraban a mano cada vez.
+std::string strip_program_extension(const std::string &name);
+
 #endif

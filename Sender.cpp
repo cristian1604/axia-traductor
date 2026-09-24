@@ -93,3 +93,12 @@ std::string normalize_remote_name(const std::string &name) {
 	else if (ext != "pit") n = n.substr(0, dot) + ".pit";
 	return n;
 }
+
+std::string strip_program_extension(const std::string &name) {
+	size_t dot = name.find_last_of('.');
+	if (dot == std::string::npos) return name;
+	std::string ext = name.substr(dot + 1);
+	for (size_t i = 0; i < ext.size(); ++i) ext[i] = (char) tolower((unsigned char) ext[i]);
+	if (ext == "pit" || ext == "nc" || ext == "txt") return name.substr(0, dot);
+	return name;
+}

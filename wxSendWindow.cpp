@@ -31,7 +31,10 @@ wxSendWindow::wxSendWindow(wxWindow *parent, const std::vector<Machine> &machine
 	grid->Add(m_machine, 1, wxEXPAND);
 
 	grid->Add(new wxStaticText(this, wxID_ANY, wxT("Nombre en el torno:")), 0, wxALIGN_CENTER_VERTICAL);
+	// Sin extensión: la agrega normalize_remote_name al enviar, y a los operarios
+	// les molestaba tener que borrar el ".pit" del último nombre usado
 	wxString name = suggestedName.IsEmpty() ? settings.last_filename : suggestedName;
+	name = wxString::FromUTF8(strip_program_extension(std::string(name.ToUTF8())).c_str());
 	m_name = new wxTextCtrl(this, wxID_ANY, name, wxDefaultPosition, FromDIP(wxSize(260, -1)), wxTE_PROCESS_ENTER);
 	grid->Add(m_name, 1, wxEXPAND);
 
@@ -126,7 +129,7 @@ void wxSendWindow::OnSend(wxCommandEvent &event) {
 
 	sent = true;
 	settings.last_machine = wxString::FromUTF8(machine.name.c_str());
-	settings.last_filename = remoteName;
+	settings.last_filename = wxString::FromUTF8(strip_program_extension(remoteName).c_str());
 	settings.close_after_transfer = m_close->GetValue();
 	FileManager F;
 	F.saveSettings(settings);
