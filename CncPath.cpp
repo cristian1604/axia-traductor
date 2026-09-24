@@ -2,6 +2,8 @@
 #include <cmath>
 #include <cctype>
 #include <cstdio>
+#include <cstdlib>
+#include <algorithm>
 
 namespace {
 
@@ -209,6 +211,7 @@ private:
 	bool incremental = false;   // G91 (Fagor)
 	bool started = false;
 	bool ended = false;
+	int tool_t = 0, tool_d = 0; // última T y último corrector: la herramienta es T, o D si T es 0
 
 	// "A1 A2" sin cota: se resuelve con el bloque siguiente
 	bool pending_angles = false;
@@ -226,6 +229,53 @@ private:
 		m.error = error;
 		m.text = text;
 		path.messages.push_back(m);
+	}
+
+	// --- encabezado del generador: "T4  70  110" y "NOMBRE largo d1 d2" ---
+	static std::vector<std::string> split_words(const std::string &s) {
+		std::vector<std::string> out;
+		size_t i = 0;
+		while (i < s.size()) {
+			while (i < s.size() && (is_space(s[i]) || s[i] == '\r')) ++i;
+			size_t b = i;
+			while (i < s.size() && !is_space(s[i]) && s[i] != '\r') ++i;
+			if (i > b) out.push_back(s.substr(b, i - b));
+		}
+		return out;
+	}
+
+	static bool whole_number(const std::string &w, double &v) {
+		size_t i = 0;
+		return parse_number(w, i, v) && i == w.size();
+	}
+
+	// true si la línea era una de las dos del generador
+	bool generator_line(const std::string &s) {
+		std::vector<std::string> w = split_words(s);
+		double a, b, c;
+		if (w.size() == 3 && upper(w[0][0]) == 'T' && w[0].size() > 1 && is_digit(w[0][1])
+		    && whole_number(w[1], a) && whole_number(w[2], b)) {
+			path.cutoff_tool = atoi(w[0].c_str() + 1);
+			if (!path.stock.valid()) {   // "#ODR"/"#IDR" tienen prioridad si aparecen
+				path.stock.outer_diameter = std::max(a, b);
+				path.stock.inner_diameter = std::min(a, b);
+			}
+			return true;
+		}
+		if (w.size() == 4 && !is_digit(w[0][0]) && whole_number(w[1], a) && whole_number(w[2], b) && whole_number(w[3], c)) {
+			path.part_name = w[0];
+			path.part_length = a;
+			return true;
+		}
+		return false;
+	}
+
+	// Línea de encabezado (antes del '%', o comentario con esos datos después)
+	void header_text(const std::string &s, size_t i, int line) {
+		while (i < s.size() && (is_space(s[i]) || s[i] == ';')) ++i;
+		if (i >= s.size()) return;
+		if (s[i] == '#') header_line(s, i, line);
+		else generator_line(s.substr(i));
 	}
 
 	// --- encabezado "#XX= valor" (antes del inicio del programa) ---
@@ -290,11 +340,20 @@ private:
 
 		if (!started) {
 			if (is_program_start(s, i)) started = true;
-			else if (s[i] == '#') header_line(s, i, line);
+			else header_text(s, i, line);
 			return;
 		}
 		if (s[i] == '%') return;   // fin de cinta FANUC o '%' repetido
 		if (d.fanuc && upper(s[i]) == 'O' && i + 1 < s.size() && is_digit(s[i + 1])) return;
+		if (s[i] == '(') {
+			// Comentario suelto: puede traer el encabezado conservado por la traducción a FANUC
+			size_t e = s.find(')', i);
+			header_text(s.substr(i + 1, (e == std::string::npos ? s.size() : e) - i - 1), 0, line);
+		} else if (s[i] == ';' && d.semicolon_comments) {
+			// Ídem con la traducción a 8035, que lo conserva como ";#DN= ..." tras el '%'
+			header_text(s, i, line);
+			return;
+		}
 
 		// Etiqueta de bloque
 		if (upper(s[i]) == 'N' && i + 1 < s.size() && is_digit(s[i + 1])) {
@@ -393,6 +452,21 @@ private:
 			} else if (w.letter == 'M') {
 				int m = (int) std::floor(w.value + 0.5);
 				if (!w.bare && (m == 30 || m == 2)) ends = true;
+			} else if (w.letter == 'T' && !w.bare && !w.param) {
+				if (d.fanuc) {
+					// Tnnmm: herramienta y corrector de dos dígitos
+					int v = (int) std::floor(w.value + 0.5);
+					tool_t = v / 100;
+					tool_d = v % 100;
+				} else {
+					// Fagor: Tnn.mm (8025) o Tnn (8035, el corrector va en D)
+					double ip = std::floor(w.value + 1e-9);
+					tool_t = (int) ip;
+					int frac = (int) std::floor((w.value - ip) * 100 + 0.5);
+					if (frac > 0) tool_d = frac;
+				}
+			} else if (w.letter == 'D' && d.fagor_8035 && !w.bare && !w.param) {
+				tool_d = (int) std::floor(w.value + 0.5);
 			}
 		}
 		if (ends) ended = true;
@@ -542,6 +616,8 @@ private:
 
 	CncSegmentKind line_kind() const { return motion == 0 ? SEG_RAPID : SEG_LINE; }
 
+	int current_tool() const { return tool_t > 0 ? tool_t : tool_d; }
+
 	void emit_line(const CncPoint &to, int line, bool param) {
 		CncSegment s;
 		s.kind = line_kind();
@@ -549,6 +625,7 @@ private:
 		s.to = to;
 		s.line = line;
 		s.unresolved = param;
+		s.tool = current_tool();
 		if (param) message(line, false, "cota paramétrica: tramo no resuelto");
 		apply_corner(s);
 		path.segments.push_back(s);
@@ -562,6 +639,7 @@ private:
 		s.to = to;
 		s.line = line;
 		s.unresolved = param;
+		s.tool = current_tool();
 		if (param) message(line, false, "cota paramétrica: tramo no resuelto");
 
 		bool ok = false;

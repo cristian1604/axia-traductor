@@ -121,6 +121,12 @@ int main(int argc, char **argv) {
 		CHECK(out.find("M30\n") != std::string::npos);
 	}
 
+	// 4d. FANUC: el encabezado del generador se conserva como comentarios tras el número de programa
+	{
+		std::string out = translate_8025_to_fanuc_text("Cliente:  Rigolleau (S.A.)\n#DN= 100.000\nT4  70  110\nP05A  6   84.5  100\n\n%1\nN0010 G00 X1\n", defaults);
+		CHECK(out.find("%0001\n(CLIENTE:  RIGOLLEAU  S.A. )\n(#DN= 100.000)\n(T4  70  110)\n(P05A  6   84.5  100)\nN0010 G00 X1\n") != std::string::npos);
+	}
+
 	// 4c. FANUC: redondeo de esquina G36 R -> ,R al final del bloque
 	{
 		std::string out = translate_8025_to_fanuc_text("%1\nN0010  G1 Z0\nN0020  G36 R1 X20 Z-3\nN0030  Z-10\nN0040  G36 R0.5 X30\n", defaults);

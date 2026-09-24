@@ -403,10 +403,23 @@ string translate_8025_to_fanuc_text(const string &source, const TranslationSetti
 	/** Epílogo: desde "P1 = P1 F2 P2" hasta "M30" **/
 	aux = replace_block_lines("P1 = P1 F2 P2", "M30", aux, expand_template(settings.fanuc_epilogue, restart, restart_label, tool));
 
+	// Las líneas anteriores al '%' (encabezado del generador: cliente, #DN, tubo,
+	// pieza) se conservan como comentarios después del número de programa, en
+	// mayúsculas y sin paréntesis internos, para que el graficador pueda leer
+	// el bruto y las cotas de referencia también en la versión FANUC.
+	string header;
 	while (!aux.empty()) {
 		string line = take_line(aux);
-		// Las líneas anteriores al '%' se descartan
 		if (!program_initiated && (line.empty() || line[0] != '%')) {
+			size_t b = line.find_first_not_of(" \t\r");
+			if (b == string::npos) continue;
+			size_t e = line.find_last_not_of(" \t\r");
+			string text = line.substr(b, e - b + 1);
+			for (size_t i = 0; i < text.size(); ++i) {
+				if (text[i] == '(' || text[i] == ')') text[i] = ' ';
+				else text[i] = (char) toupper((unsigned char) text[i]);
+			}
+			header += "(" + text + ")\n";
 			continue;
 		}
 		program_initiated = true;
@@ -433,6 +446,7 @@ string translate_8025_to_fanuc_text(const string &source, const TranslationSetti
 				}
 				if (!header_inserted) {
 					translated += sentence;   // el '\n' lo agrega el fin de línea
+					if (!header.empty()) translated += '\n' + header.substr(0, header.size() - 1);
 					header_inserted = true;
 				}
 				break;

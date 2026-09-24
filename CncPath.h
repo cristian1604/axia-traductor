@@ -38,6 +38,9 @@ struct CncSegment {
 	double radius = 0;       // solo arcos
 	int line = 0;            // índice (desde 0) de la línea del programa
 	bool unresolved = false; // alguna cota era paramétrica: el punto final no es confiable
+	// Herramienta activa: el número T o, si T es 0, el corrector (T0.02 -> 2,
+	// D03 -> 3, T0202 -> 2), que es como el taller identifica cada herramienta
+	int tool = 0;
 	bool is_arc() const { return kind == SEG_ARC_CW || kind == SEG_ARC_CCW; }
 };
 
@@ -72,6 +75,13 @@ struct CncPath {
 	std::vector<CncSegment> segments;   // en orden de programa; `line` no decrece
 	std::vector<CncRefLine> refs;
 	CncStock stock;
+	// Del encabezado del generador: "T4  70  110" (cuchilla de corte y tubo
+	// interior/exterior) y "P05A  6  84.5  100" (nombre, largo y diámetros de la
+	// pieza). Se leen antes del inicio del programa, también precedidos de ';'
+	// (traducción a 8035) o entre paréntesis (traducción a FANUC).
+	int cutoff_tool = 0;
+	std::string part_name;
+	double part_length = 0;
 	std::vector<CncMessage> messages;
 
 	// Caja que contiene rectas y arcos de avance (no los rápidos ni los tramos

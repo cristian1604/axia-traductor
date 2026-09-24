@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(AxiaTraductor LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)   # Clipper2 (booleanas de polígonos del simulador) pide C++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
@@ -43,6 +43,16 @@ if(NOT SFML_FOUND)
 	FetchContent_MakeAvailable(SFML)
 endif()
 
+# ---- Clipper2 (booleanas de polígonos del simulador de pieza) ----------------
+add_library(clipper2 STATIC
+	third_party/clipper2/clipper.engine.cpp
+	third_party/clipper2/clipper.offset.cpp
+	third_party/clipper2/clipper.rectclip.cpp
+	third_party/clipper2/clipper.triangulation.cpp
+)
+target_include_directories(clipper2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/clipper2)
+target_compile_options(clipper2 PRIVATE -w)   # código de terceros: sin avisos
+
 # ---- Aplicación --------------------------------------------------------------
 set(APP_SOURCES
 	wxApplication.cpp
@@ -51,6 +61,7 @@ set(APP_SOURCES
 	wxCncEditor.cpp
 	CncSyntax.cpp
 	CncPath.cpp
+	TurnStock.cpp
 	wxPlotPanel.cpp
 	Translator.cpp
 	TranslatorCore.cpp
@@ -81,7 +92,7 @@ if(WX_USE_FILE)
 endif()
 target_include_directories(traductor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(Threads REQUIRED)   # consulta de actualizaciones en un hilo
-target_link_libraries(traductor PRIVATE ${WX_LIBS} sfml-network sfml-system Threads::Threads)
+target_link_libraries(traductor PRIVATE ${WX_LIBS} sfml-network sfml-system Threads::Threads clipper2)
 target_compile_options(traductor PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
 
 if(WIN32)
@@ -115,12 +126,16 @@ endif()
 add_test(NAME sender COMMAND test_sender)
 add_executable(test_path tests/test_path.cpp CncPath.cpp)
 add_test(NAME path COMMAND test_path ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+add_executable(test_stock tests/test_stock.cpp TurnStock.cpp CncPath.cpp)
+target_link_libraries(test_stock PRIVATE clipper2)
+add_test(NAME stock COMMAND test_stock ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 # Herramienta de depuración del intérprete: cncpath_dump <programa> [8025|8035|fanuc]
-add_executable(cncpath_dump tests/cncpath_dump.cpp CncPath.cpp)
+add_executable(cncpath_dump tests/cncpath_dump.cpp CncPath.cpp TurnStock.cpp)
+target_link_libraries(cncpath_dump PRIVATE clipper2)
 # Vista previa del graficador con wxWidgets: plot_preview <programa> [8025|8035|fanuc]
-add_executable(plot_preview WIN32 tests/plot_preview.cpp wxPlotPanel.cpp CncPath.cpp)
+add_executable(plot_preview WIN32 tests/plot_preview.cpp wxPlotPanel.cpp CncPath.cpp TurnStock.cpp)
 target_include_directories(plot_preview PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(plot_preview PRIVATE ${WX_LIBS})
+target_link_libraries(plot_preview PRIVATE ${WX_LIBS} clipper2)
 target_compile_options(plot_preview PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
 if(MINGW)
 	target_link_options(plot_preview PRIVATE -static-libgcc -static-libstdc++)

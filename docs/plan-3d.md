@@ -69,15 +69,23 @@ ganancia más inmediata y vale por sí sola.
 
 | Fase | Contenido | Esfuerzo |
 | --- | --- | --- |
-| A | `TurnStock` + herramienta genérica + tests (con P05A la sección final debe coincidir con las cotas de terminación) | 1 sesión |
+| A | **Hecha (24-09-2026).** `TurnStock.cpp` con Clipper2 (C++17): sección exacta por booleanas de polígonos; herramienta por función (cuña abierta hacia +Z con filo principal radial y secundario a 52° para exterior e interior, cuadrante para frenteo, franja de ancho supuesto hacia el plato para corte y ranurado); tronzado detectado y resto del tubo descartado; aviso de rápido dentro del material; simulación hasta una línea dada. Tests en `tests/test_stock.cpp`: con P05A la sección final da exactamente las cotas de terminación. `CncPath` lee la herramienta por tramo (T o corrector) y el encabezado del generador en sus tres formas; la traducción a FANUC conserva el encabezado como comentarios | 1 sesión |
 | B | Sección con material en el 2D y aviso de rápidos dentro del material | 0,5 sesión |
 | C | `wxTurnView3D`: malla, cámara, corte, luz, herramienta | 1 a 1,5 sesiones |
 | D | `tools.json`, edición desde Opciones, colores del graficador en Opciones | 0,5 sesión |
 
-## Decisiones pendientes
+## Decisiones tomadas (24-09-2026)
 
-- Lista de herramientas reales por torno.
-- Largo del bruto: no está en el encabezado; se estima. ¿Hay un campo o una
-  convención en el taller?
-- Después del tronzado, si se sigue mostrando la pieza cortada o solo lo que
-  queda en el plato.
+- Herramientas: no hace falta cargarlas. La geometría de la pieza la define la
+  trayectoria de la punta; solo las cuchillas de corte y ranurado necesitan
+  un ancho, supuesto en 3 mm y ajustable por T. Convención del taller: T1,
+  T4 y T5 corte; T2 exterior; T3 y T7 interior; T6 frenteo; el resto se
+  deduce. Los correctores D no intervienen: el programa ya está en cotas de
+  pieza.
+- El encabezado del generador trae el bruto: `T4 70 110` es cuchilla de
+  corte y tubo interior/exterior; `P05A 6 84.5 100` es nombre, largo y
+  diámetros de la pieza. La cara del bruto es Z0 (la dejó el tronzado
+  anterior); lo programado por encima de Z0 es aire.
+- Cotas medidas: ΔX en diámetro primero y en radio entre paréntesis.
+- Tras el tronzado se muestra solo la pieza (configurable más adelante).
+- Proyecto en C++17 por Clipper2.

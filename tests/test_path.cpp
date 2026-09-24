@@ -177,6 +177,23 @@ int main(int argc, char **argv) {
 		CHECK_NEAR(p.segments[2].to.z, 1); CHECK_NEAR(p.segments[2].to.r, 42.6905 - 1);
 	}
 
+	// 6b. Herramienta por tramo: T o corrector según el control; encabezado del generador en sus tres formas
+	{
+		CncPath a = interpret_cnc("T4  70  110\nP05A  6   84.5  100\n%1\nN10 T0.02\nN20 G01 X10\nN30 T02.03\nN40 X20\nN50 T7.21\nN60 X30\n", FAGOR_8025);
+		CHECK(a.segments.size() == 3);
+		CHECK(a.segments[0].tool == 2); CHECK(a.segments[1].tool == 2); CHECK(a.segments[2].tool == 7);
+		CHECK(a.cutoff_tool == 4); CHECK_NEAR(a.stock.outer_diameter, 110); CHECK_NEAR(a.stock.inner_diameter, 70);
+		CHECK(a.part_name == "P05A"); CHECK_NEAR(a.part_length, 6);
+		CncPath b = interpret_cnc("%P05A,MX--,\n;#DN= 100.000\n;T4  70  110\nN10 D03\nN20 G01 X10\nN30 T7 D21\nN40 X20\n", WAS_8035);
+		CHECK(b.segments.size() == 2);
+		CHECK(b.segments[0].tool == 3); CHECK(b.segments[1].tool == 7);
+		CHECK(b.refs.size() == 1); CHECK(b.cutoff_tool == 4); CHECK_NEAR(b.stock.inner_diameter, 70);
+		CncPath c = interpret_cnc("%\nO0001\n(CLIENTE: X)\n(#DN= 100.000)\n(T4  70  110)\n(P05A  6   84.5  100)\nN10 T0002\nN20 G01 X10\nN30 T0202\nN40 X20\nM30\n%\n", KIA_FANUC);
+		CHECK(c.segments.size() == 2);
+		CHECK(c.segments[0].tool == 2); CHECK(c.segments[1].tool == 2);
+		CHECK(c.refs.size() == 1); CHECK(c.cutoff_tool == 4); CHECK_NEAR(c.stock.outer_diameter, 110); CHECK_NEAR(c.part_length, 6);
+	}
+
 	// 7. Errores que no interrumpen: letra desconocida, ángulo sin cota, arco sin datos
 	{
 		std::string t = "%1\nG00 X10 Z0\nG01 Y5 Z-1\nA45\nG02 X20 Z-5\nG01 Z-8\n";

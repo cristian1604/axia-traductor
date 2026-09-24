@@ -13,7 +13,9 @@ el 100 % de los casos, pero convierte la gran mayoría de los programas 8025.
 
 ## Compilar
 
-Requiere CMake 3.16, un compilador C++14, wxWidgets 3.2 y SFML 2 (network y system).
+Requiere CMake 3.16, un compilador C++17, wxWidgets 3.2 y SFML 2 (network y system).
+[Clipper2] (booleanas de polígonos del simulador de pieza) viene incluido en
+`third_party/`, igual que `json.hpp`.
 
 Ubuntu / Debian:
 
@@ -162,3 +164,4 @@ un torno: un error de conversión puede causar daños o lesiones.
 [SFML]: <https://www.sfml-dev.org/>
 [wxWidgets]: <https://www.wxwidgets.org/>
 [nlohmann/json]: <https://github.com/nlohmann/json>
+[Clipper2]: <https://github.com/AngusJohnson/Clipper2>
