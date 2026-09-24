@@ -8,3 +8,5 @@
 # Programas reales de clientes para el graficador (repo publico): solo se versiona el README
 /tests/programas/*
 !/tests/programas/README.md
+# Fuentes y binario del simulador ABsim (privados, solo referencia local)
+/_Sim2/

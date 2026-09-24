@@ -11,6 +11,7 @@ Estructura sugerida:
 
 ```
 tests/programas/
+  absim/     programas de muestra del simulador ABsim con su captura .png
   8025/      programas para Fagor 8025 (.NC, .PIT)
   8035/      programas guardados por los Fagor 8035 / 8037 (.pit)
   fanuc/     programas para el KIA FANUC

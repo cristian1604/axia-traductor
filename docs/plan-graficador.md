@@ -1,6 +1,9 @@
 # Graficador de trayectorias y simulador de torneado
 
 Plan de trabajo acordado el 22-09-2026. Rama: `feature/graficador`.
+Actualizado el 24-09-2026 con el análisis del simulador actual
+(`absim-analisis.md`): de ahí salen las reglas exactas del dialecto y las
+capturas de referencia.
 
 ## Objetivo
 
@@ -43,13 +46,22 @@ Una sesión equivale a media jornada de trabajo conjunto.
 
 ## Convenciones fijadas
 
-- X se muestra en diámetro, tal como se programa. Z con origen en la cara de
-  la pieza según el programa.
+- X se muestra en diámetro, tal como se programa; internamente se trabaja en
+  radio. Z con origen en la cara de la pieza según el programa. Vista: Z hacia
+  la derecha, X hacia arriba; G03 antihorario, G02 horario en esa vista.
+- Ángulo `A` (8025) o `Q` (8035) medido desde +Z hacia +X. `A1 A2` en un
+  bloque sin X ni Z queda pendiente hasta el bloque siguiente.
+- `I` en radio y `K` en Z, incrementales desde el inicio del arco.
+- Una letra sin número vale 0 (`Z` = Z0, `G` = G00, `GG40` = G00 G40).
+- Posición inicial de la herramienta X400 Z830, excluida del encuadre.
+- Encabezado `#DN=`, `#DA=`, `#HN=`, `#HA=`: líneas de referencia (diámetro y
+  largo nominal en trazo-punto, auxiliares en trazo).
 - Cada segmento conserva el número de línea del programa que lo generó.
 - El bruto se define por diámetro exterior, diámetro interior (0 si es
   macizo) y largo. Se intentará leerlo del encabezado del programa (ver abajo).
 - Las coordenadas que no se pueden resolver (parámetros P, aritmética) generan
-  un tramo marcado como no resuelto, no un error.
+  un tramo marcado como no resuelto, no un error. Los errores nunca bloquean:
+  se marca la línea y se sigue.
 
 ## Decisiones pendientes
 
@@ -57,19 +69,29 @@ Una sesión equivale a media jornada de trabajo conjunto.
 - Qué ciclos fijos usan los programas reales (G66/G68/G69 en Fagor, G70/G71 en
   FANUC) y con qué frecuencia; en la primera versión se dibuja el perfil y se
   marca el ciclo.
-- Significado de los campos del encabezado de los programas, por ejemplo en
-  `tests/P05A.NC`: `#DN`, `#DA`, `#HN`, `Secc`, `Oring`, `#ODR`, `#IDR` y las
-  líneas `T4 70 110` y `P05A 6 84.5 100`. Hipótesis: `#ODR`/`#IDR` son los
-  diámetros exterior e interior del tubo en bruto.
+- Campos del encabezado que ABsim no usa: `#ODR`, `#IDR` (hipótesis:
+  diámetros exterior e interior del tubo en bruto), `Secc`, `Oring` y las
+  líneas `T4 70 110` y `P05A 6 84.5 100`.
+- Si los programas en modo Sinumerik (`%MPF`, `B±`, `R100=`) siguen en uso o
+  son históricos. Si son históricos, el intérprete no los cubre.
+- Si `G` sin número equivale a G00 en el 8025 real o solo lo toleraba el
+  simulador (los programas `A2_*` y `polypak` lo usan).
+
+## Corpus de prueba
+
+- `_Sim2/`: fuentes y binario de ABsim más seis programas (ignorado por git).
+  `ABsim.exe programa.NC` corre en esta PC.
+- `tests/programas/absim/`: esos programas más `tests/P05A.NC` y
+  `tests/O0001.NC`, cada uno con la captura de ABsim al lado (ignorado por
+  git salvo el README).
+- `tests/P05A.NC`, `tests/P05A_35.NC`, `tests/O0001.NC`, `tests/O0001_FANUC.NC`:
+  versionados, sirven para los tests unitarios del intérprete.
 
 ## Necesario antes de la fase 1
 
-1. Programas reales de los tres controles en `tests/programas/` (carpeta
-   ignorada por git; ver su README). Con ellos se decide qué códigos cubre la
-   fase 1 y de ellos salen los tests.
-2. Confirmar los campos del encabezado.
-3. Acceso a `ABsim.exe` en una PC de producción para contrastar trayectorias
-   de programas 8025.
+1. Más programas reales, sobre todo 8035 y FANUC, en `tests/programas/`
+   (ver su README). Con ellos se decide qué códigos cubre la fase 1.
+2. Respuestas a las decisiones pendientes de arriba.
 
 ## Referencias en el código actual
 
