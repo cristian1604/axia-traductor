@@ -50,6 +50,7 @@ set(APP_SOURCES
 	FileManager.cpp
 	wxCncEditor.cpp
 	CncSyntax.cpp
+	CncPath.cpp
 	Translator.cpp
 	TranslatorCore.cpp
 	Renumber.cpp
@@ -111,3 +112,7 @@ if(WIN32)
 	target_link_libraries(test_sender PRIVATE ws2_32)
 endif()
 add_test(NAME sender COMMAND test_sender)
+add_executable(test_path tests/test_path.cpp CncPath.cpp)
+add_test(NAME path COMMAND test_path ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+# Herramienta de depuración del intérprete: cncpath_dump <programa> [8025|8035|fanuc]
+add_executable(cncpath_dump tests/cncpath_dump.cpp CncPath.cpp)

@@ -65,6 +65,9 @@ cursor=0:0
 path=CncSyntax.cpp
 cursor=0:0
 [source]
+path=CncPath.cpp
+cursor=0:0
+[source]
 path=Translator.cpp
 cursor=43:46
 [source]
@@ -147,6 +150,9 @@ path=wxCncEditor.h
 cursor=0:0
 [header]
 path=CncSyntax.h
+cursor=0:0
+[header]
+path=CncPath.h
 cursor=0:0
 [header]
 path=Settings.h

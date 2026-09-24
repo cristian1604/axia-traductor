@@ -36,7 +36,7 @@ drivers adecuados.
 
 | Fase | Contenido | Esfuerzo estimado |
 | --- | --- | --- |
-| 1 | Intérprete: G00/G01/G02/G03, G90/G91 (U/W en FANUC), X en diámetro, arcos por I/K y por R, programación por ángulo (A en 8025, Q en 8035), redondeos y chaflanes. Tests con programas reales | 1 a 2 sesiones |
+| 1 | **Hecha (24-09-2026).** Intérprete `CncPath.cpp`: G00/G01/G02/G03/G33, G90/G91 (U/W en FANUC), X en diámetro, arcos por I/K y por R, programación por ángulo (A en 8025 y FANUC, Q en 8035, A1 A2 diferido), G36/G39 y `,R`/`,C`, encabezado, avisos no bloqueantes. Tests: `tests/test_path.cpp`; herramienta `cncpath_dump` | 1 a 2 sesiones |
 | 2 | Panel 2D: trazo discontinuo para rápidos y continuo para avances, ejes y grilla con cotas, coordenadas del puntero en unidades de máquina, zoom con la rueda fijando el punto bajo el cursor, desplazamiento, ajustar a la pieza, resaltado del tramo de la línea actual. Modelo de material y sección sombreada | 1 sesión |
 | 3 | Integración: formulario en wxUiEditor, sincronía con el cursor y con las ediciones, menú y tecla, colores en Opciones | 0,5 a 1 sesión |
 | 4 | Cobertura de dialecto: ciclos fijos, saltos con repetición, coordenadas paramétricas | abierta |

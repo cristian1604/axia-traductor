@@ -52,8 +52,8 @@ lugar, por ejemplo desde un acceso directo sin "Iniciar en".
 
 ## Tests
 
-Los módulos sin interfaz (traductor, reenumerador, envío y coloreado) tienen tests que
-se ejecutan con:
+Los módulos sin interfaz (traductor, reenumerador, envío, coloreado e
+intérprete de trayectorias) tienen tests que se ejecutan con:
 
 ```
 ctest --test-dir build --output-on-failure
@@ -61,7 +61,13 @@ ctest --test-dir build --output-on-failure
 
 `tests/P05A.NC` y `tests/P05A_35.NC` son un programa 8025 real y su
 traducción a 8035 verificada en el torno; el test del traductor comprueba que
-la salida coincide línea por línea.
+la salida coincide línea por línea. El test del intérprete comprueba además
+que el programa 8025 y sus traducciones a 8035 y a FANUC producen los mismos
+tramos de avance. `build/cncpath_dump <programa> [8025|8035|fanuc]` lista los
+tramos y avisos de cualquier programa, para depurar.
+
+Los programas reales adicionales van en `tests/programas/` (ignorada por git:
+suelen llevar datos de clientes).
 
 ## Configuración
 
@@ -117,7 +123,8 @@ Son herramientas privadas de la empresa y no se publican en este repositorio.
 
 C++14 con [wxWidgets] para la interfaz (el editor es un `wxStyledTextCtrl`, Scintilla,
 declarado como *CustomControl* en el diseñador; las reglas de coloreado están en
-`CncSyntax.cpp`, sin dependencias de la interfaz), [SFML] para FTP y UDP y
+`CncSyntax.cpp` y el intérprete de trayectorias del graficador en `CncPath.cpp`,
+ambos sin dependencias de la interfaz), [SFML] para FTP y UDP y
 [nlohmann/json] para la configuración. La interfaz se diseña con [wxUiEditor]
 (`traductor.wxui`): al generar el código escribe los `wx*Base.cpp/.h`, que no se
 editan a mano, y `wxui_code.cmake` con su lista, que CMake incluye. Las imágenes
