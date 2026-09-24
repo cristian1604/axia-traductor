@@ -179,6 +179,9 @@ cursor=0:0
 path=wxPlotPanel.h
 cursor=0:0
 [header]
+path=wxImageUtils.h
+cursor=0:0
+[header]
 path=Settings.h
 cursor=0:0
 [header]

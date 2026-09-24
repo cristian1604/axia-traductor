@@ -20,6 +20,7 @@
 #include "AppPaths.h"
 #include "Sender.h"
 #include "wxSendWindow.h"
+#include "wxImageUtils.h"
 #include <wx/iconbndl.h>
 #include <wx/display.h>
 #include <algorithm>
@@ -121,7 +122,8 @@ wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 	scale_toolbar(m_toolBar1);
 	scale_toolbar(m_toolBar2);
 	for (size_t i = 0; i < m_menubar1->GetMenuCount(); ++i) scale_menu(m_menubar1->GetMenu(i), scale);
-	m_bitmap1->SetBitmap(hidpi_bitmap(m_bitmap1->GetBitmap(), scale));
+	// El logo se incrusta en alta resolución y se reduce a 42 píxeles lógicos de alto
+	m_bitmap1->SetBitmap(bitmap_scaled_to_height(m_bitmap1->GetBitmap(), FromDIP(42)));
 	m_bitmap1->SetMinSize(wxSize(-1, FromDIP(42)));
 	Layout();
 

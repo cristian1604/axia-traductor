@@ -31,7 +31,7 @@ static wxImage wxueImage(const unsigned char* data, size_t size_data)
 
 namespace wxue_img
 {
-    extern const unsigned char logo_md_png[3467];  // resources/logo_md.png
+    extern const unsigned char logo_md_png[31468];  // resources/logo_md.png
 }
 
 bool wxAboutBase::Create(wxWindow* parent, wxWindowID id, const wxString& title,
