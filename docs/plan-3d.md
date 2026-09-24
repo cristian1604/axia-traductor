@@ -78,10 +78,20 @@ ganancia más inmediata y vale por sí sola.
 
 - Herramientas: no hace falta cargarlas. La geometría de la pieza la define la
   trayectoria de la punta; solo las cuchillas de corte y ranurado necesitan
-  un ancho, supuesto en 3 mm y ajustable por T. Convención del taller: T1,
-  T4 y T5 corte; T2 exterior; T3 y T7 interior; T6 frenteo; el resto se
-  deduce. Los correctores D no intervienen: el programa ya está en cotas de
-  pieza.
+  un ancho, supuesto en 3 mm y ajustable por T. Los correctores D no
+  intervienen como offsets: el programa ya está en cotas de pieza; sí sirven
+  para identificar la herramienta cuando T es 0.
+- Convención del taller aplicada (24-09-2026, tras los programas VARISEAL y
+  V01F): T1, T4 y T5 corte radial; T2 exterior; T3, T7 y los correctores 21
+  a 29 interiores; **T6 y T8 a T19 angostas de punta redonda** (ranurado
+  frontal y perfilado de labios: en los programas reales T6 hace la ranura
+  en U de los sellos, no el frenteo, que se hace con T2). Una angosta quita
+  un disco del radio de punta más su vástago hacia +Z; con G41/G42 el disco
+  va tangente al contorno del lado que indica la compensación, y sin
+  compensación el punto programado es el fondo del disco en Z y su centro en
+  X. El radio de punta se toma del menor arco que hace esa herramienta (el
+  fondo redondeado de la ranura lo deja la propia punta) o 0,4 por defecto.
+  Con cuña, esas herramientas se llevaban medio labio.
 - El encabezado del generador trae el bruto: `T4 70 110` es cuchilla de
   corte y tubo interior/exterior; `P05A 6 84.5 100` es nombre, largo y
   diámetros de la pieza. La cara del bruto es Z0 (la dejó el tronzado

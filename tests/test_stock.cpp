@@ -62,10 +62,12 @@ int main(int argc, char **argv) {
 		CHECK_NEAR(s.tool_position.z, 2);
 	}
 
-	// 2. Frenteado con T6 sobre un bruto con demasía en la cara
+	// 2. Frenteado con una herramienta de frenteo (cuadrante) sobre un bruto con demasía en la cara
 	{
-		CncPath p = interpret_cnc("%1\nN10 T0.06\nN20 G00 X60 Z0\nN30 G01 X0\nN40 G00 Z10\n", FAGOR_8025);
-		TurnStock s = simulate_stock(p, tube(50, 0, 2, -30), tools);
+		CncPath p = interpret_cnc("%1\nN10 T0.09\nN20 G00 X60 Z0\nN30 G01 X0\nN40 G00 Z10\n", FAGOR_8025);
+		ToolTable facing = tools;
+		facing.tools[9].role = TOOL_FACING;
+		TurnStock s = simulate_stock(p, tube(50, 0, 2, -30), facing);
 		CHECK(s.messages.empty());
 		CHECK_NEAR(s.area(), 25 * 30);
 		if (std::fabs(s.area() - 750) > 1e-3) dump(s);
@@ -186,6 +188,38 @@ int main(int argc, char **argv) {
 		CHECK(s.cut_off); CHECK_NEAR(s.cut_z, -10);
 		CHECK(s.rings.size() == 1);
 		CHECK(has_vertex(s, -9.5, 20)); CHECK(has_vertex(s, -10, 20 - 0.5 * std::tan(30 * 3.14159265358979 / 180)));   // cilindro X40 y cono A210 cortado en Z-10
+	}
+
+	// 11. Ranura frontal con herramienta angosta (T6): entrada al centro sin compensación y
+	//     flancos con G41/G42; el radio de punta sale de los arcos del fondo (0,5). Los dos
+	//     labios quedan intactos y la ranura tiene exactamente el ancho programado.
+	{
+		CncPath p = interpret_cnc(
+			"%1\nN10 T0.03\nN20 G00 X10 Z2\nN30 G01 Z-10\nN40 G00 Z2\n"
+			"N50 T0.06\nN60 G00 X20 Z2\nN70 G01 Z-3\nN80 G00 Z2\n"
+			"N90 G00 X21.6\nN100 G41 Z1\nN110 G01 Z-2.5\nN120 G03 X20.6 Z-3 R0.5\nN125 X19.4\nN130 G00 Z2\nN140 G40\n"
+			"N150 G00 X18.4\nN160 G42 Z1\nN170 G01 Z-2.5\nN180 G02 X19.4 Z-3 R0.5\nN190 G00 Z2\nN200 G40\n", FAGOR_8025);
+		CHECK(p.segments.size() > 10);
+		bool comp_seen = false;
+		for (size_t k = 0; k < p.segments.size(); ++k) if (p.segments[k].comp == 41) comp_seen = true;
+		CHECK(comp_seen);
+		TurnStock s = simulate_stock(p, tube(30, 0, 0, -20), tools);
+		print_messages(s);
+		CHECK(s.messages.empty());
+		CHECK(s.rings.size() == 1);
+		// Labio exterior (X30 a X21.6) y labio interior (X18.4 al agujero X10) enteros hasta la cara
+		CHECK(has_vertex(s, 0, 15)); CHECK(has_vertex(s, 0, 10.8)); CHECK(has_vertex(s, 0, 9.2)); CHECK(has_vertex(s, 0, 5));
+		CHECK(has_vertex(s, -2.5, 10.8)); CHECK(has_vertex(s, -2.5, 9.2));   // paredes de la ranura exactas
+		std::vector<CncPoint> v = s.vertices();
+		for (size_t k = 0; k < v.size(); ++k) {
+			if (v[k].z > -2.5 && v[k].z < 0) { CHECK(std::fabs(v[k].r - 10.8) < 1e-3 || std::fabs(v[k].r - 9.2) < 1e-3); }
+		}
+		// Área: barra de X30 (r 15, 20 de largo) con agujero X10 de 10 de fondo, menos la ranura
+		// (1,6 de ancho, 3 de fondo, esquinas del fondo redondeadas con R0,5)
+		double groove = 1.6 * 2.5 + (1.6 * 0.5 - (0.5 * 0.5 - 3.14159265358979 * 0.25 / 4) * 2);
+		double expected = 15 * 20 - 5 * 10 - groove;
+		CHECK(std::fabs(s.area() - expected) < 0.05);
+		if (std::fabs(s.area() - expected) >= 0.05 || !has_vertex(s, -2.5, 10.8)) dump(s);
 	}
 
 	if (failures == 0) printf("OK: todos los tests del simulador de pieza pasaron\n");

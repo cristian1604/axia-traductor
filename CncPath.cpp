@@ -212,6 +212,7 @@ private:
 	bool started = false;
 	bool ended = false;
 	int tool_t = 0, tool_d = 0; // última T y último corrector: la herramienta es T, o D si T es 0
+	int comp = 0;               // G40 / G41 / G42 (modal)
 
 	// "A1 A2" sin cota: se resuelve con el bloque siguiente
 	bool pending_angles = false;
@@ -420,7 +421,10 @@ private:
 				case 4:
 					dwell = true;
 					break;
-				case 5: case 7: case 40: case 41: case 42: case 94: case 95: case 96: case 97: case 98: case 99:
+				case 40: case 41: case 42:
+					comp = (g == 40) ? 0 : g;
+					break;
+				case 5: case 7: case 94: case 95: case 96: case 97: case 98: case 99:
 					break;
 				case 32: case 33:
 					if (d.fanuc == (g == 32)) { motion = 33; thread = true; }
@@ -626,6 +630,7 @@ private:
 		s.line = line;
 		s.unresolved = param;
 		s.tool = current_tool();
+		s.comp = comp;
 		if (param) message(line, false, "cota paramétrica: tramo no resuelto");
 		apply_corner(s);
 		path.segments.push_back(s);
@@ -640,6 +645,7 @@ private:
 		s.line = line;
 		s.unresolved = param;
 		s.tool = current_tool();
+		s.comp = comp;
 		if (param) message(line, false, "cota paramétrica: tramo no resuelto");
 
 		bool ok = false;

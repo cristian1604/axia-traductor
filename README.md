@@ -128,9 +128,10 @@ Con "Mostrar la pieza" dibuja además la sección de la pieza que va quedando
 hasta la línea actual (`TurnStock.cpp`, booleanas de polígonos exactas con
 Clipper2): el bruto sale del encabezado del generador (`#ODR`/`#IDR` o la
 línea `T4 70 110`) o se estima; las herramientas se modelan por su función
-según la convención del taller (T1, T4 y T5 corte; T2 exterior; T3 y T7
-interior; T6 frenteo), sin cargar catálogos; las ranuras hechas con cuchilla
-se dibujan con un ancho supuesto de 3 mm y se marcan. Tras el tronzado queda
+según la convención del taller (T1, T4 y T5 corte; T2 exterior; T3, T7 y
+correctores 21 a 29 interior; T6 y T8 a T19 angostas de punta redonda para
+ranurado frontal, respetando G41/G42), sin cargar catálogos; las ranuras
+hechas con cuchilla se dibujan con un ancho supuesto de 3 mm y se marcan. Tras el tronzado queda
 solo la pieza. Un rápido que atraviesa material se marca como error en el
 editor. Para medir: el puntero se engancha a los vértices del perfil y
 muestra sus X y Z; un clic fija un punto y el segundo deja una cota con ΔX

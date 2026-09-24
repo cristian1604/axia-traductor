@@ -134,6 +134,7 @@ private:
 	double body_size;
 	double cut_width = 0;
 	std::map<int, ToolRole> inferred;
+	std::map<int, double> nose_radii;
 
 	void message(int line, bool error, const std::string &text) {
 		CncMessage m;
@@ -154,15 +155,45 @@ private:
 		return r;
 	}
 
+	// Radio de punta de una herramienta angosta: el definido, o el menor arco
+	// de sus pasadas (el fondo redondeado de la ranura lo hace la propia punta),
+	// o el supuesto por defecto
+	double nose_radius_for(int tool) {
+		ToolDef d = tools.get(tool);
+		if (d.nose_radius > 0) return d.nose_radius;
+		std::map<int, double>::iterator it = nose_radii.find(tool);
+		if (it != nose_radii.end()) return it->second;
+		double r = 0;
+		for (size_t k = 0; k < path.segments.size(); ++k) {
+			const CncSegment &seg = path.segments[k];
+			if (seg.tool != tool || !seg.is_arc() || seg.unresolved) continue;
+			if (seg.radius > 0.05 && seg.radius <= 3 && (r == 0 || seg.radius < r)) r = seg.radius;
+		}
+		if (r == 0) r = tools.default_nose_radius;
+		nose_radii[tool] = r;
+		return r;
+	}
+
 	// Forma de la herramienta relativa a la punta programada. Exterior e
 	// interior: una cuña abierta hacia +Z como un inserto real, con el filo
 	// principal radial (así los hombros y las caras quedan exactamente en la
 	// cota programada) y el secundario a 52° del eje, el de un inserto de 35°,
 	// el más agudo habitual. Los conos de hasta 52° quedan exactos y el cuerpo
-	// nunca socava lo ya torneado. Cuchilla: su ancho hacia el plato.
-	PathD shape_for(ToolRole role, double width) const {
+	// nunca socava lo ya torneado. Cuchilla: su ancho hacia el plato. Angosta:
+	// disco del radio de punta con el vástago hacia +Z.
+	PathD shape_for(ToolRole role, double width, double nose) const {
 		const double s = body_size;
 		PathD p;
+		if (role == TOOL_NARROW) {
+			std::vector<PointD> pts;
+			for (int k = 0; k < 24; ++k) {
+				double a = 2 * PI * k / 24;
+				pts.push_back(PointD(nose * std::cos(a), nose * std::sin(a)));
+			}
+			pts.push_back(PointD(s, nose));
+			pts.push_back(PointD(s, -nose));
+			return convex_hull(pts);
+		}
 		if (role == TOOL_CUTOFF) {
 			p.push_back(PointD(-width, 0.0));
 			p.push_back(PointD(0.0, 0.0));
@@ -198,6 +229,28 @@ private:
 		return std::fabs(seg.to.z - seg.from.z) < EPS && seg.to.r < seg.from.r - EPS;
 	}
 
+	// Centro del disco de la herramienta angosta para un punto del recorrido.
+	// Con compensación de radio va del lado del contorno que indica G41
+	// (izquierda del sentido de avance) o G42 (derecha), tangente a él. Sin
+	// compensación, el punto programado es la punta: el fondo del disco en Z
+	// (así una entrada frontal llega justo a la Z programada) y su centro en X.
+	static CncPoint offset_point(const CncPoint &p, const CncPoint &from, const CncPoint &to, int comp, double nose) {
+		if (comp == 0) {
+			CncPoint q = p;
+			q.z += nose;
+			return q;
+		}
+		double dz = to.z - from.z, dr = to.r - from.r;
+		double L = std::sqrt(dz * dz + dr * dr);
+		if (L < 1e-9) return p;
+		double nz = -dr / L, nr = dz / L;   // normal a la izquierda del avance
+		if (comp == 42) { nz = -nz; nr = -nr; }
+		CncPoint q;
+		q.z = p.z + nose * nz;
+		q.r = p.r + nose * nr;
+		return q;
+	}
+
 	void feed(const CncSegment &seg) {
 		ToolRole role = role_for(seg);
 		double width = tools.width_of(seg.tool);
@@ -205,10 +258,20 @@ private:
 			plunge(seg, width);
 			return;
 		}
-		PathD shape = shape_for(role, width);
+		double nose = (role == TOOL_NARROW) ? nose_radius_for(seg.tool) : 0;
+		int comp = (role == TOOL_NARROW) ? seg.comp : 0;
+		PathD shape = shape_for(role, width, nose);
 		if (!seg.is_arc()) {
-			subtract(sweep(shape, seg.from, seg.to));
+			subtract(sweep(shape, offset_point(seg.from, seg.from, seg.to, comp, nose),
+			                      offset_point(seg.to, seg.from, seg.to, comp, nose)));
 			return;
+		}
+		// En un arco compensado el centro del disco sigue el arco concéntrico: con
+		// la normal exacta (radial), no la de cada cuerda, que se inclina medio paso
+		double inward = 0;   // desplazamiento del centro hacia el centro del arco
+		if (comp != 0) {
+			bool left_is_inward = (seg.kind == SEG_ARC_CCW);
+			inward = ((comp == 41) == left_is_inward) ? nose : -nose;
 		}
 		// Arco: se muestrea en tramos cortos (error de cuerda menor a 0,002 mm)
 		double a0 = angle_of(seg.center, seg.from), a1 = angle_of(seg.center, seg.to);
@@ -218,19 +281,22 @@ private:
 		double step = (seg.radius > 0.002) ? 2 * std::acos(1 - 0.002 / seg.radius) : PI / 18;
 		step = std::max(PI / 360, std::min(PI / 18, step));
 		int n = std::max(1, (int) std::ceil(std::fabs(sweep_angle) / step));
-		CncPoint prev = seg.from;
+		CncPoint prev = tool_centre_on_arc(seg, a0, comp, nose, inward);
 		for (int k = 1; k <= n; ++k) {
-			CncPoint p;
-			if (k == n) {
-				p = seg.to;
-			} else {
-				double a = a0 + sweep_angle * k / n;
-				p.z = seg.center.z + seg.radius * std::cos(a);
-				p.r = seg.center.r + seg.radius * std::sin(a);
-			}
+			CncPoint p = tool_centre_on_arc(seg, a0 + sweep_angle * k / n, comp, nose, inward);
 			subtract(sweep(shape, prev, p));
 			prev = p;
 		}
+	}
+
+	// Centro del disco para el punto del arco de ángulo `a` (radianes respecto del centro)
+	static CncPoint tool_centre_on_arc(const CncSegment &seg, double a, int comp, double nose, double inward) {
+		CncPoint p;
+		double r = seg.radius - inward;
+		p.z = seg.center.z + r * std::cos(a);
+		p.r = seg.center.r + r * std::sin(a);
+		if (comp == 0) p.z += nose;   // sin compensación: la punta programada es el fondo del disco
+		return p;
 	}
 
 	// Cuchilla de corte o ranurado entrando en sentido radial. La hoja es alta:
@@ -314,18 +380,20 @@ double ToolTable::width_of(int tool) const {
 
 ToolTable default_tool_table() {
 	ToolTable t;
-	ToolDef cut, ext, in, face;
+	ToolDef cut, ext, in, narrow;
 	cut.role = TOOL_CUTOFF;
 	ext.role = TOOL_EXTERNAL;
 	in.role = TOOL_INTERNAL;
-	face.role = TOOL_FACING;
+	narrow.role = TOOL_NARROW;
 	t.tools[1] = cut;
 	t.tools[2] = ext;
 	t.tools[3] = in;
 	t.tools[4] = cut;
 	t.tools[5] = cut;
-	t.tools[6] = face;
+	t.tools[6] = narrow;                            // ranura frontal en U de los sellos
 	t.tools[7] = in;
+	for (int k = 8; k <= 19; ++k) t.tools[k] = narrow;   // especiales: angostas, no destruyen labios
+	for (int k = 21; k <= 29; ++k) t.tools[k] = in;      // correctores de interiores (T7 D21, D23)
 	return t;
 }
 

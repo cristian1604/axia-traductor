@@ -41,6 +41,11 @@ struct CncSegment {
 	// Herramienta activa: el número T o, si T es 0, el corrector (T0.02 -> 2,
 	// D03 -> 3, T0202 -> 2), que es como el taller identifica cada herramienta
 	int tool = 0;
+	// Compensación de radio activa: 0 (G40), 41 (herramienta a la izquierda del
+	// sentido de avance) o 42 (a la derecha). El trazado no la aplica; el
+	// simulador de la pieza la usa para saber de qué lado del contorno va la
+	// herramienta angosta.
+	int comp = 0;
 	bool is_arc() const { return kind == SEG_ARC_CW || kind == SEG_ARC_CCW; }
 };
 

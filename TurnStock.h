@@ -11,12 +11,18 @@
 	reales de la geometría, aptos para medir. Sin wxWidgets; tests en
 	tests/test_stock.cpp. Ver docs/plan-3d.md.
 
-	La herramienta se modela por su función, no por su catálogo: exterior e
-	interior barren una cuña abierta hacia +Z desde la punta (filo principal
-	casi radial, filo secundario a 52° del eje), hacia afuera o hacia el eje,
-	así la superficie que queda es exactamente la trayectoria programada y el
-	cuerpo no socava lo ya torneado; las cuchillas de corte y ranurado quitan
-	una franja de ancho `width` hacia el plato desde el punto programado.
+	La herramienta se modela por su función, no por su catálogo:
+	- Exterior e interior barren una cuña abierta hacia +Z desde la punta (filo
+	  principal radial, filo secundario a 52° del eje), hacia afuera o hacia el
+	  eje: la superficie que queda es exactamente la trayectoria programada y
+	  el cuerpo no socava lo ya torneado.
+	- Frenteado: cuadrante entero hacia +Z y hacia afuera.
+	- Corte y ranurado radial: franja de ancho `width` hacia el plato.
+	- Angosta de punta redonda (ranurado frontal y perfilado de labios): un
+	  disco de radio de punta con su vástago hacia +Z. Con G41/G42 el disco va
+	  del lado que indica la compensación, tangente al contorno; sin
+	  compensación, centrado en el punto programado (entrada al centro de la
+	  ranura). El radio se toma de los arcos del fondo de esa herramienta.
 **/
 
 enum ToolRole {
@@ -24,19 +30,23 @@ enum ToolRole {
 	TOOL_EXTERNAL,
 	TOOL_INTERNAL,
 	TOOL_FACING,
-	TOOL_CUTOFF         // corte y ranurado
+	TOOL_CUTOFF,        // corte y ranurado radial
+	TOOL_NARROW         // angosta de punta redonda: ranurado frontal, perfilado
 };
 
 struct ToolDef {
 	ToolRole role = TOOL_UNKNOWN;
-	double width = 0;   // ancho de la cuchilla (corte y ranurado); 0 = el ancho por defecto
+	double width = 0;        // ancho de la cuchilla (corte y ranurado); 0 = el ancho por defecto
+	double nose_radius = 0;  // radio de punta (angosta); 0 = el menor arco de sus pasadas, o 0,4
 };
 
 // Tabla por número de herramienta. Por defecto, la convención del taller:
-// 1, 4 y 5 corte; 2 exterior; 3 y 7 interior; 6 frenteado; el resto se deduce.
+// 1, 4 y 5 corte; 2 exterior; 3 y 7 interior; 6 y 8 a 19 angostas de ranurado
+// frontal; 21 a 29 interiores (correctores del T7); el resto se deduce.
 struct ToolTable {
 	std::map<int, ToolDef> tools;
-	double default_width = 3;   // ancho supuesto de las cuchillas sin definir
+	double default_width = 3;         // ancho supuesto de las cuchillas sin definir
+	double default_nose_radius = 0.4; // radio de punta supuesto de las angostas sin arcos
 	ToolDef get(int tool) const;
 	double width_of(int tool) const;
 };
