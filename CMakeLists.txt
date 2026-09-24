@@ -51,6 +51,7 @@ set(APP_SOURCES
 	wxCncEditor.cpp
 	CncSyntax.cpp
 	CncPath.cpp
+	wxPlotPanel.cpp
 	Translator.cpp
 	TranslatorCore.cpp
 	Renumber.cpp
@@ -116,3 +117,11 @@ add_executable(test_path tests/test_path.cpp CncPath.cpp)
 add_test(NAME path COMMAND test_path ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 # Herramienta de depuración del intérprete: cncpath_dump <programa> [8025|8035|fanuc]
 add_executable(cncpath_dump tests/cncpath_dump.cpp CncPath.cpp)
+# Vista previa del graficador con wxWidgets: plot_preview <programa> [8025|8035|fanuc]
+add_executable(plot_preview WIN32 tests/plot_preview.cpp wxPlotPanel.cpp CncPath.cpp)
+target_include_directories(plot_preview PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(plot_preview PRIVATE ${WX_LIBS})
+target_compile_options(plot_preview PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
+if(MINGW)
+	target_link_options(plot_preview PRIVATE -static-libgcc -static-libstdc++)
+endif()

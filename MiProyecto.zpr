@@ -68,6 +68,9 @@ cursor=0:0
 path=CncPath.cpp
 cursor=0:0
 [source]
+path=wxPlotPanel.cpp
+cursor=0:0
+[source]
 path=Translator.cpp
 cursor=43:46
 [source]
@@ -153,6 +156,9 @@ path=CncSyntax.h
 cursor=0:0
 [header]
 path=CncPath.h
+cursor=0:0
+[header]
+path=wxPlotPanel.h
 cursor=0:0
 [header]
 path=Settings.h
