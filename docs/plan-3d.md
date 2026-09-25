@@ -71,8 +71,16 @@ ganancia más inmediata y vale por sí sola.
 | --- | --- | --- |
 | A | **Hecha (24-09-2026).** `TurnStock.cpp` con Clipper2 (C++17): sección exacta por booleanas de polígonos; herramienta por función (cuña abierta hacia +Z con filo principal radial y secundario a 52° para exterior e interior, cuadrante para frenteo, franja de ancho supuesto hacia el plato para corte y ranurado); tronzado detectado y resto del tubo descartado; aviso de rápido dentro del material; simulación hasta una línea dada. Tests en `tests/test_stock.cpp`: con P05A la sección final da exactamente las cotas de terminación. `CncPath` lee la herramienta por tramo (T o corrector) y el encabezado del generador en sus tres formas; la traducción a FANUC conserva el encabezado como comentarios | 1 sesión |
 | B | **Hecha (24-09-2026).** `wxPlotPanel` simula la pieza (completa para los avisos, hasta la línea actual para dibujar) y pinta la sección sobre el bruto tenue; ranuras de ancho supuesto marcadas; menú "Mostrar la pieza" (`plot_stock` en settings.json) y "Borrar las cotas medidas"; rápidos dentro del material como error en el editor. Medición sin modo: enganche a los vértices del perfil (o de los avances si la pieza está oculta), clic fija un punto, segundo clic deja la cota ΔX (diám. y radio), ΔZ y distancia; Retroceso y Escape borran | 0,5 sesión |
-| C | `wxTurnView3D`: malla, cámara, corte, luz, herramienta | 1 a 1,5 sesiones |
+| C | **Hecha (25-09-2026).** `wxTurnView3D.cpp` (wxGLCanvas, OpenGL 1.1 de función fija): cada lado de la sección se gira en una banda de triángulos con normales hacia afuera; en corte se conserva la mitad de atrás y las caras de la sección se triangulan con Clipper2 (`Triangulate`); recorrido y herramienta en el plano de corte; cámara orbital (arrastre), desplazamiento (botón derecho o central), zoom (rueda), Inicio encuadra; C corte, T trayectoria. Es hijo de `wxPlotPanel` (`SetView3D`), que le pasa la escena de la línea actual; menú "Vista 3D" (Ctrl+3, `plot_3d` en settings.json); el contexto se crea en el primer dibujo y sin OpenGL queda el 2D | 1 a 1,5 sesiones |
 | D | `tools.json`, edición desde Opciones, colores del graficador en Opciones | 0,5 sesión |
+
+## Pendientes fuera del graficador
+
+- **Pausa en la traducción a FANUC** (anotado por el usuario el 25-09-2026):
+  el 8025 programa `G04 K.2` (segundos) y hoy la traducción la deja como
+  `K20` (centésimas, formato 8035). El FANUC espera `G04 P200`, en
+  milisegundos. Corregir en `translate_8025_to_fanuc_text` con su test, y
+  probar en el KIA junto con los comentarios de encabezado.
 
 ## Decisiones tomadas (24-09-2026)
 

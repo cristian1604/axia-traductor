@@ -30,6 +30,7 @@ struct s_Settings {
 	int  plot_sash_below;
 	bool plot_rapids;        // dibujar los rápidos
 	bool plot_stock;         // simular y dibujar la pieza (sección con material)
+	bool plot_3d;            // vista 3D en lugar del dibujo 2D
 };
 
 // Valores por defecto de la configuracion

@@ -1,9 +1,10 @@
 // Vista previa del graficador (herramienta de desarrollo, no se distribuye).
-// Uso: plot_preview <programa> [8025|8035|fanuc]
+// Uso: plot_preview <programa> [8025|8035|fanuc] [--3d]
 // Flechas arriba/abajo (y RePág/AvPág) recorren las líneas del programa como
 // lo hará el cursor del editor; Fin quita el seguimiento; R muestra u oculta
 // los rápidos; P muestra u oculta lo posterior a la línea actual; S muestra u
-// oculta la pieza simulada. Clic: puntos de medición; Escape los borra.
+// oculta la pieza simulada; V alterna la vista 3D (en ella: C corte, T trayectoria,
+// Inicio encuadre). Clic: puntos de medición; Escape los borra.
 #include <wx/wx.h>
 #include <wx/ffile.h>
 #include "../wxPlotPanel.h"
@@ -25,7 +26,9 @@ class PreviewFrame : public wxFrame {
 	}
 
 	void OnKey(wxKeyEvent &e) {
-		switch (e.GetKeyCode()) {
+		int code = e.GetKeyCode();
+		if (code >= 'a' && code <= 'z') code -= 'a' - 'A';   // las letras llegan en mayúscula o minúscula según el origen
+		switch (code) {
 		case WXK_DOWN:     step(1); break;
 		case WXK_UP:       step(-1); break;
 		case WXK_PAGEDOWN: step(10); break;
@@ -34,11 +37,17 @@ class PreviewFrame : public wxFrame {
 		case 'R': m_plot->SetShowRapids(!m_plot->GetShowRapids()); break;
 		case 'P': m_plot->SetShowFuture(!m_plot->GetShowFuture()); break;
 		case 'S': m_plot->SetShowStock(!m_plot->GetShowStock()); break;
+		case 'V':
+			m_plot->SetView3D(!m_plot->GetView3D());
+			SetStatusText(wxString::Format(wxT("Vista 3D: %s (OpenGL %s)"), m_plot->GetView3D() ? wxT("activa") : wxT("inactiva"),
+			                               wxPlotPanel::View3DSupported() ? wxT("disponible") : wxT("no disponible")), 1);
+			break;
 		default: e.Skip();
 		}
 	}
 
 public:
+	void SetView3D(bool on) { m_plot->SetView3D(on); }
 	PreviewFrame(const wxString &file, int standard)
 		: wxFrame(NULL, wxID_ANY, wxT("Vista previa del graficador - ") + file, wxDefaultPosition, wxSize(1000, 700)) {
 		std::string text;
@@ -92,13 +101,16 @@ public:
 			return false;
 		}
 		int standard = FAGOR_8025;
-		if (argc > 2) {
-			wxString s = argv[2];
+		bool view3d = false;
+		for (int i = 2; i < argc; ++i) {
+			wxString s = argv[i];
 			if (s == wxT("8035")) standard = WAS_8035;
 			else if (s == wxT("fanuc")) standard = KIA_FANUC;
+			else if (s == wxT("--3d")) view3d = true;
 		}
 		PreviewFrame *frame = new PreviewFrame(argv[1], standard);
 		frame->Show();
+		if (view3d) frame->SetView3D(true);
 		return true;
 	}
 };

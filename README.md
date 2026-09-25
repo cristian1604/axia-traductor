@@ -138,6 +138,13 @@ muestra sus X y Z; un clic fija un punto y el segundo deja una cota con ΔX
 en diámetro y en radio, ΔZ y distancia. Retroceso borra la última cota y
 Escape todas.
 
+"Vista 3D" (Ctrl+3) muestra la pieza girada alrededor del eje con OpenGL de
+función fija (`wxTurnView3D.cpp`, corre en cualquier PC): en corte, con la
+mitad de adelante quitada y las caras de la sección a la vista, siguiendo
+también la línea del cursor. Arrastrar orbita, el botón derecho desplaza, la
+rueda acerca, Inicio encuadra, C alterna el corte y T la trayectoria. Sin
+OpenGL, el menú lo avisa y queda el 2D.
+
 ## Envío a tornos
 
 `Enviar programa a torno` (F2) abre un diálogo con la lista de `machines.json`.

@@ -9,6 +9,7 @@
 
 class wxGraphicsContext;
 class wxGraphicsPath;
+class wxTurnView3D;
 
 /**
 	Colores del graficador. Por ahora fijos (default_plot_colours); más
@@ -81,6 +82,14 @@ public:
 	const std::vector<PlotDimension> &GetDimensions() const { return m_dims; }
 	void ClearDimensions();
 
+	// Vista 3D (wxTurnView3D como hijo que tapa el dibujo 2D). Si OpenGL no
+	// está disponible, SetView3D(true) no hace nada y GetView3D() sigue en false.
+	static bool View3DSupported();
+	void SetView3D(bool on);
+	bool GetView3D() const { return m_mode3d; }
+	// Posición de la herramienta tras la línea actual (false si no hay tramos)
+	bool CurrentToolPosition(CncPoint &out) const;
+
 	void SetColours(const PlotColours &c);
 	const PlotColours &GetColours() const { return m_colours; }
 	void SetShowFuture(bool show);   // dibujar (atenuado) lo posterior a la línea actual
@@ -109,6 +118,11 @@ private:
 	TurnStock m_full_stock;     // programa completo
 	TurnStock m_stock;          // hasta la línea actual
 	int m_stock_line = -2;      // línea con la que se calculó m_stock
+
+	// Vista 3D
+	wxTurnView3D *m_view3d = NULL;
+	bool m_mode3d = false;
+	void UpdateView3D();
 
 	// Medición
 	std::vector<CncPoint> m_snap_points;

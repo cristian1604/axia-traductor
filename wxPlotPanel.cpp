@@ -1,4 +1,5 @@
 #include "wxPlotPanel.h"
+#include "wxTurnView3D.h"
 #include <wx/dcbuffer.h>
 #include <wx/dcclient.h>
 #include <wx/graphics.h>
@@ -124,6 +125,45 @@ void wxPlotPanel::RecomputeStock() {
 		m_stock_line = m_current;
 	}
 	UpdateSnapPoints();
+	UpdateView3D();
+}
+
+// ---- Vista 3D ------------------------------------------------------------------
+
+bool wxPlotPanel::View3DSupported() {
+	return wxTurnView3D::IsSupported();
+}
+
+void wxPlotPanel::SetView3D(bool on) {
+	if (on && !m_view3d) {
+		if (!View3DSupported()) return;
+		m_view3d = new wxTurnView3D(this);
+		m_view3d->SetColours(m_colours);
+		m_view3d->SetSize(GetClientSize());
+	}
+	m_mode3d = on && m_view3d;
+	if (m_view3d) m_view3d->Show(m_mode3d);
+	UpdateView3D();
+	Refresh();
+}
+
+bool wxPlotPanel::CurrentToolPosition(CncPoint &out) const {
+	const CncSegment *last = NULL;
+	for (size_t k = 0; k < m_path.segments.size(); ++k) {
+		const CncSegment &s = m_path.segments[k];
+		if (m_current >= 0 && s.line > m_current) break;
+		last = &s;
+	}
+	if (!last) return false;
+	out = last->to;
+	return true;
+}
+
+void wxPlotPanel::UpdateView3D() {
+	if (!m_mode3d || !m_view3d) return;
+	CncPoint tool;
+	if (!CurrentToolPosition(tool)) tool = cnc_initial_position();
+	m_view3d->SetScene(m_stock, m_path, m_current, tool);
 }
 
 void wxPlotPanel::ClearDimensions() {
@@ -135,6 +175,7 @@ void wxPlotPanel::ClearDimensions() {
 void wxPlotPanel::SetColours(const PlotColours &c) {
 	m_colours = c;
 	SetBackgroundColour(c.background);
+	if (m_view3d) m_view3d->SetColours(c);
 	Refresh();
 }
 
@@ -261,6 +302,7 @@ void wxPlotPanel::ClickAt(const wxPoint &p) {
 
 void wxPlotPanel::OnSize(wxSizeEvent &event) {
 	if (!m_user_view) FitToPath();
+	if (m_view3d) m_view3d->SetSize(GetClientSize());
 	Refresh();
 	event.Skip();
 }
@@ -561,17 +603,11 @@ void wxPlotPanel::DrawPath(wxGraphicsContext *gc) {
 }
 
 void wxPlotPanel::DrawToolMarker(wxGraphicsContext *gc) {
-	if (m_path.segments.empty()) return;
 	// Posición de la herramienta tras la línea actual (o al final del programa)
-	const CncSegment *last = NULL;
-	for (size_t k = 0; k < m_path.segments.size(); ++k) {
-		const CncSegment &s = m_path.segments[k];
-		if (m_current >= 0 && s.line > m_current) break;
-		last = &s;
-	}
-	if (!last) return;
+	CncPoint tool;
+	if (!CurrentToolPosition(tool)) return;
 	double u, v;
-	ToScreen(last->to.z, last->to.r, u, v);
+	ToScreen(tool.z, tool.r, u, v);
 	double R = LineWidth(5), L = LineWidth(9);
 	gc->SetPen(gc->CreatePen(wxGraphicsPenInfo(m_colours.current).Width(LineWidth(1.5))));
 	gc->SetBrush(wxBrush(with_alpha(m_colours.current, 60)));

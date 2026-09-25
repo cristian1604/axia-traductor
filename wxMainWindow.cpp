@@ -683,6 +683,7 @@ void wxMainWindow::buildPlotMenu() {
 	menu->AppendSeparator();
 	m_menuPlotRapids = menu->AppendCheckItem(wxID_ANY, wxString::FromUTF8("Dibujar los rápidos"));
 	m_menuPlotStock = menu->AppendCheckItem(wxID_ANY, wxT("Mostrar la pieza"));
+	m_menuPlot3D = menu->AppendCheckItem(wxID_ANY, wxT("Vista 3D\tCTRL+3"));
 	wxMenuItem *fit = menu->Append(wxID_ANY, wxT("Encuadrar la pieza\tCTRL+E"));
 	menu->AppendSeparator();
 	wxMenuItem *clear = menu->Append(wxID_ANY, wxT("Borrar las cotas medidas"));
@@ -692,8 +693,27 @@ void wxMainWindow::buildPlotMenu() {
 	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotBelow->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotRapids, this, m_menuPlotRapids->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotStock, this, m_menuPlotStock->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotView3D, this, m_menuPlot3D->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotFit, this, fit->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotClearDims, this, clear->GetId());
+}
+
+void wxMainWindow::plotView3D(wxCommandEvent &event) {
+	settings.plot_3d = m_menuPlot3D->IsChecked();
+	if (settings.plot_3d && !wxPlotPanel::View3DSupported()) {
+		settings.plot_3d = false;
+		m_menuPlot3D->Check(false);
+		m_statusBar->SetStatusText(wxT("Esta PC no tiene OpenGL: la vista 3D no está disponible"), 0);
+		return;
+	}
+	savePlotSettings();
+	m_plot->SetView3D(settings.plot_3d);
+	if (settings.plot_3d && !settings.plot_visible) {
+		settings.plot_visible = true;
+		applyPlotLayout();
+		savePlotSettings();
+		updatePlot();
+	}
 }
 
 void wxMainWindow::plotStock(wxCommandEvent &event) {
@@ -722,6 +742,8 @@ void wxMainWindow::applyPlotLayout() {
 	m_menuPlotStock->Check(settings.plot_stock);
 	m_plot->SetShowRapids(settings.plot_rapids);
 	m_plot->SetShowStock(settings.plot_stock);
+	m_plot->SetView3D(settings.plot_3d && settings.plot_visible);
+	m_menuPlot3D->Check(m_plot->GetView3D());
 	if (m_plotSplitter->IsSplit()) m_plotSplitter->Unsplit(m_plotPanel);
 	if (!settings.plot_visible) return;
 	wxSize sz = m_plotSplitter->GetClientSize();

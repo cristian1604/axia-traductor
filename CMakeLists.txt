@@ -12,13 +12,15 @@ endif()
 # en modo módulo (Ubuntu/Debian: wx-config).
 find_package(wxWidgets CONFIG QUIET)
 if(TARGET wx::core)
-	set(WX_LIBS wx::stc wx::xrc wx::html wx::core wx::base)
+	set(WX_LIBS wx::gl wx::stc wx::xrc wx::html wx::core wx::base)
 	set(WX_USE_FILE "")
 else()
-	find_package(wxWidgets REQUIRED COMPONENTS stc xrc html adv core base)
+	find_package(wxWidgets REQUIRED COMPONENTS gl stc xrc html adv core base)
 	set(WX_LIBS ${wxWidgets_LIBRARIES})
 	set(WX_USE_FILE ${wxWidgets_USE_FILE})
 endif()
+# OpenGL de función fija para la vista 3D de la pieza (wxGLCanvas)
+find_package(OpenGL REQUIRED)
 
 # ---- SFML 2 (network, system) ------------------------------------------------
 # Ubuntu 24.04 trae SFML 2.6 (libsfml-dev). MSYS2 ya distribuye SFML 3, cuya API
@@ -63,6 +65,7 @@ set(APP_SOURCES
 	CncPath.cpp
 	TurnStock.cpp
 	wxPlotPanel.cpp
+	wxTurnView3D.cpp
 	Translator.cpp
 	TranslatorCore.cpp
 	Renumber.cpp
@@ -92,7 +95,7 @@ if(WX_USE_FILE)
 endif()
 target_include_directories(traductor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(Threads REQUIRED)   # consulta de actualizaciones en un hilo
-target_link_libraries(traductor PRIVATE ${WX_LIBS} sfml-network sfml-system Threads::Threads clipper2)
+target_link_libraries(traductor PRIVATE ${WX_LIBS} OpenGL::GL sfml-network sfml-system Threads::Threads clipper2)
 target_compile_options(traductor PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
 
 if(WIN32)
@@ -133,9 +136,9 @@ add_test(NAME stock COMMAND test_stock ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 add_executable(cncpath_dump tests/cncpath_dump.cpp CncPath.cpp TurnStock.cpp)
 target_link_libraries(cncpath_dump PRIVATE clipper2)
 # Vista previa del graficador con wxWidgets: plot_preview <programa> [8025|8035|fanuc]
-add_executable(plot_preview WIN32 tests/plot_preview.cpp wxPlotPanel.cpp CncPath.cpp TurnStock.cpp)
+add_executable(plot_preview WIN32 tests/plot_preview.cpp wxPlotPanel.cpp wxTurnView3D.cpp CncPath.cpp TurnStock.cpp)
 target_include_directories(plot_preview PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(plot_preview PRIVATE ${WX_LIBS} clipper2)
+target_link_libraries(plot_preview PRIVATE ${WX_LIBS} OpenGL::GL clipper2)
 target_compile_options(plot_preview PRIVATE -Wall -Wno-unused-local-typedefs -Wno-unused-parameter)
 if(MINGW)
 	target_link_options(plot_preview PRIVATE -static-libgcc -static-libstdc++)

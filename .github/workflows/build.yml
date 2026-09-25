@@ -13,7 +13,7 @@ jobs:
       - name: Dependencias
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ libwxgtk3.2-dev libsfml-dev
+          sudo apt-get install -y cmake g++ libwxgtk3.2-dev libwxgtk-gl3.2-dev libgl1-mesa-dev libsfml-dev
       - name: Configurar
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - name: Compilar

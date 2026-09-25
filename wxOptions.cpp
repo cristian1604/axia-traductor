@@ -24,6 +24,7 @@ s_Settings default_settings() {
 	s.plot_sash_below = 0;
 	s.plot_rapids = true;
 	s.plot_stock = true;
+	s.plot_3d = false;
 	return s;
 }
 
