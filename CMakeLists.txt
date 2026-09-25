@@ -64,6 +64,7 @@ set(APP_SOURCES
 	CncSyntax.cpp
 	CncPath.cpp
 	TurnStock.cpp
+	ToolsFile.cpp
 	wxPlotPanel.cpp
 	wxTurnView3D.cpp
 	Translator.cpp
@@ -129,7 +130,7 @@ endif()
 add_test(NAME sender COMMAND test_sender)
 add_executable(test_path tests/test_path.cpp CncPath.cpp)
 add_test(NAME path COMMAND test_path ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-add_executable(test_stock tests/test_stock.cpp TurnStock.cpp CncPath.cpp)
+add_executable(test_stock tests/test_stock.cpp TurnStock.cpp ToolsFile.cpp CncPath.cpp)
 target_link_libraries(test_stock PRIVATE clipper2)
 add_test(NAME stock COMMAND test_stock ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 # Herramienta de depuración del intérprete: cncpath_dump <programa> [8025|8035|fanuc]

@@ -1,5 +1,6 @@
 // Tests del simulador de pieza (TurnStock). Se ejecutan con: ctest --test-dir build
 #include "../TurnStock.h"
+#include "../ToolsFile.h"
 #include <cmath>
 #include <cstdio>
 #include <fstream>
@@ -220,6 +221,29 @@ int main(int argc, char **argv) {
 		double expected = 15 * 20 - 5 * 10 - groove;
 		CHECK(std::fabs(s.area() - expected) < 0.05);
 		if (std::fabs(s.area() - expected) >= 0.05 || !has_vertex(s, -2.5, 10.8)) dump(s);
+	}
+
+	// 12. tools.json: la tabla por defecto va y vuelve por JSON; un archivo propio la reemplaza; errores claros
+	{
+		ToolTable back;
+		std::string err;
+		CHECK(parse_tool_table(tool_table_to_json(tools), back, &err));
+		CHECK(err.empty());
+		CHECK(back.tools.size() == tools.tools.size());
+		CHECK(back.get(1).role == TOOL_CUTOFF); CHECK(back.get(6).role == TOOL_NARROW); CHECK(back.get(21).role == TOOL_INTERNAL);
+		CHECK_NEAR(back.default_width, 3); CHECK_NEAR(back.default_nose_radius, 0.4);
+
+		ToolTable custom;
+		CHECK(parse_tool_table("{ \"default_width\": 2, \"tools\": { \"1\": { \"role\": \"corte\", \"width\": 1.5 }, \"9\": { \"role\": \"angosta\", \"nose_radius\": 0.8 } } }", custom, &err));
+		CHECK(custom.tools.size() == 2);
+		CHECK_NEAR(custom.width_of(1), 1.5); CHECK_NEAR(custom.width_of(4), 2);   // T4 ya no está definida: ancho por defecto
+		CHECK(custom.get(4).role == TOOL_UNKNOWN);
+		CHECK_NEAR(custom.get(9).nose_radius, 0.8);
+
+		CHECK(!parse_tool_table("{ \"tools\": { \"1\": { \"role\": \"laser\" } } }", custom, &err));
+		CHECK(err.find("laser") != std::string::npos);
+		CHECK(!parse_tool_table("{ \"tools\": { \"x\": { \"role\": \"corte\" } } }", custom, &err));
+		CHECK(!parse_tool_table("esto no es json", custom, &err));
 	}
 
 	if (failures == 0) printf("OK: todos los tests del simulador de pieza pasaron\n");

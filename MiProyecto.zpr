@@ -71,6 +71,9 @@ cursor=0:0
 path=TurnStock.cpp
 cursor=0:0
 [source]
+path=ToolsFile.cpp
+cursor=0:0
+[source]
 path=third_party/clipper2/clipper.engine.cpp
 cursor=0:0
 [source]
@@ -177,6 +180,9 @@ path=CncPath.h
 cursor=0:0
 [header]
 path=TurnStock.h
+cursor=0:0
+[header]
+path=ToolsFile.h
 cursor=0:0
 [header]
 path=wxPlotPanel.h

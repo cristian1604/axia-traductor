@@ -82,6 +82,17 @@ string seconds_to_hundredths(const string &value) {
 	return buf;
 }
 
+// Conversión de segundos a milisegundos enteros para el G04 del FANUC
+string seconds_to_milliseconds(const string &value) {
+	std::istringstream in(value);
+	in.imbue(std::locale::classic());
+	double db = 0;
+	in >> db;
+	char buf[64];
+	snprintf(buf, sizeof(buf), "%.0f", db * 1000);
+	return buf;
+}
+
 void replace_all(string &text, const string &from, const string &to) {
 	if (from.empty()) return;
 	size_t pos = 0;
@@ -474,8 +485,10 @@ string translate_8025_to_fanuc_text(const string &source, const TranslationSetti
 				break;
 			}
 			case 'K':
+				// Temporización: el 8025 la programa en segundos (K.2) y el FANUC
+				// la espera como P en milisegundos (P200)
 				if (prevSentence != "G04") break;
-				sentence = 'K' + seconds_to_hundredths(sentence.substr(1));
+				sentence = 'P' + seconds_to_milliseconds(sentence.substr(1));
 				break;
 			case '`':
 				sentence = sentence.substr(1);

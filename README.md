@@ -80,9 +80,15 @@ suelen llevar datos de clientes).
   (`ftp` para Fagor, `fanuc-udp` para el puente UDP a serie del FANUC), IP y
   puerto. Se crea con valores por defecto la primera vez. Es compartido por
   todos los usuarios cuando el programa se ejecuta desde un servidor de archivos.
+- **`tools.json`**, junto al ejecutable: herramientas del simulador de pieza
+  del graficador, por número (`role`: `exterior`, `interior`, `frenteo`,
+  `corte`, `angosta` o `auto`; `width` para el ancho de una cuchilla;
+  `nose_radius` para el radio de punta de una angosta). Se crea con la
+  convención del taller la primera vez y solo hace falta tocarlo si una
+  cuchilla tiene otro ancho o una herramienta especial otra función.
 - **`settings.json`**, por usuario, en `%APPDATA%\axia-traductor` (Windows) o
   `~/.config/axia-traductor` (Linux): colores, opciones de conversión, último
-  torno y último nombre de archivo usados.
+  torno y último nombre de archivo usados, y estado del graficador.
 
 ## Conversiones 8025 → 8035
 
@@ -91,7 +97,7 @@ suelen llevar datos de clientes).
 | Comentario | `(` | `;` | `(Frente)` → `;(Frente)` |
 | Herramienta y corrector | `T` | `T` + `D` | `T02.03` → `T02 D03` |
 | Ángulo | `A` | `Q` | `A315.000` → `Q315.000` |
-| Temporización | segundos | centésimas | `G04 K0.3` → `G04 K30` |
+| Temporización | segundos | centésimas | `G04 K0.3` → `G04 K30` (a FANUC: `G04 P300`, milisegundos) |
 | Posición Z en variable | `P1=Z` | `(P100=PPOSZ)` | |
 | Salto | `G29 N0090` | `(GOTO N0100)` | |
 

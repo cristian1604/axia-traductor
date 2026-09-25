@@ -127,6 +127,15 @@ int main(int argc, char **argv) {
 		CHECK(out.find("%0001\n(CLIENTE:  RIGOLLEAU  S.A. )\n(#DN= 100.000)\n(T4  70  110)\n(P05A  6   84.5  100)\nN0010 G00 X1\n") != std::string::npos);
 	}
 
+	// 4e. FANUC: la pausa G04 K (segundos) pasa a P en milisegundos; una K fuera de G04 no cambia
+	{
+		std::string out = translate_8025_to_fanuc_text("%1\nN0010  G04 K.2\nN0020  G04 K0.3\nN0030  G04 K2\nN0040  G03 X10 Z-5 I0 K5\n", defaults);
+		CHECK(out.find("N0010  G04 P200\n") != std::string::npos);
+		CHECK(out.find("N0020  G04 P300\n") != std::string::npos);
+		CHECK(out.find("N0030  G04 P2000\n") != std::string::npos);
+		CHECK(out.find("N0040  G03 X10 Z-5 I0 K5\n") != std::string::npos);
+	}
+
 	// 4c. FANUC: redondeo de esquina G36 R -> ,R al final del bloque
 	{
 		std::string out = translate_8025_to_fanuc_text("%1\nN0010  G1 Z0\nN0020  G36 R1 X20 Z-3\nN0030  Z-10\nN0040  G36 R0.5 X30\n", defaults);

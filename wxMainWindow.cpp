@@ -21,6 +21,7 @@
 #include "Sender.h"
 #include "wxSendWindow.h"
 #include "wxImageUtils.h"
+#include "ToolsFile.h"
 #include <wx/iconbndl.h>
 #include <wx/display.h>
 #include <algorithm>
@@ -134,6 +135,13 @@ wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 		wxMessageBox(wxString::FromUTF8(error.c_str()) + wxT("\n\nSe usa la lista de tornos por defecto."),
 		             wxT("Lista de tornos"), wxICON_WARNING);
 	}
+	// Tabla de herramientas del simulador de pieza, también compartida
+	ToolTable tools = load_tool_table(shared_config_file("tools.json").ToStdString(), &error);
+	if (!error.empty()) {
+		wxMessageBox(wxString::FromUTF8(error.c_str()) + wxT("\n\nSe usa la convención de herramientas por defecto."),
+		             wxT("Herramientas del graficador"), wxICON_WARNING);
+	}
+	m_plot->SetToolTable(tools);
 }
 
 wxMainWindow::~wxMainWindow() {
