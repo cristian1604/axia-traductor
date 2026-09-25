@@ -46,8 +46,12 @@ private:
 	std::vector<float> m_path_feed, m_path_rapid;   // segmentos (pares de puntos)
 	CncPoint m_tool;
 	bool m_have_tool = false;
+	// La cámara apunta a la sección de la pieza en el plano de corte, a la altura
+	// media de la pared, y la encuadra por su tamaño (no el del anillo entero:
+	// en un tubo grande la pared quedaría chica y lejos del centro)
 	double m_centre[3] = { 0, 0, 0 };
-	double m_radius = 50;                  // radio de la escena, para la cámara
+	double m_radius = 50;                  // mitad del tamaño de la sección, para encuadrar
+	double m_extent = 50;                  // radio del anillo entero, para los planos de recorte
 
 	// Cámara orbital alrededor de m_target
 	double m_yaw = 35, m_pitch = 22, m_distance = 150;

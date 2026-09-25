@@ -93,7 +93,7 @@ void wxTurnView3D::SetShowPath(bool show) {
 void wxTurnView3D::ResetCamera() {
 	m_yaw = 35;
 	m_pitch = 22;
-	m_distance = m_radius * 2.6;
+	m_distance = m_radius * 3.4;   // la sección entra entera con algo de margen
 	for (int k = 0; k < 3; ++k) m_target[k] = m_centre[k];
 	Refresh(false);
 }
@@ -108,7 +108,7 @@ void wxTurnView3D::BuildMesh() {
 	m_path_feed.clear();
 	m_path_rapid.clear();
 
-	double zmin = 1e300, zmax = -1e300, rmax = 0;
+	double zmin = 1e300, zmax = -1e300, rmax = 0, rmin = 1e300;
 	// Se conserva la mitad de atrás (θ de 180° a 360°): el plano de corte queda de frente
 	const double t0 = m_cut_away ? PI : 0, t1 = 2 * PI;
 	const int steps = m_cut_away ? STEPS / 2 : STEPS;
@@ -119,7 +119,7 @@ void wxTurnView3D::BuildMesh() {
 		if (n < 3) continue;
 		for (size_t i = 0; i < n; ++i) {
 			const CncPoint &a = ring[i], &b = ring[(i + 1) % n];
-			zmin = std::min(zmin, a.z); zmax = std::max(zmax, a.z); rmax = std::max(rmax, a.r);
+			zmin = std::min(zmin, a.z); zmax = std::max(zmax, a.z); rmax = std::max(rmax, a.r); rmin = std::min(rmin, a.r);
 			if (a.r <= 1e-9 && b.r <= 1e-9) continue;   // lado sobre el eje: no genera superficie
 			double dz = b.z - a.z, dr = b.r - a.r;
 			double L = std::sqrt(dz * dz + dr * dr);
@@ -160,20 +160,22 @@ void wxTurnView3D::BuildMesh() {
 	// Encuadre: centro y radio de la escena, solo con la pieza (los rápidos se van lejos)
 	if (zmin > zmax) {
 		const StockDefinition &d = m_stock.stock;
-		if (d.valid()) { zmin = d.z_end; zmax = d.z_face; rmax = d.outer_diameter / 2; }
-		else { zmin = -20; zmax = 0; rmax = 10; }
+		if (d.valid()) { zmin = d.z_end; zmax = d.z_face; rmax = d.outer_diameter / 2; rmin = d.inner_diameter / 2; }
+		else { zmin = -20; zmax = 0; rmax = 10; rmin = 0; }
 	}
-	double old_centre = m_centre[0], old_radius = m_radius;
+	double old_centre_z = m_centre[0], old_centre_r = m_centre[1], old_radius = m_radius;
 	bool first = m_verts.empty() && m_caps.empty() && m_path_feed.empty();
+	// Foco: la sección de la pieza en el plano de corte, a la altura media de la pared
 	m_centre[0] = (zmin + zmax) / 2;
-	m_centre[1] = 0;
+	m_centre[1] = (rmin + rmax) / 2;
 	m_centre[2] = 0;
-	double half_len = (zmax - zmin) / 2;
-	m_radius = std::max(1.0, std::sqrt(half_len * half_len + rmax * rmax));
+	double half_len = (zmax - zmin) / 2, half_wall = (rmax - rmin) / 2;
+	m_radius = std::max(1.0, std::sqrt(half_len * half_len + half_wall * half_wall));
+	m_extent = std::max(m_radius, std::sqrt(half_len * half_len + rmax * rmax));
 	// Se reencuadra al principio y cuando la escena cambia mucho (tronzado): en
 	// el paso a paso normal la cámara se queda donde el usuario la dejó
 	if (first || m_distance <= 0 || m_radius > old_radius * 1.5 || m_radius < old_radius / 1.5
-	    || std::fabs(m_centre[0] - old_centre) > old_radius * 0.5) {
+	    || std::fabs(m_centre[0] - old_centre_z) > old_radius * 0.5 || std::fabs(m_centre[1] - old_centre_r) > old_radius * 0.5) {
 		ResetCamera();
 	}
 
@@ -261,7 +263,7 @@ void wxTurnView3D::OnWheel(wxMouseEvent &event) {
 	int delta = event.GetWheelDelta();
 	if (delta <= 0) delta = 120;
 	double notches = (double) event.GetWheelRotation() / delta;
-	m_distance = std::max(m_radius * 0.05, std::min(m_radius * 30, m_distance * std::pow(1.2, -notches)));
+	m_distance = std::max(m_radius * 0.05, std::min(m_extent * 30, m_distance * std::pow(1.2, -notches)));
 	Refresh(false);
 }
 
@@ -327,7 +329,8 @@ void wxTurnView3D::Render() {
 
 	// Proyección en perspectiva
 	double aspect = (double) w / h;
-	double near_ = std::max(0.01, m_distance - m_radius * 3), far_ = m_distance + m_radius * 3;
+	// Planos de recorte que abarcan el anillo entero, aunque se encuadre solo la sección
+	double near_ = std::max(m_distance * 0.01, m_distance - m_extent * 3), far_ = m_distance + m_extent * 3;
 	double top = near_ * std::tan(FOV / 2 * PI / 180), right = top * aspect;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -399,8 +402,8 @@ void wxTurnView3D::Render() {
 	glEnable(GL_LINE_STIPPLE);
 	glLineStipple(3, 0x0F0F);
 	glBegin(GL_LINES);
-	glVertex3d(m_centre[0] - m_radius * 1.3, 0, 0);
-	glVertex3d(m_centre[0] + m_radius * 1.3, 0, 0);
+	glVertex3d(m_centre[0] - m_extent * 1.3, 0, 0);
+	glVertex3d(m_centre[0] + m_extent * 1.3, 0, 0);
 	glEnd();
 	glDisable(GL_LINE_STIPPLE);
 	glPopMatrix();
