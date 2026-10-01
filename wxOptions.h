@@ -7,10 +7,12 @@
 
 class wxOptions : public wxOptionsBase {
 	s_Settings settings;
+	wxCheckBox *m_copy_clipboard;   // creada en código, ver el constructor
 private:
-	
+
 protected:
 	void remove_m08( wxCommandEvent& event ) ;
+	void copy_clipboard( wxCommandEvent& event ) ;
 	void reset_defaults( wxCommandEvent& event) ;
 	void reset( wxCommandEvent& event ) ;
 	void maximize( wxCommandEvent& event ) ;

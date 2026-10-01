@@ -102,6 +102,11 @@ programa no tiene nombre todavía, el campo `Descripcion:` del encabezado del
 generador, y si tampoco, el número del `%` original. Espacios y comas pasan
 a `_`, porque la coma separa los campos del encabezado del control.
 
+Con la opción "Copiar el programa traducido al portapapeles" (Parámetros,
+apagada por defecto), tras convertir a 8035 o a FANUC el programa ya
+reenumerado queda además en el portapapeles, como lo dejaba el reenumerador
+antiguo.
+
 Las asignaciones aritméticas (`P1 = P1 F1 P2`, etc.) **no se convierten**,
 porque la numeración de variables difiere entre controles. Revisar siempre el
 programa convertido antes de ejecutarlo.

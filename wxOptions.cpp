@@ -13,6 +13,7 @@ s_Settings default_settings() {
 	s.colour_comments = wxColour(200, 200, 200);
 	s.maximize_on_startup = false;
 	s.remove_m08 = false;
+	s.copy_translation_to_clipboard = false;
 	s.replace_from = "";
 	s.replace_to = "";
 	s.last_machine = "";
@@ -27,8 +28,19 @@ s_Settings default_settings() {
 }
 
 wxOptions::wxOptions(wxWindow *parent) : wxOptionsBase(parent) {
-	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
-	SetSize(FromDIP(GetSize()));
+	// Casilla agregada en código, en la grilla de "Opciones de código" debajo
+	// de la de M08 (como el menú del graficador, sin pasar por el diseñador)
+	wxSizer *grid = m_remove_m08->GetContainingSizer();
+	wxWindow *box = m_remove_m08->GetParent();
+	grid->Add(new wxStaticText(box, wxID_ANY, wxEmptyString), wxSizerFlags().Border(wxALL));
+	m_copy_clipboard = new wxCheckBox(box, wxID_ANY, wxT("Copiar el programa traducido al portapapeles"));
+	grid->Add(m_copy_clipboard, wxSizerFlags(1).Expand().Border(wxALL));
+	m_copy_clipboard->Bind(wxEVT_CHECKBOX, &wxOptions::copy_clipboard, this);
+	// Tamaño fijo del diseño en píxeles lógicos, más la fila nueva: se escala al DPI del monitor
+	wxSize size = FromDIP(GetSize());
+	size.y += FromDIP(28);
+	SetSize(size);
+	Layout();
 	Centre(wxBOTH);
 	FileManager F;
 	F.loadSettings(settings);   // si no hay archivo, deja los valores por defecto
@@ -50,6 +62,11 @@ void wxOptions::showSettings() {
 	m_colour_comments->SetColour(settings.colour_comments);
 	m_maximize->SetValue(settings.maximize_on_startup);
 	m_remove_m08->SetValue(settings.remove_m08);
+	m_copy_clipboard->SetValue(settings.copy_translation_to_clipboard);
+}
+
+void wxOptions::copy_clipboard( wxCommandEvent& event )  {
+	settings.copy_translation_to_clipboard = m_copy_clipboard->GetValue();
 }
 
 wxOptions::~wxOptions() {

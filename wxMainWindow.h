@@ -31,6 +31,7 @@ private:
 	void openSendDialog();
 	bool readClipboardText(wxString &out);
 	bool writeClipboardText(const wxString &text);
+	wxString translationClipboardNote();
 	// Carga un programa en el editor con la sintaxis indicada y descarta el historial de deshacer
 	void showProgram(const wxString &program, int standard);
 	// Posición inicial del divisor, escalada al DPI del monitor (reemplaza al idle de wxFormBuilder)

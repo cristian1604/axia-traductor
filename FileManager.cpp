@@ -74,6 +74,7 @@ bool FileManager::loadSettings(s_Settings &s) {
 	s.colour_line_number  = colour_from_json(j, "colour_line_number", s.colour_line_number);
 	s.maximize_on_startup = j.value("maximize_on_startup", s.maximize_on_startup);
 	s.remove_m08          = j.value("remove_m08", s.remove_m08);
+	s.copy_translation_to_clipboard = j.value("copy_translation_to_clipboard", s.copy_translation_to_clipboard);
 	s.replace_from        = wxString::FromUTF8(j.value("replace_from", string()).c_str());
 	s.replace_to          = wxString::FromUTF8(j.value("replace_to", string()).c_str());
 	s.last_machine        = wxString::FromUTF8(j.value("last_machine", string()).c_str());
@@ -97,6 +98,7 @@ bool FileManager::saveSettings(s_Settings &s) {
 	j["colour_line_number"]  = colour_to_string(s.colour_line_number);
 	j["maximize_on_startup"] = s.maximize_on_startup;
 	j["remove_m08"]          = s.remove_m08;
+	j["copy_translation_to_clipboard"] = s.copy_translation_to_clipboard;
 	j["replace_from"]        = string(s.replace_from.ToUTF8());
 	j["replace_to"]          = string(s.replace_to.ToUTF8());
 	j["last_machine"]        = string(s.last_machine.ToUTF8());

@@ -218,7 +218,16 @@ void wxMainWindow::translate( wxCommandEvent& event )  {
 	m_editor->SetStandard(syntax_version);
 	m_editor->GotoPos(ip);
 	enum_lines(event);
-	m_statusBar->SetStatusText(wxT("Programa convertido a versión 8035"), 0);
+	m_statusBar->SetStatusText(wxT("Programa convertido a versión 8035") + translationClipboardNote(), 0);
+}
+
+// Si está habilitado en Opciones, deja el programa ya traducido y reenumerado
+// en el portapapeles, como hacía el reenumerador antiguo. Devuelve el texto
+// para la barra de estado.
+wxString wxMainWindow::translationClipboardNote() {
+	if (!settings.copy_translation_to_clipboard) return wxEmptyString;
+	if (!writeClipboardText(m_editor->GetText())) return wxT(" (no se pudo copiar al portapapeles)");
+	return wxT(" y copiado al portapapeles");
 }
 
 void wxMainWindow::translateFanuc( wxCommandEvent& event )  {
@@ -236,7 +245,7 @@ void wxMainWindow::translateFanuc( wxCommandEvent& event )  {
 	m_editor->SetStandard(syntax_version);
 	m_editor->GotoPos(ip);
 	enum_lines(event);
-	m_statusBar->SetStatusText(wxT("Programa convertido a versión Fanuc"), 0);
+	m_statusBar->SetStatusText(wxT("Programa convertido a versión Fanuc") + translationClipboardNote(), 0);
 }
 
 void wxMainWindow::open_options( wxCommandEvent& event )  {

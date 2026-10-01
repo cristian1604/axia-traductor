@@ -15,6 +15,7 @@ struct s_Settings {
 
 	bool maximize_on_startup;
 	bool remove_m08;
+	bool copy_translation_to_clipboard;   // tras traducir, dejar el programa en el portapapeles (como el reenumerador antiguo)
 	wxString replace_from;
 	wxString replace_to;
 
