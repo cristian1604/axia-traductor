@@ -239,7 +239,50 @@ void fixed_conversions(string &sentence, string &line) {
 	}
 }
 
+// Deja solo letras, dígitos, '_', '-' y '.'; el resto (espacios, comas) pasa a '_'
+string sanitize_program_name(const string &name) {
+	size_t b = name.find_first_not_of(" \t\r\n");
+	if (b == string::npos) return "";
+	size_t e = name.find_last_not_of(" \t\r\n");
+	string out;
+	for (size_t i = b; i <= e; ++i) {
+		unsigned char c = (unsigned char) name[i];
+		out += (isalnum(c) || c == '_' || c == '-' || c == '.') ? (char) c : '_';
+	}
+	return out;
+}
+
 } // namespace
+
+string program_name_8035(const string &source, const string &preferred) {
+	string name = sanitize_program_name(preferred);
+	if (!name.empty()) return name;
+	// Encabezado del generador: "Descripcion: P05A" antes del '%'
+	size_t pos = 0;
+	string percent_digits;
+	while (pos < source.size()) {
+		size_t eol = source.find('\n', pos);
+		if (eol == string::npos) eol = source.size();
+		string line = source.substr(pos, eol - pos);
+		size_t b = line.find_first_not_of(" \t\r");
+		if (b != string::npos) {
+			if (line[b] == '%') {
+				percent_digits = sanitize_program_name(line.substr(b + 1));
+				break;
+			}
+			string lower;
+			for (size_t i = b; i < line.size(); ++i) lower += (char) tolower((unsigned char) line[i]);
+			size_t colon = lower.find(':');
+			if (lower.compare(0, 9, "descripci") == 0 && colon != string::npos) {
+				name = sanitize_program_name(line.substr(b + colon + 1));
+				if (!name.empty()) return name;
+			}
+		}
+		pos = eol + 1;
+	}
+	if (!percent_digits.empty()) return percent_digits;
+	return "PROGRAMA";
+}
 
 //------------------------------------------------------------------------------------------------------------------
 
@@ -261,6 +304,9 @@ string translate_8025_to_8035_text(const string &source, const TranslationSettin
 	p1 = epilogue_target(aux);
 	rep = "`(P100 = P100 - P102)\nM00 M05\n`(GOTO N" + p1 + ")\nM30";
 	aux = block_conversion("P1 = P1 F2 P2", "M30", aux, rep);
+
+	// Encabezado del 8035: "%NOMBRE,MX--," (M modificable, X ejecutable)
+	const string header_8035 = "%" + program_name_8035(source, settings.program_name) + ",MX--,";
 
 	while (!aux.empty()) {
 		string line = take_line(aux);
@@ -284,7 +330,7 @@ string translate_8025_to_8035_text(const string &source, const TranslationSettin
 			case '%':
 				if (!comments_inserted) {
 					// Cabecera y comentarios previos; el último '\n' lo agrega el fin de línea
-					translated += sentence;
+					translated += header_8035;
 					if (!comments.empty()) translated += '\n' + comments.substr(0, comments.size() - 1);
 					comments_inserted = true;
 				}

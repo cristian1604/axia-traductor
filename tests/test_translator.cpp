@@ -74,6 +74,26 @@ int main(int argc, char **argv) {
 		compare_from(r.text, expected, "N0010", "P05A 8025->8035");
 	}
 
+	// 1b. Encabezado del 8035: "%NOMBRE,MX--," con el nombre del archivo, o el de "Descripcion:", o el número del '%'
+	{
+		TranslationSettings named = defaults;
+		named.program_name = "P05A RIG.NC";
+		std::string out = translate_8025_to_8035_text("Cliente: X\nDescripcion: P05A\n%00001\nN0010 G00 X1\n", named);
+		CHECK(out.compare(0, 18, "%P05A_RIG.NC,MX--,") == 0);
+		out = translate_8025_to_8035_text("Cliente: X\nDescripcion:  P05A \n%00001\nN0010 G00 X1\n", defaults);
+		CHECK(out.compare(0, 11, "%P05A,MX--,") == 0);
+		CHECK(out.find(";Descripcion:  P05A ") != std::string::npos);   // el encabezado sigue como comentario
+		out = translate_8025_to_8035_text("%00001\nN0010 G00 X1\n", defaults);
+		CHECK(out.compare(0, 12, "%00001,MX--,") == 0);
+		CHECK(program_name_8035("", "") == "PROGRAMA");
+		CHECK(program_name_8035("", " mi programa, v2 ") == "mi_programa__v2");
+		// El P05A real traducido con su nombre de archivo
+		std::string src = normalize(read_file(dir + "/P05A.NC"));
+		named.program_name = "P05A";
+		out = translate_8025_to_8035_text(src, named);
+		CHECK(out.compare(0, 11, "%P05A,MX--,") == 0);
+	}
+
 	// 2. Conversiones puntuales
 	{
 		std::string out = translate_8025_to_8035_text("%1\nN0010 T2.05\nN0020 G04 K0.3\nN0030 A45.5 Z1\nN0040 (coment)\nN0050\n", defaults);

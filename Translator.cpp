@@ -65,8 +65,10 @@ static TranslationSettings load_translation_settings() {
 	return t;
 }
 
-void translate_8025_to_8035(wxStyledTextCtrl* elem) {
-	std::string out = translate_8025_to_8035_text(elem->GetText().ToStdString(), load_translation_settings());
+void translate_8025_to_8035(wxStyledTextCtrl* elem, const wxString &programName) {
+	TranslationSettings settings = load_translation_settings();
+	settings.program_name = std::string(programName.ToUTF8());
+	std::string out = translate_8025_to_8035_text(elem->GetText().ToStdString(), settings);
 	elem->SetText(out);
 	elem->SetFocus();
 }

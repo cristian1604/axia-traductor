@@ -19,7 +19,17 @@ struct TranslationSettings {
 	std::string replace_to;
 	std::string fanuc_prologue = default_fanuc_prologue();
 	std::string fanuc_epilogue = default_fanuc_epilogue();
+	// Nombre del programa para el encabezado del 8035 ("%NOMBRE,MX--,"):
+	// normalmente el del archivo cargado. Vacío: se deduce del programa
+	// (ver program_name_8035).
+	std::string program_name;
 };
+
+// Nombre que lleva el encabezado del 8035: `preferred` si no está vacío, si
+// no el campo "Descripcion:" del encabezado del generador, si no el número
+// que trae el '%' original. Sin espacios ni comas (la coma separa los campos
+// del encabezado del control); si no queda nada, "PROGRAMA".
+std::string program_name_8035(const std::string &source, const std::string &preferred);
 
 // Fagor 8025 -> Fagor 8035 / 8037
 std::string translate_8025_to_8035_text(const std::string &source, const TranslationSettings &settings);

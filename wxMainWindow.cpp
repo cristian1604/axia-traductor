@@ -211,7 +211,10 @@ void wxMainWindow::translate( wxCommandEvent& event )  {
 	int ip = m_editor->GetCurrentPos();
 	m_syntax_slection->SetSelection(1);
 	syntax_version = WAS_8035;
-	translate_8025_to_8035(m_editor);
+	// El encabezado del 8035 lleva el nombre del archivo cargado, sin extensión
+	wxString programName = filename.BeforeLast('.');
+	if (programName.IsEmpty()) programName = filename;
+	translate_8025_to_8035(m_editor, programName);
 	m_editor->SetStandard(syntax_version);
 	m_editor->GotoPos(ip);
 	enum_lines(event);

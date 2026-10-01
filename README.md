@@ -86,6 +86,7 @@ suelen llevar datos de clientes).
 
 | Elemento | 8025 | 8035 | Ejemplo |
 | ------ | ------ | ------ | ------ |
+| Inicio de programa | `%00001` | `%NOMBRE,MX--,` | `P05A.NC` → `%P05A,MX--,` |
 | Comentario | `(` | `;` | `(Frente)` → `;(Frente)` |
 | Herramienta y corrector | `T` | `T` + `D` | `T02.03` → `T02 D03` |
 | Ángulo | `A` | `Q` | `A315.000` → `Q315.000` |
@@ -96,6 +97,10 @@ suelen llevar datos de clientes).
 Además se reemplazan el prólogo (desde `P2 = K` hasta `G53`) y el epílogo
 (desde `P1 = P1 F2 P2` hasta `M30`) por los bloques equivalentes del 8035, y
 las líneas vacías se convierten en `;` para que el control no las rechace.
+El nombre del encabezado es el del archivo cargado sin extensión; si el
+programa no tiene nombre todavía, el campo `Descripcion:` del encabezado del
+generador, y si tampoco, el número del `%` original. Espacios y comas pasan
+a `_`, porque la coma separa los campos del encabezado del control.
 
 Las asignaciones aritméticas (`P1 = P1 F1 P2`, etc.) **no se convierten**,
 porque la numeración de variables difiere entre controles. Revisar siempre el
