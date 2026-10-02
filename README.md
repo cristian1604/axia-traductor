@@ -46,6 +46,11 @@ artefactos descargables desde la pestaña *Actions*: `traductor-linux` y
 `traductor-windows`, este último ya con las DLL necesarias y la carpeta
 `resources/`.
 
+Para publicar una versión: actualizar `Version.h` y `docs/release-notes.md`,
+y subir un tag con el número (`git tag 3.0 && git push origin 3.0`). El mismo
+flujo compila, corre los tests y crea el *release* en GitHub con los dos
+paquetes adjuntos.
+
 El ejecutable fija su directorio de trabajo en la carpeta donde está instalado,
 que debe contener `resources/` (la compilación la copia junto al ejecutable y
 el paquete del CI también la incluye), así que se puede lanzar desde cualquier
@@ -90,7 +95,7 @@ suelen llevar datos de clientes).
 | Comentario | `(` | `;` | `(Frente)` → `;(Frente)` |
 | Herramienta y corrector | `T` | `T` + `D` | `T02.03` → `T02 D03` |
 | Ángulo | `A` | `Q` | `A315.000` → `Q315.000` |
-| Temporización | segundos | centésimas | `G04 K0.3` → `G04 K30` |
+| Temporización | segundos | centésimas | `G04 K0.3` → `G04 K30` (a FANUC: `G04 P300`, milisegundos) |
 | Posición Z en variable | `P1=Z` | `(P100=PPOSZ)` | |
 | Salto | `G29 N0090` | `(GOTO N0100)` | |
 

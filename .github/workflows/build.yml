@@ -68,3 +68,37 @@ jobs:
         with:
           name: traductor-windows
           path: dist
+
+  # Al subir un tag (por ejemplo 3.0) se publica el release en GitHub con los
+  # dos paquetes ya compilados y probados y las notas de docs/release-notes.md.
+  release:
+    name: Publicar release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: traductor-windows
+          path: pkg/windows
+      - uses: actions/download-artifact@v5
+        with:
+          name: traductor-linux
+          path: pkg/linux
+      - name: Empaquetar
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          (cd pkg/windows && zip -r "../../traductor-windows-${TAG}.zip" traductor)
+          chmod +x pkg/linux/traductor/traductor   # los artefactos pierden el permiso de ejecución
+          tar -C pkg/linux -czf "traductor-linux-${TAG}.tar.gz" traductor
+          ls -la *.zip *.tar.gz
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Axia Traductor v${{ github.ref_name }}
+          body_path: docs/release-notes.md
+          files: |
+            traductor-windows-${{ github.ref_name }}.zip
+            traductor-linux-${{ github.ref_name }}.tar.gz
