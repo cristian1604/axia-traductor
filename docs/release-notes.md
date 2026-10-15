@@ -1,52 +1,33 @@
-## Axia Traductor 3.0 (20261002)
+## Axia Traductor 3.1 (20261015)
 
-Versión mayor respecto de la 2.1. El programa se compila ahora con CMake en
-Windows y en Linux, con tests automáticos en cada cambio.
+Corrección del envío al KIA FANUC. Los cambios de la 3.0 (graficador,
+encabezado 8035, portapapeles, `G04 P`) están en las notas de ese release.
 
-### Traductor
+### Envío al torno
 
-- La traducción a Fagor 8035 / 8037 escribe el inicio de programa como
-  `%NOMBRE,MX--,`, con el nombre del archivo cargado (o la descripción del
-  encabezado, o el número original).
-- La pausa `G04 K` del 8025, en segundos, pasa a FANUC como `G04 P` en
-  milisegundos (`G04 K.2` → `G04 P200`).
-- Redondeo de esquina `G36 R` a FANUC como `,R` al final del bloque.
-- Opción para dejar el programa traducido y reenumerado en el portapapeles,
-  como lo hacía el reenumerador anterior (Parámetros, apagada por defecto).
-- Reenumerador propio, integrado: ya no depende de un programa externo.
-
-### Editor
-
-- Editor nuevo con coloreado de sintaxis instantáneo, números de línea,
-  deshacer y rehacer, y zoom con Ctrl + rueda.
-- Aviso de cambios sin guardar al cerrar, abrir o reemplazar el programa.
-- Búsqueda, y búsqueda con reemplazo, corregidas.
-- Interfaz nítida en pantallas con escalado (125 %, 150 %).
-
-### Graficador de trayectorias
-
-- Menú Graficador → Mostrar graficador (F6): dibuja el recorrido de la
-  herramienta junto al editor, a la derecha o debajo. Rápidos en punteado,
-  avances continuos, líneas de referencia del encabezado y tubo en bruto.
-- Sigue al cursor del editor: resalta el tramo de la línea actual. Muestra
-  las coordenadas del puntero con X en diámetro. Zoom con la rueda sobre el
-  punto bajo el cursor.
-- Interpreta programas 8025, 8035 / 8037 y FANUC, y marca en el editor las
-  líneas con errores.
-
-### Tornos
-
-- Envío al torno desde un diálogo propio (F2), por FTP a los Fagor y por el
-  puente UDP al FANUC, sin programas externos. El nombre propuesto ya no
-  trae la extensión `.pit`.
-- Explorador FTP con la lista de tornos de `machines.json`, editable sin
-  recompilar.
+- El puente UDP → serie del FANUC toma su IP por DHCP y cambió de dirección.
+  La 3.0 tenía la IP copiada en `machines.json`, así que los envíos iban a
+  una dirección sin equipo aunque el diálogo dijera "enviado". Ahora la
+  dirección se lee **en cada envío (F2)** de `..\..\Inis\ab.ini` (sección
+  `[SERVER]`, claves `IP=` y `PORT=`), el mismo archivo que usan `UDPserv`
+  y `UDPcli`, y los campos `ip` y `port` de esa entrada se ignoran.
+- Al elegir el torno, el diálogo muestra la dirección a la que va a enviar;
+  si no puede leer `ab.ini`, lo dice y no envía.
+- Todos los mensajes del envío incluyen el destino.
+- `machines.json` puede contener solo
+  `{"path": "\\\\servidor\\carpeta\\machines.json"}` para leer la lista desde
+  una carpeta de red.
+- El protocolo UDP se verificó byte a byte y en tiempos contra el antiguo
+  `UDPcli.exe`: es idéntico. Para diagnosticar el enlace, el paquete incluye
+  `udp_send.exe <ip> <puerto> <programa>` (envía con el mismo código que la
+  aplicación) y el receptor `udp-capture.ps1`, que registra cada datagrama
+  con su tiempo.
 
 ### Instalación
 
-Descomprimir `traductor-windows-3.0.zip` y ejecutar `traductor.exe`: la
-carpeta incluye todo lo necesario. `machines.json` y `templates.json` se
-crean la primera vez. Las herramientas externas `ABsim.exe` y `Canalesw.exe`
-no se distribuyen y, si se usan, se copian a la misma carpeta.
+Descomprimir `traductor-windows-3.1.zip` sobre la carpeta de la versión
+anterior. Si ya existe `machines.json`, agregar a la entrada del FANUC la
+línea `"ini": "..\\..\\Inis\\ab.ini"` (en la instalación de planta ya está
+hecho); si no existe, se crea con ese valor.
 
 Verificar siempre el programa convertido antes de ejecutarlo en un torno.

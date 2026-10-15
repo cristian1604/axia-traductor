@@ -83,6 +83,14 @@ suelen llevar datos de clientes).
   (`ftp` para Fagor, `fanuc-udp` para el puente UDP a serie del FANUC), IP y
   puerto. Se crea con valores por defecto la primera vez. Es compartido por
   todos los usuarios cuando el programa se ejecuta desde un servidor de archivos.
+  Si en lugar de la lista contiene solo `{"path": "\\\\servidor\\carpeta\\machines.json"}`,
+  la lista se lee de esa ruta (una carpeta de red) y una IP se cambia en un único lugar
+  aunque el programa esté instalado en cada PC. La entrada del FANUC puede llevar
+  `"ini": "..\\..\\Inis\\ab.ini"` (ruta absoluta, o relativa a la carpeta del
+  `machines.json`): la IP y el puerto del puente se leen en cada envío de la
+  sección `[SERVER]` de ese archivo, el mismo `ab.ini` que usan `UDPserv` y
+  `UDPcli`, y los campos `ip` y `port` de la entrada se ignoran. Es el valor por
+  defecto, porque el puente cambió de IP y el `machines.json` quedó viejo.
 - **`settings.json`**, por usuario, en `%APPDATA%\axia-traductor` (Windows) o
   `~/.config/axia-traductor` (Linux): colores, opciones de conversión, último
   torno y último nombre de archivo usados.

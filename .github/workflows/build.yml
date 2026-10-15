@@ -61,6 +61,8 @@ jobs:
           cp build/traductor.exe dist/traductor/
           cp -r resources dist/traductor/
           cp README.md dist/traductor/
+          # Diagnóstico del enlace UDP con el FANUC (ver docs/release-notes.md)
+          cp build/udp_send.exe tests/udp-capture.ps1 dist/traductor/
           # DLLs de MinGW/wxWidgets que usa el ejecutable
           ldd dist/traductor/traductor.exe | grep -i '/mingw64/' | awk '{print $3}' | sort -u | xargs -I{} cp {} dist/traductor/
           ls -la dist/traductor

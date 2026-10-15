@@ -28,8 +28,10 @@ private:
 	wxButton *m_send;
 
 	void OnSend(wxCommandEvent &event);
+	void OnMachine(wxCommandEvent &event);
 	void OnKeyDown(wxKeyEvent &event);
 	void SetStatus(const wxString &text, bool error);
+	void ShowDestination();
 public:
 	wxSendWindow(wxWindow *parent, const std::vector<Machine> &machines, s_Settings &settings,
 	             const wxString &program, const wxString &suggestedName, const wxString &preselect);

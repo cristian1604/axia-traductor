@@ -18,7 +18,19 @@ SendResult send_ftp(const Machine &machine, const std::string &localFile);
 // FANUC a través del puente UDP -> serie (UDPserv). Reproduce el protocolo
 // del antiguo UDPcli.exe: DC2 "% \n" de inicio, una línea por datagrama y
 // "%" DC4 de fin. Tarda al menos 1,6 segundos por las pausas del protocolo.
+// Si la máquina tiene `ini`, la IP y el puerto del puente se leen de ese
+// archivo en cada envío (el mismo ab.ini que usan UDPserv y UDPcli); si no se
+// puede leer, el envío falla y el mensaje lo dice, en lugar de mandar el
+// programa a una dirección vieja.
 SendResult send_fanuc_udp(const Machine &machine, const std::string &program);
+
+// Lee la dirección del puente de un .ini con el formato de UDPcli/UDPserv:
+//   [SERVER]
+//   IP=192.168.100.188
+//   PORT=27182
+// Devuelve false y describe el problema en `error` si falta el archivo o
+// alguna de las dos claves.
+bool read_bridge_ini(const std::string &path, std::string &ip, int &port, std::string &error);
 
 // Nombre de archivo normalizado para el torno: sin espacios y con extensión .pit
 std::string normalize_remote_name(const std::string &name);

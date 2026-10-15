@@ -55,13 +55,45 @@ wxSendWindow::wxSendWindow(wxWindow *parent, const std::vector<Machine> &machine
 	root->Add(buttons, 0, wxEXPAND | wxALL, 8);
 
 	SetSizerAndFit(root);
+	ShowDestination();
 	CentreOnParent();
 
 	m_send->Bind(wxEVT_BUTTON, &wxSendWindow::OnSend, this);
+	m_machine->Bind(wxEVT_CHOICE, &wxSendWindow::OnMachine, this);
 	m_name->Bind(wxEVT_TEXT_ENTER, &wxSendWindow::OnSend, this);
 	Bind(wxEVT_CHAR_HOOK, &wxSendWindow::OnKeyDown, this);
 	m_name->SetFocus();
 	m_name->SelectAll();
+}
+
+void wxSendWindow::OnMachine(wxCommandEvent &event) {
+	ShowDestination();
+}
+
+// Muestra adónde irá el programa. Para el FANUC la dirección se lee del ab.ini
+// en este momento, igual que lo hará el envío: el puente toma la IP por DHCP
+// y el operario tiene que ver a qué dirección va antes de apretar Enviar.
+void wxSendWindow::ShowDestination() {
+	int sel = m_machine->GetSelection();
+	if (sel < 0 || sel >= (int) machines.size()) return;
+	const Machine &machine = machines[sel];
+	wxString name = wxString::FromUTF8(machine.name.c_str());
+	if (machine.protocol == "fanuc-udp") {
+		std::string ip = machine.ip, err;
+		int port = machine.port;
+		if (!machine.ini.empty() && !read_bridge_ini(machine.ini, ip, port, err)) {
+			SetStatus(wxString::Format(wxT("No se pudo leer la dirección del puente de %s: %s"),
+			                           name, wxString::FromUTF8(err.c_str())), true);
+			return;
+		}
+		wxString from = machine.ini.empty() ? wxString()
+		              : wxString::Format(wxT(" (de %s)"), wxString::FromUTF8(machine.ini.c_str()));
+		SetStatus(wxString::Format(wxT("Se enviará el contenido actual del editor a %s en %s:%d%s"),
+		                           name, wxString(machine.ini.empty() ? machine.ip : ip), port, from), false);
+	} else {
+		SetStatus(wxString::Format(wxT("Se enviará el contenido actual del editor a %s (%s, FTP %s)"),
+		                           name, wxString(machine.ip), wxString::FromUTF8(machine.directory.c_str())), false);
+	}
 }
 
 void wxSendWindow::OnKeyDown(wxKeyEvent &event) {
