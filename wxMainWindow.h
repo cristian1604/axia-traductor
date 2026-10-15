@@ -47,8 +47,12 @@ private:
 	// con el texto (con un pequeño retardo) y con la línea del cursor
 	wxTimer plot_timer;
 	CncPath plot_path;
+	std::vector<CncMessage> plot_messages;   // del intérprete y de la simulación de la pieza
 	bool status_has_plot_message;
-	wxMenuItem *m_menuPlotShow, *m_menuPlotRight, *m_menuPlotBelow, *m_menuPlotRapids;
+	wxMenuItem *m_menuPlotShow, *m_menuPlotRight, *m_menuPlotBelow, *m_menuPlotRapids, *m_menuPlotStock, *m_menuPlot3D;
+	void plotStock(wxCommandEvent &event);
+	void plotView3D(wxCommandEvent &event);
+	void plotClearDims(wxCommandEvent &event);
 	void buildPlotMenu();
 	bool plotVisible() const;
 	void applyPlotLayout();

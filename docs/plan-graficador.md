@@ -40,7 +40,7 @@ drivers adecuados.
 | 2 | **Hecha (24-09-2026).** `wxPlotPanel.cpp`: rápidos punteados y avances continuos, grilla con rótulos (X en diámetro, Z), coordenadas del puntero, zoom con la rueda sobre el punto bajo el cursor, desplazamiento arrastrando, encuadre (doble clic o Inicio), línea actual resaltada con lo posterior atenuado y marcador de la herramienta, líneas de referencia del encabezado y tubo en bruto (#ODR/#IDR) como sección. Vista previa: `tests/plot_preview.cpp`. El material que se va quitando queda para la etapa 3D: necesita la forma de cada herramienta (ancho de la de corte, radio de punta), sin la cual un punto no arranca nada | 1 sesión |
 | 3 | **Hecha (24-09-2026).** El panel entra en `traductor.wxui` como CustomControl dentro de un divisor (`m_plotSplitter`) junto al editor, a la derecha o debajo a elección; menú Graficador armado en código (F6 mostrar, disposición, rápidos, Ctrl+E encuadrar); reinterpretación con retardo de 300 ms al editar y al cambiar de sintaxis; línea actual desde el cursor; errores y avisos como fondo de línea en el editor y en la barra de estado; estado y divisores en `settings.json`. Pendiente menor: colores de `PlotColours` en Opciones | 0,5 a 1 sesión |
 | 4 | Cobertura de dialecto: ciclos fijos, saltos con repetición, coordenadas paramétricas | abierta |
-| 3D | Malla por revolución, iluminación, cámara orbital, avance paso a paso, herramienta con radio de punta, plato, vista en corte | 2 a 3 sesiones |
+| 3D | Modelo de material, sección con material en el 2D, vista 3D por revolución con cámara orbital y corte, herramientas por T. Plan detallado en `plan-3d.md` | 2 a 3 sesiones |
 
 Una sesión equivale a media jornada de trabajo conjunto.
 

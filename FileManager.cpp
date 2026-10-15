@@ -85,6 +85,8 @@ bool FileManager::loadSettings(s_Settings &s) {
 	s.plot_sash_right     = j.value("plot_sash_right", s.plot_sash_right);
 	s.plot_sash_below     = j.value("plot_sash_below", s.plot_sash_below);
 	s.plot_rapids         = j.value("plot_rapids", s.plot_rapids);
+	s.plot_stock          = j.value("plot_stock", s.plot_stock);
+	s.plot_3d             = j.value("plot_3d", s.plot_3d);
 	return true;
 }
 
@@ -109,6 +111,8 @@ bool FileManager::saveSettings(s_Settings &s) {
 	j["plot_sash_right"]     = s.plot_sash_right;
 	j["plot_sash_below"]     = s.plot_sash_below;
 	j["plot_rapids"]         = s.plot_rapids;
+	j["plot_stock"]          = s.plot_stock;
+	j["plot_3d"]             = s.plot_3d;
 	ofstream out(user_settings_file().ToStdString());
 	if (!out.is_open()) return false;
 	out << j.dump(4) << endl;

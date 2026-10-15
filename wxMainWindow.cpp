@@ -20,6 +20,8 @@
 #include "AppPaths.h"
 #include "Sender.h"
 #include "wxSendWindow.h"
+#include "wxImageUtils.h"
+#include "ToolsFile.h"
 #include <wx/iconbndl.h>
 #include <wx/display.h>
 #include <algorithm>
@@ -121,7 +123,8 @@ wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 	scale_toolbar(m_toolBar1);
 	scale_toolbar(m_toolBar2);
 	for (size_t i = 0; i < m_menubar1->GetMenuCount(); ++i) scale_menu(m_menubar1->GetMenu(i), scale);
-	m_bitmap1->SetBitmap(hidpi_bitmap(m_bitmap1->GetBitmap(), scale));
+	// El logo se incrusta en alta resolución y se reduce a 42 píxeles lógicos de alto
+	m_bitmap1->SetBitmap(bitmap_scaled_to_height(m_bitmap1->GetBitmap(), FromDIP(42)));
 	m_bitmap1->SetMinSize(wxSize(-1, FromDIP(42)));
 	Layout();
 
@@ -132,6 +135,13 @@ wxMainWindow::wxMainWindow(wxWindow *parent) : wxMainWindowBase(parent),
 		wxMessageBox(wxString::FromUTF8(error.c_str()) + wxT("\n\nSe usa la lista de tornos por defecto."),
 		             wxT("Lista de tornos"), wxICON_WARNING);
 	}
+	// Tabla de herramientas del simulador de pieza, también compartida
+	ToolTable tools = load_tool_table(shared_config_file("tools.json").ToStdString(), &error);
+	if (!error.empty()) {
+		wxMessageBox(wxString::FromUTF8(error.c_str()) + wxT("\n\nSe usa la convención de herramientas por defecto."),
+		             wxT("Herramientas del graficador"), wxICON_WARNING);
+	}
+	m_plot->SetToolTable(tools);
 }
 
 wxMainWindow::~wxMainWindow() {
@@ -692,13 +702,51 @@ void wxMainWindow::buildPlotMenu() {
 	m_menuPlotBelow = menu->AppendRadioItem(wxID_ANY, wxT("Debajo del editor"));
 	menu->AppendSeparator();
 	m_menuPlotRapids = menu->AppendCheckItem(wxID_ANY, wxString::FromUTF8("Dibujar los rápidos"));
+	m_menuPlotStock = menu->AppendCheckItem(wxID_ANY, wxT("Mostrar la pieza"));
+	m_menuPlot3D = menu->AppendCheckItem(wxID_ANY, wxT("Vista 3D\tCTRL+3"));
 	wxMenuItem *fit = menu->Append(wxID_ANY, wxT("Encuadrar la pieza\tCTRL+E"));
+	menu->AppendSeparator();
+	wxMenuItem *clear = menu->Append(wxID_ANY, wxT("Borrar las cotas medidas"));
 	m_menubar1->Insert(m_menubar1->GetMenuCount() - 1, menu, wxT("&Graficador"));   // antes de Ayuda
 	Bind(wxEVT_MENU, &wxMainWindow::togglePlot, this, m_menuPlotShow->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotRight->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotLayoutChanged, this, m_menuPlotBelow->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotRapids, this, m_menuPlotRapids->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotStock, this, m_menuPlotStock->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotView3D, this, m_menuPlot3D->GetId());
 	Bind(wxEVT_MENU, &wxMainWindow::plotFit, this, fit->GetId());
+	Bind(wxEVT_MENU, &wxMainWindow::plotClearDims, this, clear->GetId());
+}
+
+void wxMainWindow::plotView3D(wxCommandEvent &event) {
+	settings.plot_3d = m_menuPlot3D->IsChecked();
+	if (settings.plot_3d && !wxPlotPanel::View3DSupported()) {
+		settings.plot_3d = false;
+		m_menuPlot3D->Check(false);
+		m_statusBar->SetStatusText(wxT("Esta PC no tiene OpenGL: la vista 3D no está disponible"), 0);
+		return;
+	}
+	savePlotSettings();
+	m_plot->SetView3D(settings.plot_3d);
+	if (settings.plot_3d && !settings.plot_visible) {
+		settings.plot_visible = true;
+		applyPlotLayout();
+		savePlotSettings();
+		updatePlot();
+	}
+}
+
+void wxMainWindow::plotStock(wxCommandEvent &event) {
+	settings.plot_stock = m_menuPlotStock->IsChecked();
+	savePlotSettings();
+	if (plotVisible()) {
+		m_plot->SetShowStock(settings.plot_stock);
+		updatePlot();
+	}
+}
+
+void wxMainWindow::plotClearDims(wxCommandEvent &event) {
+	m_plot->ClearDimensions();
 }
 
 bool wxMainWindow::plotVisible() const {
@@ -711,7 +759,11 @@ void wxMainWindow::applyPlotLayout() {
 	m_menuPlotRight->Check(!settings.plot_below);
 	m_menuPlotBelow->Check(settings.plot_below);
 	m_menuPlotRapids->Check(settings.plot_rapids);
+	m_menuPlotStock->Check(settings.plot_stock);
 	m_plot->SetShowRapids(settings.plot_rapids);
+	m_plot->SetShowStock(settings.plot_stock);
+	m_plot->SetView3D(settings.plot_3d && settings.plot_visible);
+	m_menuPlot3D->Check(m_plot->GetView3D());
 	if (m_plotSplitter->IsSplit()) m_plotSplitter->Unsplit(m_plotPanel);
 	if (!settings.plot_visible) return;
 	wxSize sz = m_plotSplitter->GetClientSize();
@@ -734,12 +786,17 @@ void wxMainWindow::updatePlot() {
 	m_plot->SetPath(plot_path);
 	m_plot->SetCurrentLine(m_editor->GetCurrentLine());
 
+	// Mensajes del intérprete y de la simulación de la pieza (rápidos dentro del material)
+	plot_messages = plot_path.messages;
+	const TurnStock &stock = m_plot->GetFullStock();
+	plot_messages.insert(plot_messages.end(), stock.messages.begin(), stock.messages.end());
 	std::vector<int> errors, warnings;
-	for (size_t k = 0; k < plot_path.messages.size(); ++k) {
-		(plot_path.messages[k].error ? errors : warnings).push_back(plot_path.messages[k].line);
+	for (size_t k = 0; k < plot_messages.size(); ++k) {
+		(plot_messages[k].error ? errors : warnings).push_back(plot_messages[k].line);
 	}
 	m_editor->SetMessageMarks(errors, warnings);
 	wxString summary = wxString::Format(wxT("Graficador: %d tramos"), (int) plot_path.segments.size());
+	if (m_plot->HasStock()) summary += stock.cut_off ? wxT(", pieza tronzada") : wxT(", pieza sin tronzar");
 	if (!errors.empty()) summary += wxString::Format(wxT(", %d errores"), (int) errors.size());
 	if (!warnings.empty()) summary += wxString::Format(wxT(", %d avisos"), (int) warnings.size());
 	m_statusBar->SetStatusText(summary, 1);
@@ -812,8 +869,8 @@ void wxMainWindow::onEditorUpdateUI(wxStyledTextEvent &event) {
 	int line = m_editor->GetCurrentLine();
 	m_plot->SetCurrentLine(line);
 	const CncMessage *msg = NULL;
-	for (size_t k = 0; k < plot_path.messages.size(); ++k) {
-		if (plot_path.messages[k].line == line) { msg = &plot_path.messages[k]; break; }
+	for (size_t k = 0; k < plot_messages.size(); ++k) {
+		if (plot_messages[k].line == line) { msg = &plot_messages[k]; break; }
 	}
 	if (msg) {
 		m_statusBar->SetStatusText(wxString::Format(wxT("Línea %d: %s"), line + 1, wxString::FromUTF8(msg->text.c_str())), 0);

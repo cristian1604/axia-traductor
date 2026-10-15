@@ -1,7 +1,12 @@
 #include "wxAbout.h"
 #include "Version.h"
+#include "wxImageUtils.h"
 
 wxAbout::wxAbout(wxWindow *parent) : wxAboutBase(parent) {
+	// El logo se incrusta en alta resolución: se reduce a una altura razonable
+	// antes de fijar el tamaño, si no el diálogo crecería hasta los 954x343 de la imagen
+	m_bitmap5->SetBitmap(bitmap_scaled_to_height(m_bitmap5->GetBitmap(), FromDIP(72)));
+	Layout();
 	// Tamaño fijo del diseño en píxeles lógicos: se escala al DPI del monitor
 	SetSize(FromDIP(GetSize()));
 	Centre(wxBOTH);

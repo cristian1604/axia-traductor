@@ -13,7 +13,9 @@ el 100 % de los casos, pero convierte la gran mayoría de los programas 8025.
 
 ## Compilar
 
-Requiere CMake 3.16, un compilador C++14, wxWidgets 3.2 y SFML 2 (network y system).
+Requiere CMake 3.16, un compilador C++17, wxWidgets 3.2 y SFML 2 (network y system).
+[Clipper2] (booleanas de polígonos del simulador de pieza) viene incluido en
+`third_party/`, igual que `json.hpp`.
 
 Ubuntu / Debian:
 
@@ -91,9 +93,15 @@ suelen llevar datos de clientes).
   sección `[SERVER]` de ese archivo, el mismo `ab.ini` que usan `UDPserv` y
   `UDPcli`, y los campos `ip` y `port` de la entrada se ignoran. Es el valor por
   defecto, porque el puente cambió de IP y el `machines.json` quedó viejo.
+- **`tools.json`**, junto al ejecutable: herramientas del simulador de pieza
+  del graficador, por número (`role`: `exterior`, `interior`, `frenteo`,
+  `corte`, `angosta` o `auto`; `width` para el ancho de una cuchilla;
+  `nose_radius` para el radio de punta de una angosta). Se crea con la
+  convención del taller la primera vez y solo hace falta tocarlo si una
+  cuchilla tiene otro ancho o una herramienta especial otra función.
 - **`settings.json`**, por usuario, en `%APPDATA%\axia-traductor` (Windows) o
   `~/.config/axia-traductor` (Linux): colores, opciones de conversión, último
-  torno y último nombre de archivo usados.
+  torno y último nombre de archivo usados, y estado del graficador.
 
 ## Conversiones 8025 → 8035
 
@@ -145,6 +153,27 @@ encuadrar. Se actualiza solo al editar. Interpreta 8025, 8035/8037 y FANUC
 (`CncPath.cpp`); los ciclos fijos y las cotas paramétricas se marcan como no
 soportados. La disposición y el estado se recuerdan en `settings.json`.
 
+Con "Mostrar la pieza" dibuja además la sección de la pieza que va quedando
+hasta la línea actual (`TurnStock.cpp`, booleanas de polígonos exactas con
+Clipper2): el bruto sale del encabezado del generador (`#ODR`/`#IDR` o la
+línea `T4 70 110`) o se estima; las herramientas se modelan por su función
+según la convención del taller (T1, T4 y T5 corte; T2 exterior; T3, T7 y
+correctores 21 a 29 interior; T6 y T8 a T19 angostas de punta redonda para
+ranurado frontal, respetando G41/G42), sin cargar catálogos; las ranuras
+hechas con cuchilla se dibujan con un ancho supuesto de 3 mm y se marcan. Tras el tronzado queda
+solo la pieza. Un rápido que atraviesa material se marca como error en el
+editor. Para medir: el puntero se engancha a los vértices del perfil y
+muestra sus X y Z; un clic fija un punto y el segundo deja una cota con ΔX
+en diámetro y en radio, ΔZ y distancia. Retroceso borra la última cota y
+Escape todas.
+
+"Vista 3D" (Ctrl+3) muestra la pieza girada alrededor del eje con OpenGL de
+función fija (`wxTurnView3D.cpp`, corre en cualquier PC): en corte, con la
+mitad de adelante quitada y las caras de la sección a la vista, siguiendo
+también la línea del cursor. Arrastrar orbita, el botón derecho desplaza, la
+rueda acerca, Inicio encuadra, C alterna el corte y T la trayectoria. Sin
+OpenGL, el menú lo avisa y queda el 2D.
+
 ## Envío a tornos
 
 `Enviar programa a torno` (F2) abre un diálogo con la lista de `machines.json`.
@@ -185,3 +214,4 @@ un torno: un error de conversión puede causar daños o lesiones.
 [SFML]: <https://www.sfml-dev.org/>
 [wxWidgets]: <https://www.wxwidgets.org/>
 [nlohmann/json]: <https://github.com/nlohmann/json>
+[Clipper2]: <https://github.com/AngusJohnson/Clipper2>

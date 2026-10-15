@@ -1,6 +1,9 @@
-// Herramienta de depuración: interpreta un programa y lista sus tramos y avisos.
-// Uso: cncpath_dump <archivo> [8025|8035|fanuc]   (por defecto 8025)
+// Herramienta de depuración: interpreta un programa y lista sus tramos y avisos,
+// y luego simula la pieza y lista los vértices de su sección.
+// Uso: cncpath_dump <archivo> [8025|8035|fanuc] [línea]   (por defecto 8025 y el
+// programa completo; con línea, simula la pieza solo hasta esa línea, desde 1)
 #include "../CncPath.h"
+#include "../TurnStock.h"
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -44,5 +47,25 @@ int main(int argc, char **argv) {
 	for (size_t k = 0; k < p.messages.size(); ++k)
 		printf("%s linea %d: %s\n", p.messages[k].error ? "ERROR" : "AVISO", p.messages[k].line + 1, p.messages[k].text.c_str());
 	printf("%zu tramos, %zu avisos\n", p.segments.size(), p.messages.size());
+
+	ToolTable tools = default_tool_table();
+	StockDefinition st = stock_from_path(p, tools);
+	if (!st.valid()) {
+		printf("SIN BRUTO: no se simula la pieza\n");
+		return 0;
+	}
+	printf("--- pieza: bruto X%.3f / X%.3f%s, Z de %.3f a %.3f\n", st.outer_diameter, st.inner_diameter,
+	       st.deduced ? " (estimado)" : "", st.z_face, st.z_end);
+	int up_to = (argc > 3) ? atoi(argv[3]) - 1 : -1;
+	TurnStock s = simulate_stock(p, st, tools, up_to);
+	for (size_t k = 0; k < s.rings.size(); ++k) {
+		printf("ANILLO %zu (%zu vertices)\n", k + 1, s.rings[k].size());
+		for (size_t i = 0; i < s.rings[k].size(); ++i) printf("   Z%11.5f  X%11.5f\n", s.rings[k][i].z, s.rings[k][i].x());
+	}
+	for (size_t k = 0; k < s.assumed.size(); ++k)
+		printf("RANURA de ancho supuesto en Z [%.3f, %.3f] (linea %d, T%d)\n", s.assumed[k].z_from, s.assumed[k].z_to, s.assumed[k].line + 1, s.assumed[k].tool);
+	for (size_t k = 0; k < s.messages.size(); ++k)
+		printf("%s linea %d: %s\n", s.messages[k].error ? "ERROR" : "AVISO", s.messages[k].line + 1, s.messages[k].text.c_str());
+	printf("area %.4f, tronzado: %s\n", s.area(), s.cut_off ? "si" : "no");
 	return 0;
 }
