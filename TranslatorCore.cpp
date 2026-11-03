@@ -278,7 +278,9 @@ string program_name_8035(const string &source, const string &preferred) {
 		size_t b = line.find_first_not_of(" \t\r");
 		if (b != string::npos) {
 			if (line[b] == '%') {
-				percent_digits = sanitize_program_name(line.substr(b + 1));
+				// Solo la primera palabra: "%00001 (comentario)" da "00001"
+				size_t end = line.find_first_of(" \t\r", b + 1);
+				percent_digits = sanitize_program_name(line.substr(b + 1, end == string::npos ? string::npos : end - b - 1));
 				break;
 			}
 			string lower;
@@ -344,6 +346,12 @@ string translate_8025_to_8035_text(const string &source, const TranslationSettin
 					translated += header_8035;
 					if (!comments.empty()) translated += '\n' + comments.substr(0, comments.size() - 1);
 					comments_inserted = true;
+					// Si en la línea del '%' hay algo más (un comentario), va en una línea propia
+					size_t rest = line.find_first_not_of(" \t\r");
+					if (rest != string::npos) {
+						translated += '\n';
+						line = line.substr(rest);
+					}
 				}
 				break;
 			case 'A':
@@ -389,9 +397,6 @@ string translate_8025_to_8035_text(const string &source, const TranslationSettin
 			if (comments_inserted && sentence[0] != '%') {
 				translated += sentence;
 				prevSentence = sentence;
-			}
-			if (comments_inserted && sentence[0] == '%') {
-				translated += ';';
 			}
 		}
 		translated += '\n';
