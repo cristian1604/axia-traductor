@@ -32,23 +32,25 @@ jobs:
           path: dist
 
   windows:
-    name: Windows (MSYS2 MinGW 64)
+    name: Windows (MSYS2 UCRT64)
     runs-on: windows-latest
     defaults:
       run:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@v5
+      # UCRT64 y no MINGW64: MSYS2 dejó de publicar los paquetes MINGW64
+      # (aviso del 2026-10-24) y la instalación fallaba en pacman.
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: UCRT64
           update: true
           install: >-
             git
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-wxwidgets3.2-msw
+            mingw-w64-ucrt-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
       - name: Configurar
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
       - name: Compilar
@@ -64,7 +66,7 @@ jobs:
           # Diagnóstico del enlace UDP con el FANUC (ver docs/release-notes.md)
           cp build/udp_send.exe tests/udp-capture.ps1 dist/traductor/
           # DLLs de MinGW/wxWidgets que usa el ejecutable
-          ldd dist/traductor/traductor.exe | grep -i '/mingw64/' | awk '{print $3}' | sort -u | xargs -I{} cp {} dist/traductor/
+          ldd dist/traductor/traductor.exe | grep -i '/ucrt64/' | awk '{print $3}' | sort -u | xargs -I{} cp {} dist/traductor/
           ls -la dist/traductor
       - uses: actions/upload-artifact@v5
         with:

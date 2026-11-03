@@ -26,10 +26,11 @@ cmake --build build -j
 ./build/traductor
 ```
 
-Windows (MSYS2, terminal "MSYS2 MinGW 64-bit"):
+Windows (MSYS2, terminal "MSYS2 UCRT64"; el entorno MINGW64 está en retirada
+desde 2026-10 y sus paquetes dejan de publicarse):
 
 ```
-pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-wxwidgets3.2-msw
+pacman -S mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
 cmake -S . -B build -G Ninja
 cmake --build build
 ```
